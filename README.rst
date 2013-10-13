@@ -8,7 +8,7 @@ Technologies utilisées :
 
 **Python :**
 
-- Python 2.7.x
+- Python 2.7 (http://python.org/)
 - Flask (http://flask.pocoo.org)
 - Flask-login (https://flask-login.readthedocs.org/en/latest/)
 - sqlalchemy (http://www.sqlalchemy.org/)
@@ -28,4 +28,4 @@ Technologies utilisées :
 
 **Base de données :**
 
-- Postgresql
+- Postgresql (http://www.postgresql.org/)
