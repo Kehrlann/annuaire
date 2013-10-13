@@ -1,4 +1,4 @@
-annuaire
+Annuaire
 ========
 
 Annuaire pour alumni
