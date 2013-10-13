@@ -1,4 +1,0 @@
-Annuaire
-========
-
-Annuaire pour alumni
