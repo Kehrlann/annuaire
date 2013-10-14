@@ -1,11 +1,22 @@
+================
 Annuaire anciens
-===========
+================
 
 Ceci est une application d'annuaire des Anciens,  écrite en Python.
 
-Technologies utilisées :
+
+Installation :
+==============
+Fichier de configuration :
 --------------------------
 
+
+
+
+
+
+Technologies utilisées :
+========================
 **Python :**
 
 - Python 2.7 (http://python.org/)
