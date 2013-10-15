@@ -23,7 +23,9 @@ Pour utiliser une configuration externe, faire pointer la variable d'environneme
 
 Lancement de l'application sans serveur web :
 ---------------------------------------------
-Flask permet de lancer l'application sans configurer de serveur web. Il suffit de lancer **runserver.py**. L'application sera disponible sur http://localhost:5000/. Note : vérifier que le fichier de config contient bien ``` DEFAULT_SUBDOMAIN = '' ```
+Flask permet de lancer l'application sans configurer de serveur web. Il suffit de lancer **runserver.py**. L'application sera disponible sur http://localhost:5000/. Note : vérifier que le fichier de config contient bien:: 
+
+  DEFAULT_SUBDOMAIN = ''
 
 
 
