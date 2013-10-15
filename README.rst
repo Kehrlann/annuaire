@@ -16,7 +16,7 @@ Les schémas sont disponibles dans /database . Cette application a été conçue
 
 Fichier de configuration :
 --------------------------
-Le fichier de configuration est **/annuaire_anciens/config.py**. Il est utilisé par défaut lorsqu'aucune configuration externe n'est disponible. Les instructions pour le remplir sont directement dans le fichier, en commentaire.
+Le fichier de configuration est **/annuaire_anciens/config.py**. Il est utilisé par défaut lorsqu'aucune configuration externe n'est disponible. Les instructions pour le remplir sont directement dans le fichier, en commentaire. Pensez à choisir votre propre clef secrète !
 
 Pour utiliser une configuration externe, faire pointer la variable d'environnement **ANNUAIRE_CONFIG** vers son emplacement. Si **ANNUAIRE_CONFIG** ne pointe pas vers le fichier, ou que le fichier est incorrect, la config par défaut est utilisée. Un fichier de configuration externe est particulièrement utile pour un déploiement avec WSGI.
 
