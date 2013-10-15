@@ -1,0 +1,90 @@
+<!-- helpers pour render les box pour les comptes -->
+{% macro render_edit_box(link, label, sublabel="") %}
+<li class="span2">
+    <div class="thumbnail custom-thumbnail">
+        <div class="custom-thumbnail-content">
+            <h5>{{ label }}</h5>
+            {% if sublabel != "" %}
+                <h6 class="custom-sublabel">{{ sublabel }}</h6>
+            {% endif %}
+        </div>
+        <a href="{{ link }}" role="button" class="btn btn-success"><i class="icon-pencil icon-white"></i></a>
+    </div>
+</li>
+{% endmacro %}
+
+{% macro render_add_box(label, link) %}
+<li class="span2">
+    <div class="thumbnail custom-thumbnail">
+        <div class="custom-thumbnail-content">
+            <h5>{{ label }}</h5>
+        </div>
+        <a href="{{ link }}" role="button" class="btn btn-success"><i class="icon-plus icon-white"></i></a>
+    </div>
+</li>
+{% endmacro %}
+
+{% macro render_edit_remove_box(label, sublabel, link_edit, link_remove, token) %}
+<li class="span2">
+    <div class="thumbnail custom-thumbnail">
+        <div class="custom-thumbnail-content">
+            <h5>{{ label }}</h5>
+            {% if sublabel != "" %}
+                <h6 class="custom-sublabel">{{ sublabel }}</h6>
+            {% endif %}
+        </div>
+        <form action="{{ link_remove }}" method="POST" style="margin-bottom: 0;">
+            {{ token|hidden|safe }}
+            <a href="{{ link_edit }}" role="button" class="btn btn-success"><i class="icon-pencil icon-white"></i></a>
+            <button type="submit" role="button" class="btn btn-danger"><i class="icon-remove icon-white"></i></button>
+        </form>
+    </div>
+</li>
+{% endmacro %}
+
+{% macro render_error_box(label) %}
+    <li class="span2">
+        <div class="thumbnail custom-thumbnail">
+            <div class="custom-thumbnail-content">
+                <h5>{{ label }}</h5>
+            </div>
+            <a role="button" class="btn disabled"><i class="icon-ban-circle"></i></a>
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro render_linkedin_connect_box(ancien, url, token) %}
+{% if ancien != None and ancien['url_linkedin'] == None %}
+    <li class="span2">
+        <div class="thumbnail custom-thumbnail">
+            <div class="custom-thumbnail-content">
+                <h5>Connectez votre compte LinkedIn</h5>
+            </div>
+            <a href="{{ url }}"><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
+        </div>
+    </li>
+{% elif ancien != None %}
+    <li class="span2">
+        <div class="thumbnail custom-thumbnail">
+            <div class="custom-thumbnail-content">
+                <h5>Dissociez votre compte LinkedIn</h5>
+            </div>
+            <form action="{{ url_for('disconnect_linkedin') }}" method="POST" style="margin-bottom: 0;">
+                {{ token|hidden|safe }}
+                <button type="submit" role="button" class="btn btn-danger"><i class="icon-remove icon-white"></i></button>
+            </form>
+        </div>
+    </li>
+{% endif %}
+{% endmacro %}
+
+{% macro render_linkedin_import_box(url) %}
+    <li class="span2">
+        <div class="thumbnail custom-thumbnail">
+            <div class="custom-thumbnail-content">
+                <h5>Importez vos expériences depuis LinkedIn</h5>
+            </div>
+            <a href="{{ url }}"><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
+        </div>
+    </li>
+{% endmacro %}

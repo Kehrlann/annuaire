@@ -1,0 +1,36 @@
+{% extends "layout/layout_mono.html" %}
+
+{% block navbar %}
+    {% with utilisateur = None %}
+        {% include "layout/_navbar.html" %}
+    {% endwith %}
+{% endblock %}
+
+{% block header %}
+    <h1>Modifier mes infos personnelles</h1>
+{% endblock %}
+
+{% block content %}
+{% from "helper/_formhelper.html" import render_field_error, render_uneditable %}
+<div class="row">
+    <div class="span6 offset3 custom-ancien-container">
+        <form class="form form-horizontal" method=POST action='{{ url_for("update_info_perso") }}'>
+            {{ csrf_token()|hidden|safe }}
+            {{ render_uneditable(ancien_form.nom) }}
+            {{ render_uneditable(ancien_form.promo) }}
+            {{ render_uneditable(ancien_form.diplome) }}
+            {{ render_field_error(ancien_form.telephone, class="custom-input-width") }}
+            {{ render_field_error(ancien_form.mobile, class="custom-input-width") }}
+            {{ render_field_error(ancien_form.site, class="custom-input-width") }}
+            {{ render_field_error(ancien_form.mail_perso, class="custom-input-width") }}
+            {{ render_uneditable(ancien_form.mail_asso) }}
+            <div class="control-group">
+                <div class="controls">
+                    <button type="submit" class="btn btn-primary">Mettre &agrave; jour</button>
+                    <a href="{{ url_for("compte") }}" role="button" class="btn">Annuler</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

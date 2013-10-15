@@ -1,0 +1,79 @@
+{# Rendering par défaut des formulaires. Contient :
+    - render_field :            WTForms.Field basique
+    - render_filed_error :      WTForms.Field avec outline rouge si erreur
+    - render_perso_pro :        render les deux checkbox "Adresses pros" et "adresses persos"
+    - render-date-field :       jQuery datepicker au format MM/yyyy
+    - hidden_field :            champ caché, principalement pour les csrf_tokens
+    - render_uneditable :       field non éditable
+    #}
+
+{% macro render_field(field) %}
+<div class="control-group">
+		{{ field.label(class="control-label") }}
+		<div class="controls">{{ field(**kwargs)|safe }}</div>
+</div>
+{% endmacro %}
+
+{% macro render_field_error(field) %}
+{% if not field.errors %}
+<div class="control-group">
+    {{ field.label(class="control-label custom-bold") }}
+    <div class="controls">{{ field(**kwargs)|safe }}</div>
+</div>
+{% else %}
+<div class="control-group error">
+    {{ field.label(class="control-label custom-bold") }}
+    <div class="controls">{{ field(**kwargs)|safe }}
+    <span class="help-inline">{{ field.errors[0]|safe }}</span>
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro render_radio(field) %}
+<div class="control-group">
+    <label class="control-label">{{ field.label }}</label>
+    <div class="controls">
+        {% for subfield in field %}
+            {{ subfield }}{{ subfield.label(class="radio inline custom-padding-right") }}
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+
+
+{% macro render_date_field(field) %}
+{% if not field.errors %}
+    <div class="control-group">
+        {{ field.label(class="control-label custom-bold") }}
+        <div class="controls">
+            <input id="{{ field.id }}" name="{{ field.name }}" class="custom-input-width" type="text" data-date-minviewmode="months" data-date-viewmode="months" data-date-format="mm/yyyy" data-date="{{ field.data|date_to_month }}" value="{{ field.data|date_to_month }}" autocomplete="off">
+        </div>
+    </div>
+{% else %}
+    <div class="control-group error">
+        {{ field.label(class="control-label custom-bold") }}
+        <div class="controls">
+            <input id="{{ field.id }}" name="{{ field.name }}" class="custom-input-width" type="text" data-date-minviewmode="months" data-date-viewmode="months" data-date-format="mm/yyyy" data-date="{{ field.data|date_to_month }}" value="{{ field.data|date_to_month }}" autocomplete="off">
+            <span class="help-inline">{{ field.errors[0]|safe }}</span>
+        </div>
+    </div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro hidden_field(field) %}
+<input type="hidden" name="{{ field.name }}" value="">
+{% endmacro %}
+
+{% macro render_uneditable(field) %}
+    <div class="control-group">
+    {{ field.label(class="control-label custom-bold") }}
+        <div class="controls">
+            <span class="input uneditable-input custom-input-width">{{ field.data|escape_none }}</span>
+        </div>
+    </div>
+{% endmacro %}
+

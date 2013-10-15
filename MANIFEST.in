@@ -1,0 +1,3 @@
+recursive-include annuaire_anciens/templates *
+recursive-include annuaire_anciens/static *
+recursive-include annuaire_anciens/var *

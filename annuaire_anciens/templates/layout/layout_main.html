@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title> {% block title %}Ancien Intermines{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">  
+
+        <!-- Le jQuery, mother of everything -->
+        {% if jquery_cdn != None %}
+            <script type="text/javascript" src="{{ jquery_cdn }}"></script>
+        {% else %}
+            <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-1.8.3.min.js') }}"></script>
+        {% endif %}
+
+
+        <!-- Le bootstrap (functional, and stylish). -->
+        {% if bootstrap_css_cdn != None %}
+            <link href="{{bootstrap_css_cdn }}" rel="stylesheet">
+        {% else %}
+            <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet">
+            <link href="{{ url_for('static',filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">
+        {% endif %}
+
+        {% if bootstrap_js_cdn != None %}
+            <script type="text/javascript" src="{{ bootstrap_js_cdn }}"></script>
+        {% else %}
+            <script type="text/javascript" src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+        {% endif %}
+
+        <!-- Le analytics, to spy on you. -->
+        {% if google_analytics != None %}
+            {{ google_analytics }}
+        {% endif %}
+
+        <!-- Le custom stuff. -->
+        <script type="text/javascript" src="{{ url_for('static',filename='js/annuaire.js') }}"></script>
+        <link href="{{ url_for('static',filename='css/custom.css') }}" rel="stylesheet">
+
+        <!-- Le user scripts. -->
+        {% block additional_scripts %}{% endblock %}
+
+
+    </head>
+    <body id="body">
+    
+        <!-- Le user navbar -->
+        <div class="navbar navbar-inverse navbar-fixed-top">
+             <div class="navbar-inner">
+                <div class="container">
+                    {% block navbar %}
+                        <a class="brand" href="{{ url_for('login') }}">Annuaire Mines</a>
+                        <a class='navbar-text custom-no-hover'>Bonjour. Avant de commencer &agrave; utiliser l'annuaire, veuillez vous identifier.</a>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Le header -->
+        <header class="subhead" id="overview">
+            <div class="container">
+                {% block header %}
+                    <h1>Annuaire des anciens des Mines</h1>
+                    <p class="lead">Annuaire des anciens des Mines de Paris, Saint-Etienne et Nancy.</p>
+                {% endblock %}
+            </div>
+        </header>
+
+    
+        <!-- Le page-defined layout. -->
+        {% block layout %}{% endblock %}
+        
+        <!-- Le modal block, to cram all your modal windows -->
+        {% block modal %}{% endblock %}
+    </body>
+</html>

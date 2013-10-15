@@ -1,0 +1,86 @@
+{% extends "layout/layout_mono.html" %}
+{% from "user/_compte_helper.html" import
+                render_edit_box,
+                render_add_box,
+                render_edit_remove_box,
+                render_error_box,
+                render_linkedin_connect_box,
+                render_linkedin_import_box %}
+
+{% block title %}Anciens Intermines{% endblock %}
+
+{% block navbar %}
+    {% include "layout/_navbar.html" %}
+{% endblock %}
+
+{% block header %}
+    {% if ancien != None%}
+        <h1>Administrer mon compte</h1>
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+    {% with token = csrf_token() %}
+
+    <div class="row custom-ancien-container">
+        <div class="span8 offset2">
+            <!-- preview account -->
+            {% if ancien != None %}
+            <p style="text-align:center;">
+                <a href="{{ url_for("ancien", id_ancien=ancien['id_ancien']) }}" class="btn btn-large btn-info" type="button" target="_blakn">
+                Pr&eacute;visualiser mon profil</a>
+            </p>
+            {% endif %}
+
+            <!-- Flashes -->
+            {% include "helper/_flashes.html" %}
+
+            <!-- Donnees du compte -->
+            <div class="custom-cadre-header">Mon compte Intermines :</div>
+            <div class="custom-cadre">
+                <ul class="thumbnails custom-thumbnails">
+                {{ render_edit_box(url_for('update_password'), "Changer mon mot de passe") }}
+            {% if ancien != None %}
+                {{ render_linkedin_connect_box(ancien, linkedin_url, token) }}
+            {% endif %}
+                </ul>
+            </div>
+
+            <!-- Infos perso -->
+            {% if ancien != None %}
+            <div class="custom-cadre-header">Mes informations de l'annuaire :</div>
+            <div class="custom-cadre">
+                <ul class="thumbnails custom-thumbnails">
+                {{ render_edit_box(url_for('update_info_perso'), "Infos personnelles") }}
+                {{ render_edit_box(url_for('update_photo'), "Photo") }}
+                {{ render_edit_box(url_for('update_adresse'), "Adresse personnelle", adresse) }}
+                </ul>
+            </div>
+
+            <!-- Experiences Pro -->
+            {% if experiences != None %}
+            <div class="custom-cadre-header">
+                Experiences professionnelles :
+            </div>
+            <div class="custom-cadre">
+                <ul class="thumbnails custom-thumbnails">
+                {% for exp in experiences %}
+                {{ render_edit_remove_box(
+                        exp['entreprise_nom'],
+                        exp['experience_poste'],
+                        url_for('update_experience', id_experience=exp['experience_id_experience']),
+                        url_for('remove_experience', id_experience=exp['experience_id_experience']),
+                        token
+                        ) }}
+                {% endfor %}
+                {{ render_add_box("Ajouter une entreprise", url_for('update_experience')) }}
+                {{ render_linkedin_import_box(import_linkedin_url) }}
+                </ul>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endwith %}
+{% endblock %}

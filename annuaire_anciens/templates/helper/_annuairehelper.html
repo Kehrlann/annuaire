@@ -1,0 +1,60 @@
+{# Rendering par défaut des formulaires. Contient :
+    - render_field :            WTForms.Field basique
+    - render_filed_error :      WTForms.Field avec outline rouge si erreur
+    - render_perso_pro :        render les deux checkbox "Adresses pros" et "adresses persos"
+    - render-date-field :       jQuery datepicker au format MM/yyyy
+    - hidden_field :            champ caché, principalement pour les csrf_tokens
+    - render_uneditable :       field non éditable
+    #}
+
+
+{% macro render_ville(ville, code, pays) %}
+    {% if ville != None %}
+        {{ ville }}
+    {% endif %}
+    {% if code != None %}
+        {{ code }}
+    {% endif %}
+    {% if pays != None %}
+        (<i>{{ pays }}</i>)
+    {% endif %}
+{% endmacro %}
+
+{% macro render_pagination(pagination) %}
+    {% if pagination != None %}
+<div class="pagination pagination-centered">
+
+    <!-- Le bootstrap pagination module -->
+    <ul>        
+        <li><a href="#" onClick='intermines_pagination_page("{{ url_for("tableau_anciens", page=pagination.first) }}")'>&lt;&lt;</a></li>
+        <li><a href="#" onClick='intermines_pagination_page("{{ url_for("tableau_anciens", page=pagination.previous) }}")'>&lt;</a></li>
+        {% if pagination.has_hidden_prev() %}
+        <li class="disabled"><a href="#">...</a></li>
+        {% endif %}
+        
+        {% for p in pagination.get_prev_list() %}
+        <li><a href="#" onClick='intermines_pagination_page("{{ url_for("tableau_anciens", page=p) }}")'>{{ p }}</a></li>
+        {% endfor %}
+        <li class="active"><a href="#">{{ pagination.current }}</a></li>
+        {% for n in pagination.get_next_list() %}
+        <li><a href="#" onClick='intermines_pagination_page("{{ url_for("tableau_anciens", page=n) }}")'>{{ n }}</a></li>
+        {% endfor %}
+        
+        {% if pagination.has_hidden_next() %}
+        <li class="disabled"><a href="#">...</a></li>
+        {% endif %}
+        <li><a href="#" onClick='intermines_pagination_page("{{ url_for("tableau_anciens", page=pagination.next) }}")'>&gt;</a></li>
+        <li><a href="#" onClick='intermines_pagination_page("{{ url_for("tableau_anciens", page=pagination.last) }}")'>&gt;&gt;</a></li>
+    </ul>
+</div>
+    {% endif %}
+{% endmacro %}
+
+
+{% macro nullable(value) %}
+    {% if value != None %}
+        {{ value }}
+    {% else %}
+        &nbsp;
+    {% endif %}
+{% endmacro %}

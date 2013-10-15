@@ -1,0 +1,30 @@
+{% extends "layout/layout_mono.html" %}
+
+{% block navbar %}
+    {% with utilisateur = None %}
+        {% include "layout/_navbar.html" %}
+    {% endwith %}
+{% endblock %}
+
+{% block header %}
+    <h1>Demande d'inscription</h1>
+{% endblock %}
+
+{% block content %}
+{% from "helper/_formhelper.html" import render_field_error %}
+<div class="row">
+    <div class="span6 offset3 custom-ancien-container">
+        <p class="custom-justify">
+            <br />
+            Une demande de cr&eacute;ation de compte a d&eacute;j&agrave; eu lieu pour cette adresse mail. Si vous le
+            souhaitez, vous pouvez demander un nouveau mail de confirmation de compte. L'envoi de mail se fera dans les
+            24h.
+        </p>
+        <p class="custom-center">
+            <br />
+            <a href="{{ url_for("resend", id_ancien=id_ancien) }}" class="btn btn-success">Renvoyez-moi un mail</a>
+            <a href="{{ url_for("login") }}" class="btn btn-danger">Annuler</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

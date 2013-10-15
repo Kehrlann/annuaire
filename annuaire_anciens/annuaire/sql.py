@@ -1,0 +1,880 @@
+# coding=utf-8
+"""
+Module d'interaction avec les objets "anciens" de la base de données.
+TODO : décrire le schéma de bdd
+TODO : séparer les fonctions de lecture et d'écriture
+"""
+
+import sys
+sys.path.append('..')
+from annuaire_anciens import engine, connection
+from sqlalchemy import Table, MetaData, or_, and_, select, desc, func
+import annuaire_anciens.helper as helper
+from datetime import date
+
+
+# set up the module with the connection and stuff
+__engine = engine
+__metadata = MetaData()
+__connection = connection
+
+# set up the tables
+__pays = Table('pays', __metadata, autoload=True, autoload_with=__engine)
+__ville = Table('ville', __metadata, autoload=True, autoload_with=__engine)
+__adresse = Table('adresse', __metadata, autoload=True, autoload_with=__engine)
+__asso_ancien_adresse = Table('asso_ancien_adresse', __metadata, autoload=True, autoload_with=__engine)
+__entreprise = Table('entreprise', __metadata, autoload=True, autoload_with=__engine)
+__experience = Table('experience', __metadata, autoload=True, autoload_with=__engine)
+__ancien = Table('ancien', __metadata, autoload=True, autoload_with=__engine)
+
+__entreprise_interne = __entreprise.alias()
+__villePerso = __ville.alias()
+__villePro = __ville.alias()
+
+
+
+
+
+def annuaire_search(form, offset = 0, limit =0):
+    """
+    Recerche un ancien dans l'annuaire selon les critères specifiés dans le form
+
+    @param form: annuaire.form.SearchForm
+    @param offset: int, démarrer la requête au  rang X
+    @param limit: int, prendre Y résultats
+    @return:
+    """
+    aaa = __asso_ancien_adresse
+
+    from_obj = _get_from_object(form)
+    from_obj = from_obj.outerjoin(
+        aaa, and_(__ancien.c.id_ancien == aaa.c.id_ancien, aaa.c.actif == True)
+    ).outerjoin(
+        __adresse, aaa.c.id_adresse == __adresse.c.id_adresse
+    ).outerjoin(
+        __ville, __adresse.c.id_ville == __ville.c.id_ville
+    ).outerjoin(
+        __pays, __ville.c.id_pays == __pays.c.id_pays
+    ).outerjoin(
+        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien, __experience.c.actif == True)
+    ).outerjoin(
+        __entreprise, __experience.c.id_entreprise == __entreprise.c.id_entreprise
+    )
+
+    sel = select(
+    [
+        __ancien.c.id_ancien,
+        __ancien.c.prenom,
+        __ancien.c.nom,
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ville.c.nom,
+        __adresse.c.code,
+        __entreprise.c.nom,
+        __pays.c.nom
+    ],
+    from_obj=from_obj,
+    use_labels=True
+    ).order_by(
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ancien.c.nom,
+        __ancien.c.prenom)
+
+    sel = sel.distinct()
+    sel = sel.offset(offset).limit(limit)
+
+    return _filter_search(form, sel)
+
+
+def count_annuaire_search(form):
+    """
+    Compter les anciens dans l'annuaire en fonction d'un formulaire
+    @param form: formulaire de filtrage
+    @rtype: int
+    @return: le nombre d'anciens qui satisfont FORM
+    """
+    from_obj = _get_from_object(form)
+    sel = select([func.count(__ancien.c.id_ancien.distinct())], from_obj=from_obj)
+    return _filter_search(form, sel).first()[0]
+
+
+def _get_from_object(form):
+    """
+    Crée from_object à la mode pour une requete SQL. Permet d'alléger les requêtes en ne prenant que les champs
+    qui sont nécessaires et en limitant les join.
+
+    Par exemple,
+    if !(form.estPerso.data or form.estPro.data):
+        alors on ne join pas les tables d'adresses
+
+    @param form: annuaire.form.SearchForm
+    @return: sqlalchemy.core.from
+    """
+
+    from_obj = __ancien
+
+    ville = None
+
+    if form.ville.data != '':
+        ville = form.ville.data
+
+    pays_id = None
+
+    if form.pays.data != '':
+        pays_id = int(form.pays.data)
+
+    search_adresse = (pays_id is not None or ville is not None)
+
+    entreprise = form.entreprise.data
+
+    if entreprise is not None and entreprise != '':
+        exp = __experience.alias()
+        from_obj = from_obj.join(exp).join(__entreprise_interne)
+
+
+    if search_adresse:
+        ex = __experience.alias()
+        ad_pro = __adresse.alias()
+        aaa = __asso_ancien_adresse.alias()
+        ad_perso = __adresse.alias()
+
+        from_obj = from_obj.join(ex, __ancien.c.id_ancien == ex.c.id_ancien)
+        from_obj = from_obj.join(ad_pro, ad_pro.c.id_adresse == ex.c.id_adresse)
+        from_obj = from_obj.join(__villePro, __villePro.c.id_ville == ad_pro.c.id_ville)
+
+        from_obj = from_obj.join(aaa, __ancien.c.id_ancien == aaa.c.id_ancien)
+        from_obj = from_obj.join(ad_perso, ad_perso.c.id_adresse == aaa.c.id_adresse)
+        from_obj = from_obj.join(__villePerso, __villePerso.c.id_ville == ad_perso.c.id_ville)
+
+    return from_obj
+
+
+def _filter_search(form, sel):
+    """
+    Filtrer une requête select en fonction d'un FORM
+    @param form: formulaire de filtrage
+    @param sel: select query, soit un count soit un requete classique
+    @return: sel.WHERE(form)
+    """
+    nom = form.nom.data
+
+    prenom = form.prenom.data
+
+    ecole = form.ecole.data
+
+    promo = form.promo.data
+
+    entreprise = None
+
+    if form.entreprise.data != '':
+        entreprise = form.entreprise.data
+
+    ville = None
+
+    if form.ville.data != '':
+        ville = form.ville.data
+
+    pays_id = None
+
+    if form.pays.data != '':
+        pays_id = int(form.pays.data)
+
+    perso_pro = form.adresse.data == 'deux'
+
+    est_perso = perso_pro or form.adresse.data == 'perso'
+
+    est_pro = perso_pro or form.adresse.data == 'pro'
+
+    search_adresse = (pays_id is not None or ville is not None)
+
+    # Filtrer par nom
+    if nom is not None and nom != '':
+        sel = sel.where(_slug_raw_input_by_column(__ancien.c.nom_slug, nom))
+
+    # Filtrer par prénom
+    if prenom is not None and prenom != '':
+        sel = sel.where(_slug_raw_input_by_column(__ancien.c.prenom_slug, prenom))
+
+    # Filtrer par entreprise
+    if entreprise is not None:
+        sel = sel.where(_slug_raw_input_by_column(__entreprise_interne.c.slug, entreprise))
+
+    # Filtrer par adresse, perso et/ou pro
+    if search_adresse:
+        filtre_ville = _where_ville(ville, est_perso, est_pro)
+        filtre_pays = _where_pays(pays_id, est_perso, est_pro)
+
+        if filtre_ville is not None:
+            sel = sel.where(filtre_ville)
+        if filtre_pays is not None:
+            sel = sel.where(filtre_pays)
+
+    # filtrer par école
+    if ecole is not None and ecole != '':
+        sel = sel.where(__ancien.c.ecole == ecole)
+
+    # filtrer par promo
+    if promo is not None and promo !='':
+        sel = _refine_by_promo(sel, promo) # no slug, post-traitement
+
+    res = __connection.execute(sel)
+    return res
+
+
+def find_ancien_by_id(id_ancien):
+    """
+    Rechercher un ancien par id
+
+    @param id_ancien: int
+    @return: SELECT DISTINCT * FROM ancien WHERE id_ancien = id_ancien;
+    """
+    sel = select([__ancien], __ancien.c.id_ancien == id_ancien).distinct()
+    res = __connection.execute(sel)
+    return res.first()
+
+
+def find_ancien_by_mail_asso(mail_asso):
+    """
+    Rechercher un ancien par son "mail à vie" de l'association
+
+    @param mail_asso: mail@mines-paris.org (ou mines-nancy.org ou mines-saint-etienne.org)
+    @return:
+        - SELECT DISTINCT * FROM ancien WHERE mail_asso = mail_asso;
+        - First result only
+        - NONE if not found
+    """
+    sel = select([__ancien], __ancien.c.mail_asso == mail_asso).distinct()
+    res = __connection.execute(sel).first()
+    return res
+
+
+
+def find_adresse_by_id_ancien(id_ancien):
+    """
+    Rechercher une adresse par id_ancien
+
+    @param id_ancien:
+    @return: Select * from adresse join asso where asso.id_ancien=truc
+    """
+    if id_ancien is not None and type(id_ancien) is int:
+        aaa = __asso_ancien_adresse
+        sel = select(
+            [__adresse.c.adresse,
+             __adresse.c.code,
+             __ville.c.nom,
+             __pays.c.nom,
+             __pays.c.id_pays],
+            and_(aaa.c.id_ancien == id_ancien, aaa.c.actif==True),
+            from_obj=aaa.join(__adresse).outerjoin(__ville).outerjoin(__pays),
+            use_labels=True).distinct()
+        return __connection.execute(sel).first()
+    else:
+        return None
+
+
+def find_experience_by_id_ancien(id_ancien):
+    """
+    Rechercher une experience par id_ancien
+    
+    @params :
+    id_ancien    -- int
+    qb           -- custom query builder, see sql.query
+    """
+    if id_ancien is not None and type(id_ancien) is int:
+        ex = __experience
+        en = __entreprise
+        a = __adresse
+        v = __ville
+        p = __pays
+        sel =  select(
+            [ex.c.actif,
+             ex.c.id_experience,
+             ex.c.telephone,
+             ex.c.mobile,
+             ex.c.mail,
+             ex.c.site,
+             ex.c.poste,
+             ex.c.description,
+             ex.c.debut,
+             ex.c.fin,
+             ex.c.id_experience_linkedin,
+             en.c.nom,
+             a.c.adresse,
+             a.c.code,
+             v.c.nom,
+             p.c.nom],
+            ex.c.id_ancien == id_ancien,
+            from_obj=ex.outerjoin(en).outerjoin(a).outerjoin(v).outerjoin(p),
+            use_labels=True).order_by(desc(ex.c.debut).nullslast()).order_by(desc(ex.c.actif)).distinct()
+        return __connection.execute(sel)
+    else:
+        return None
+
+def find_experience_by_id_ancien_id_experience(id_ancien, id_experience):
+    """
+    Rechercher une experience par id_ancien et id_experience
+    Ces doubles id assurent que l'experience esst bien associée à l'ancien étudié
+
+    @params :
+    id_ancien    -- int
+    qb           -- custom query builder, see sql.query
+    """
+    if id_ancien is not None and type(id_ancien) is int:
+        ex = __experience
+        en = __entreprise
+        a = __adresse
+        v = __ville
+        p = __pays
+        sel =  select(
+            [ex.c.actif,
+             ex.c.id_experience,
+             ex.c.telephone,
+             ex.c.mobile,
+             ex.c.mail,
+             ex.c.site,
+             ex.c.poste,
+             ex.c.description,
+             ex.c.debut,
+             ex.c.fin,
+             ex.c.id_experience_linkedin,
+             en.c.nom,
+             a.c.adresse,
+             a.c.code,
+             v.c.nom,
+             p.c.id_pays],
+            and_(ex.c.id_ancien == id_ancien, ex.c.id_experience == id_experience),
+            from_obj=ex.outerjoin(en).outerjoin(a).outerjoin(v).outerjoin(p),
+            use_labels=True).order_by(desc(ex.c.debut)).order_by(desc(ex.c.actif)).distinct()
+        return __connection.execute(sel)
+    else:
+        return None
+
+def find_nom_autocomplete(term, limit=5):
+    """
+    Rechercher une liste de noms pour l'autocomplete
+
+    @param term: terme de recherche (un seul)
+    @return: SELECT nom FROM ancien WHERE ancien.nom_slug LIKE 'term%'
+    """
+    result = None
+    if not (term is None or term == ""):
+        sel = select([__ancien.c.nom], __ancien.c.nom_slug.like(helper.slugify(term)+'%'))
+        sel = sel.distinct().order_by(__ancien.c.nom).limit(limit)
+        result = __connection.execute(sel)
+    return result
+
+
+def find_ville_autocomplete(term, limit=5):
+    """
+    Rechercher une liste de villes pour l'autocomplete
+
+    @param term: terme de recherche (un seul)
+    @return: SELECT nom FROM ville WHERE ville.slug LIKE 'term%'
+    """
+    result = None
+    if not (term is None or term == ""):
+        sel = select([__ville.c.nom], __ville.c.slug.like(helper.slugify(term)+'%'))
+        sel = sel.distinct().order_by(__ville.c.nom).limit(limit)
+        result = __connection.execute(sel)
+    return result
+
+
+def find_entreprise_autocomplete(term, limit=5):
+    """
+    Rechercher une liste d'entreprise pour l'autocomplete
+
+    @param term: terme de recherche (un seul)
+    @return: SELECT nom FROM entreprise WHERE entreprise.slug LIKE 'term%'
+    """
+    result = None
+    if not (term is None or term == ""):
+        sel = select([__entreprise.c.nom], __entreprise.c.slug.like(helper.slugify(term)+'%'))
+        sel = sel.distinct().order_by(__entreprise.c.nom).limit(limit)
+        result = __connection.execute(sel)
+    return result
+
+
+def update_ancien_date(id_ancien):
+    """
+    Mettre à jour ancien.date_update pour marquer que la fiche ancien à été mise à jour à la date du jour
+    @param id_ancien: l'id de l'ancien
+    @return: boolean success = true si l'update fonctionne
+    """
+    success = False
+    if helper.is_valid_integer(id_ancien):
+        up = __ancien.update().where(
+                __ancien.c.id_ancien == id_ancien
+            ).values(
+                date_update=date.today()
+            )
+        osef = date.today()
+        result = __connection.execute(up)
+        if result is not None:
+            success = True
+    return success
+
+def update_fiche_ancien(id_ancien, telephone="", mobile="", site="", mail_perso=""):
+    """
+    Mettre à jour une fiche ancien par id_ancien
+    @param id_ancien: int, l'id_ancien
+    @param telephone: str < 20 char
+    @param mobile: str < 20 char
+    @param site: str < 200 char
+    @param mail_perso: str < 75 char
+    @return: boolean success = true si l'update fonctionne
+    """
+    success = False
+    if helper.is_valid_integer(id_ancien):
+        up = __ancien.update().where(
+            __ancien.c.id_ancien == id_ancien
+        ).values(
+            telephone=telephone,
+            mobile= mobile,
+            site = site,
+            mail_perso=mail_perso
+        )
+        result = __connection.execute(up)
+        if result is not None:
+            success = update_ancien_date(id_ancien)
+    return success
+
+def update_linkedin_ancien(id_ancien, id_linkedin=None, url_linkedin=None):
+    """
+    Mettre à jour le compte linkedin d'un ancien
+
+    @param id_ancien: id de l'ancien en question
+    @param id_linkedin: id_linkedin à sauvegarder
+    @param url_linkedin:  profil public linkedin à sauvegarder
+    @return: True si success
+    """
+    success = False
+    if helper.is_valid_integer(id_ancien):
+        up = __ancien.update().where(
+            __ancien.c.id_ancien == id_ancien
+        ).values(
+            id_linkedin=id_linkedin,
+            url_linkedin= url_linkedin
+        )
+        result = __connection.execute(up)
+        if result is not None:
+            success = update_ancien_date(id_ancien)
+    return success
+
+def update_photo(id_ancien, filename):
+    """
+    Mettre à jour la photo d'un ancien, par ID
+    @param id_ancien: int, id de l'ancien (ya rly)
+    @param filename: le nom de la photo
+    @return: boolean success = true si l'update fonctionne
+    """
+    success = False
+    up = __ancien.update().where(__ancien.c.id_ancien == id_ancien).values(photo=filename)
+    result = __connection.execute(up)
+    if result is not None:
+        success = update_ancien_date(id_ancien)
+    return success
+
+def update_adresse_perso(id_ancien, ville, id_pays, adresse="", code=""):
+    """
+    Mettre à jour l'adresse active d'un ancien, en updatant ou insérant.
+    En updatant ou insérant la ville au passage
+
+    @param id_ancien: int, id_ancien
+    @param adresse: str, l'adresse en texte libre
+    @param ville: str, la ville en texte libre
+    @param code: int, le ocde postal en texte libre puis converti en int
+    @param id_pays: int
+    @return: boolean success = true si ça marche, false sinon
+    """
+    success = False
+    id_adresse = None
+    new_adresse = True
+
+    aaa = __asso_ancien_adresse
+    # 1 : est-ce que l'adresse existe ?
+    sel = select([aaa.c.id_adresse]).where(and_(aaa.c.actif == True, aaa.c.id_ancien == id_ancien))
+    res = __connection.execute(sel).first()
+    if res is not None:
+        id_adresse = res[0]
+        new_adresse = False
+
+    id_adresse = _insert_update_adresse(ville, id_pays, id_adresse, adresse, code)
+
+    if new_adresse:
+        # insérer l'asso
+        ins =  __asso_ancien_adresse.insert().values(id_ancien=id_ancien, id_adresse=id_adresse, actif=True)
+        __connection.execute(ins)
+    success = update_ancien_date(id_ancien)
+    return success
+
+def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
+                      entreprise, poste, description, mail, site, telephone, mobile,
+                      date_debut, date_fin=None, id_experience_linkedin=None):
+    """
+    Mettre à jour / insérer une expérience pro ancien
+
+    @param id_ancien:
+    @param id_experience:
+    @param ville:
+    @param id_pays:
+    @param adresse:
+    @param code:
+    @param entreprise:
+    @param poste:
+    @param description:
+    @param mail:
+    @param site:
+    @param telephone:
+    @param mobile:
+    @return: success, boolean True si l'insert / update fonctionne
+    """
+    success = False
+
+
+    if id_ancien is not None:
+
+        # s'occuper de l'adresse
+        id_adresse = None
+        sel = select([__experience.c.id_adresse]).where(and_(__experience.c.id_ancien == id_ancien, __experience.c.id_experience == id_experience))
+        res = __connection.execute(sel).first()
+        if res is not None:
+            id_adresse = res[0]
+        id_adresse = _insert_update_adresse(ville, id_pays, id_adresse, adresse, code)
+
+        # s'occuper de l'entreprise
+        id_entreprise = None
+        sel = select([__entreprise.c.id_entreprise]).where(_slug_by_column(__entreprise.c.slug, helper.slugify(entreprise), True))
+        res = __connection.execute(sel).first()
+        if res is not None:
+            id_entreprise = res[0]
+
+        if id_entreprise is None and entreprise != "":
+            ins = __entreprise.insert().values(nom=entreprise, slug=helper.slugify(entreprise))
+            __connection.execute(ins)
+            sel = select([__entreprise.c.id_entreprise]).where(_slug_by_column(__entreprise.c.slug, helper.slugify(entreprise), True))
+            id_entreprise = __connection.execute(sel).first()[0]
+
+        # insert / update experience
+        if id_experience is not None:
+
+            # update ssi l'expérience est associée au bon ancien
+            up = __experience.update().where(
+                and_(
+                    __experience.c.id_experience == id_experience,
+                    __experience.c.id_ancien == id_ancien
+                )
+            ).values(
+                id_entreprise = id_entreprise,
+                id_adresse = id_adresse,
+                poste = poste,
+                description = description,
+                telephone = telephone,
+                mobile = mobile,
+                mail = mail,
+                site = site,
+                debut = date_debut,
+                fin = date_fin
+            )
+            __connection.execute(up)
+        else:
+            ins = __experience.insert().values(
+                id_ancien = id_ancien,
+                id_entreprise = id_entreprise,
+                id_adresse = id_adresse,
+                poste = poste,
+                description = description,
+                telephone = telephone,
+                mobile = mobile,
+                mail = mail,
+                site = site,
+                debut = date_debut,
+                fin = date_fin,
+                id_experience_linkedin = id_experience_linkedin
+            )
+            __connection.execute(ins)
+
+        success = update_ancien_date(id_ancien)
+    return success
+
+def remove_experience(id_ancien, id_experience):
+    """
+    Supprimer une experience, en vérifiant qu'elle est bien associée au bon ancien
+
+    @param id_ancien:
+    @param id_experience:
+    @return:
+    """
+
+    suppr = __experience.delete().where(
+        and_(
+            __experience.c.id_ancien == id_ancien,
+            __experience.c.id_experience == id_experience
+        )
+    )
+    success = update_ancien_date(id_ancien)
+    __connection.execute(suppr)
+
+
+def _insert_update_adresse(ville, id_pays, id_adresse, adresse="", code=""):
+    """
+    Mettre à jour une adresse perso ou pro, en updatant ou insérant.
+    En updatant ou insérant la ville au passage
+
+    @param id_ancien: int, id_ancien
+    @param adresse: str, l'adresse en texte libre
+    @param ville: str, la ville en texte libre
+    @param code: int, le ocde postal en texte libre puis converti en int
+    @param id_pays: int
+    @return: id_adresse: l'id de l'adresse insérée / updatéee
+    """
+    # 2 : est-ce que la ville existe ? si non, insert !
+    id_ville = None
+    if helper.is_valid_integer(id_pays):
+        sel = select([__ville.c.id_ville])
+        sel = sel.where(and_(_slug_by_column(__ville.c.slug, helper.slugify(ville), True), __ville.c.id_pays == id_pays))
+        sel = sel.distinct()
+        res = __connection.execute(sel).first()
+
+        if res is not None:
+            # si la ville existe, on récupère son numéro
+            id_ville = res[0]
+
+        elif (ville is not None and ville != "") and (id_pays is not None and id_pays != ""):
+            # si la ville n'existe pas, mais qu'il y a un texte et un pays
+            # on l'insère et on récupère son numéro
+            ins = __ville.insert().values(nom=ville, slug=helper.slugify(ville), id_pays=id_pays)
+            __connection.execute(ins)
+            sel = select([__ville.c.id_ville])
+            sel = sel.where(and_(_slug_by_column(__ville.c.slug, helper.slugify(ville), True), __ville.c.id_pays == id_pays))
+            res = __connection.execute(sel).first()
+            id_ville = res[0]
+
+    # 3 : update (ou insert) de l'adresse
+    if id_ville is not None:
+
+        if id_adresse is not None:
+            a = __adresse
+            # si l'adresse existe, la mettre à jour
+            up = a.update().where(a.c.id_adresse == id_adresse).values(id_ville=id_ville, adresse=adresse, code=code)
+
+            __connection.execute(up)
+
+        else:
+            a = __adresse
+
+            # si l'adresse n'existe pas, l'insérer
+            ins = a.insert().values(id_ville=id_ville, adresse=adresse, code=code)
+            __connection.execute(ins)
+
+            sel = select([a.c.id_adresse]).where(and_(a.c.id_ville == id_ville, a.c.adresse == adresse, a.c.code == code))
+            id_adresse = __connection.execute(sel).first()[0]
+
+    return id_adresse
+
+def _slug_raw_input_by_column(col, raw_input=None):
+    """
+    Methode interne, pour comparer une str de requete au slug d'une colonne
+
+    @param col: sqlalchemy.Column
+    @param raw_input: str, raw input
+    @return: col.slug == slug(raw_input)
+    """
+    result = None
+    if col is not None:
+        # traiter les recherches larges
+        normal = helper.clean_normal_search(raw_input)
+        if normal:
+            for string in normal:
+                if string is not None:
+                    if result is not None:
+                        result |= _slug_by_column(col, string)
+                    else:
+                        result = _slug_by_column(col, string)
+
+        # traiter les recherches exactes (=entre guillements)
+        exact = helper.clean_exact_search(raw_input)
+        if exact:
+            for string in exact:
+                if string is not None:
+                    if result is not None:
+                        result |= _slug_by_column(col, string, True)
+                    else:
+                        result = _slug_by_column(col, string, True)
+
+    return result
+
+
+
+def _slug_by_column(col, slug=None, exact=False):
+    """
+    Comparer le contenu d'une colonne avec un slug
+
+    @param col: sqlalchemy.Column
+    @param slug: str, slugged
+    @param exact: bool, True => comparer le mot exact ; False => comparer le mot aux mots composés du slug
+    @return:    col == slug [OR col LIKE 'slug-%' OR col LIKE '%-slug' OR col LIKE '%-slug-%']
+    """
+    result = None
+
+    if col is not None:
+        if slug is not None:
+            # recherche exacte par defaut
+            result = (col == slug)
+            # si ce n'est pas une recherche exacte,
+            # alors on cherche sur les termes commencant/finissant par slug
+            if not exact:
+                result |= or_(col.like(slug + '-%'), col.like('%-' + slug), col.like('%-' + slug + '-%'))
+
+    return result
+
+
+def _where_ville(ville_raw=None, est_perso=True, est_pro=False):
+    """
+    Methode interne recuperer une condition de filtrage par ville, perso ou pro
+
+    @param ville_raw: str, input raw sur lequel rechercher
+    @param est_perso: recherche dans les villes perso
+    @param est_pro: recherche dans les villes pro
+    @return: condition SQL (ville.slug == ville_raw)
+    """
+    pe = __villePerso
+    pr = __villePro
+
+    result = None
+
+    if ville_raw is not None:
+        result = None
+
+        if est_perso:
+            result = _slug_raw_input_by_column(pe.c.slug, ville_raw)
+        if est_pro:
+            if result is None:
+                result = _slug_raw_input_by_column(pr.c.slug, ville_raw)
+            else:
+                result |= _slug_raw_input_by_column(pr.c.slug, ville_raw)
+
+        return result
+
+    else:
+        return None
+
+
+def _where_pays(id_pays=None, est_perso=True, est_pro=False):
+    """
+    Methode interne recuperer une condition de filtrage par pays, perso ou pro
+
+    @param id_pays: id du pays
+    @param est_perso: recherche dans les villes perso
+    @param est_pro: recherche dans les villes pro
+    @return: condition SQL (pays.id_pays == id)_pays)
+    """
+
+    pe = __villePerso
+    pr = __villePro
+
+    result = None
+
+    if id_pays is not None and type(id_pays) is int:
+        result = None
+
+        if est_perso:
+            result = (pe.c.id_pays == id_pays)
+        if est_pro:
+            if result is None:
+                result = (pr.c.id_pays == id_pays)
+            else:
+                result |= (pr.c.id_pays == id_pays)
+
+        return result
+    else:
+        return None
+
+def _refine_by_promo(select, promo_list=None):
+    """
+    Methode interne pour affiner un select par promo, en utilisant une liste de promos
+
+    @note:
+    On a une str qui represente une liste de promos ou de ranges de promos (type 2008-2010)
+    si on a 2008 on fait promo = 2008
+    si on a 08   on fait promo = 1908 ou promo = 2008
+
+    @param select: le select à affiner
+    @param promo_list: la liste des promos à filtrer
+    @return: select WHERE promo IN promo_list
+    """
+    if select is not None:
+        statement = None
+
+        if promo_list is not None:
+            anc = __ancien
+
+            # on decoupe l'input par les caracteres espace
+            # pour faire une list de promos
+            for subset in promo_list.strip().split():
+                # on redecoupe par tiret '-', pour voir si on a des promos solo
+                # ou bien des ranges de promo
+                sub_tab = subset.split('-')
+                if len(sub_tab) > 1:
+                    # si on trouve un tiret on prend les deux premiers elements
+                    annee_debut = sub_tab[0]
+                    annee_fin = sub_tab[1]
+                elif len(sub_tab) == 1:
+                    # sinon on considere qu'on a pas de fin
+                    annee_debut = sub_tab[0]
+                    annee_fin = None
+
+                # si on a juste une annee
+                if helper.is_valid_integer(annee_debut) and not helper.is_valid_integer(annee_fin):
+                    # note : on traite les annees pour taper 08 et que ca cherche sur 2008 et 1908
+                    if statement is not None:
+                        statement |= _or_annee(statement, annee_debut)
+                    else:
+                        statement = _or_annee(statement, annee_debut)
+
+                # si on a un range d'annees
+                else:
+                    if helper.is_valid_integer(annee_debut) and helper.is_valid_integer(annee_fin):
+                        if statement is not None:
+                            statement |= (anc.c.promo.between(annee_debut, annee_fin))
+                        else:
+                            statement = anc.c.promo.between(annee_debut, annee_fin)
+
+        if statement is not None:
+            return select.where(statement)
+
+        else:
+            return select
+
+    else:
+        return None
+
+def _or_annee(statement, promo):
+    """
+    Methode interne pour creer un OR sur une annee de promo
+
+    @param statement: le statement conditionnel
+    @param promo: int, la promo
+    @return:
+        Si promo est entre 0 et 99, alors
+            statement | ancien.promo == promo + 1900 | ancien.promo == promo + 2000
+        else
+            statement | ancien.promo == promo
+    """
+    anc = __ancien
+    result = statement
+    if promo is not None:
+        promo = int(promo)
+        if 0 <= promo <= 99:
+            if statement is not None:
+                result = statement | (anc.c.promo == (promo + 2000)) | (anc.c.promo == (promo + 1900))
+            else:
+                result = (anc.c.promo == (promo + 2000)) | (anc.c.promo == (promo + 1900))
+
+        else:
+            if statement is not None:
+                result = statement | (anc.c.promo == promo)
+            else:
+                result = (anc.c.promo == promo)
+
+    return result

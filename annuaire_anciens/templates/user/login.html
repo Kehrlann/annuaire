@@ -1,0 +1,27 @@
+{% extends "layout/layout_mono.html" %}
+{% block title %}Login{% endblock %}
+
+{% block header %}
+    <h1>Connexion à mon compte</h1>
+{% endblock %}
+
+
+{% block content %}
+    <div class="row custom-login">
+        <div class="span6 offset3 custom-ancien-container">
+            {% include "helper/_flashes.html" %}
+            {% from "helper/_formhelper.html" import render_field %}
+            <form class="form form-horizontal" method=post action="{{ url_for("login") }}">
+                {{ csrf_token()|hidden|safe }}
+                {{ render_field(form.mail) }}
+                {{ render_field(form.password) }}
+                <div class="controls">
+                    <input type=submit class="btn btn-primary" value="Log in">
+                    <br />
+                    <br />
+                    <p>Pas encore inscrit ? <a href="{{ url_for("inscription") }}">Cr&eacute;er un compte</a>.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

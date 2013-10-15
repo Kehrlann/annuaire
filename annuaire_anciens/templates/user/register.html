@@ -1,0 +1,35 @@
+{% extends "layout/layout_mono.html" %}
+
+{% block navbar %}
+    {% with utilisateur = None %}
+        {% include "layout/_navbar.html" %}
+    {% endwith %}
+{% endblock %}
+
+{% block header %}
+    <h1>Demande d'inscription</h1>
+{% endblock %}
+
+{% block content %}
+{% from "helper/_formhelper.html" import render_field_error %}
+<div class="row">
+    <div class="span6 offset3 custom-ancien-container">
+        <p class="custom-justify">
+            Utilisez ce formulaire pour demander l'activation de votre compte sur le site des anciens.
+            Vous devez fournir une adresse @mines-paris.org, @mines-nancy.org ou @mines-saint-etienne.org valide,
+            &agrave; laquelle vous sera envoy&eacute; un mail de confirmation.
+        </p>
+         <form class="form form-horizontal" method=POST action='{{ url_for("inscription") }}'>
+            {{ csrf_token()|hidden|safe }}
+            {{ render_field_error(form.mail_ancien, class="custom-input-width") }}
+            {{ render_field_error(form.password, class="custom-input-width") }}
+            {{ render_field_error(form.password_confirm, class="custom-input-width") }}
+            <div class="control-group">
+                <div class="controls">
+                    <button type="submit" class="btn btn-primary">S'inscrire</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

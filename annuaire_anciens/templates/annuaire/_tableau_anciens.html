@@ -1,0 +1,42 @@
+{% from "helper/_annuairehelper.html" import nullable, render_ville, render_pagination, render_details_recherche %}
+
+{% if pagination == None %}
+<div class="custom-justify">
+    <h3>Avant de commencer ...</h3>
+    <hr />
+    <p>Voici une aide sur le fonctionnement du moteur de recherche. Notez que cette aide est disponible &agrave; tout moment en cliquant sur le bouton "aide" du formulaire de recherche.</p>
+    {% include "annuaire/_aide_recherche_text.html" %}
+</div>
+
+{% elif pagination.count == 0%}
+    {{ render_pagination(pagination) }}
+    <h3>Aucun r&eacute;sultat</h3>
+    <p>Votre recherche n'a donn&eacute; aucun r&eacute;sultat. Veuillez modifier les termes de votre recherche ou consulter l'aide.</p>
+{% else %}
+<div id="custom-pagination">
+    {{ render_pagination(pagination) }}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Pr&eacute;nom</th>
+                <th>Nom</th>
+                <th>Ville</th>
+                <th>Employeur</th>
+                <th width="50">Promo</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for e in results %}
+            <tr class="hand-pointer" valign="top" onClick="window.open('{{url_for('ancien', id_ancien=e['ancien_id_ancien'])}}')">
+                <td>{{ nullable(e['ancien_prenom']) }}</td>
+                <td>{{ nullable(e['ancien_nom']) }}</td>
+                <td>{{ render_ville(e['ville_nom'], e['adresse_code'], e['pays_nom']) }}</td>
+                <td>{{ nullable(e['entreprise_nom']) }}</td>
+                <td>{{ nullable(e['ancien_ecole']) }} {{ nullable(e['ancien_promo']) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ render_pagination(pagination) }}
+</div>
+{% endif %}
