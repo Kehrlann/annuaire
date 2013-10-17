@@ -1,0 +1,5 @@
+local
+*.pyc
+build
+dist
+Annuaire_des_anciens.egg-info
