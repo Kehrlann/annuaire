@@ -1,35 +1,65 @@
 {% extends "layout/layout_mono.html" %}
 
-{% block navbar %}
-    {% with utilisateur = None %}
-        {% include "layout/_navbar.html" %}
-    {% endwith %}
-{% endblock %}
-
 {% block header %}
-    <h1>Demande d'inscription</h1>
+
+    <div class="">
+        <h1>Mines-Alumni.com</h1>
+        <h3>Bienvenue sur l'annuaire des anciens de Mines*</h3>
+        <p><em>* de Nancy, Paris et Saint-Etienne</em></p>
+    </div>
 {% endblock %}
 
 {% block content %}
 {% from "helper/_formhelper.html" import render_field_error %}
-<div class="row">
-    <div class="span6 offset3 custom-ancien-container">
-        <p class="custom-justify">
-            Utilisez ce formulaire pour demander l'activation de votre compte sur le site des anciens.
-            Vous devez fournir une adresse @mines-paris.org, @mines-nancy.org ou @mines-saint-etienne.org valide,
-            &agrave; laquelle vous sera envoy&eacute; un mail de confirmation.
-        </p>
-         <form class="form form-horizontal" method=POST action='{{ url_for("inscription") }}'>
-            {{ csrf_token()|hidden|safe }}
-            {{ render_field_error(form.mail_ancien, class="custom-input-width") }}
-            {{ render_field_error(form.password, class="custom-input-width") }}
-            {{ render_field_error(form.password_confirm, class="custom-input-width") }}
-            <div class="control-group">
-                <div class="controls">
-                    <button type="submit" class="btn btn-primary">S'inscrire</button>
-                </div>
-            </div>
-        </form>
+<br>
+<div class="col-lg-12">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title"><span class="glyphicon glyphicon-check"></span>&nbsp;&nbsp;Etes-vous bien un mineur?</h3>
     </div>
+    <div class="panel-body">
+      <div class="row custom-box-container">
+        <div class="col-lg-12">
+            <p>L'accès à l'annuaire est restreint aux anciens.<br> Vous avez le choix entre deux options de vérification.</p>
+        </div>
+        <div class="custom-box-container">
+            <div class="col-md-5 custom-login-box">
+              <h5>En vous connectant avec votre profil LinkedIn</h5>
+              <a href="" class="btn btn-primary">Connexion avec LinkedIn</a><br>
+              <span class="help-block">Nous vérifierons notamment votre appartenance à un des groupes officiel d'Anciens des Mines.</span>
+              <br>
+            </div>
+            <div class="custom-box-divider hidden-sm hidden-xs"></div>
+            <div class="col-md-7 custom-login-box">
+              <h5>Ou, grace à votre email à vie</h5>
+              <form class="form form-horizontal" method="POST" role="form" action='{{ url_for("inscription") }}'>
+                {{ csrf_token()|hidden|safe }}
+                <div>
+                  <label for="emailInput">Adresse email</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="prenom.nom">
+                    <span class="input-group-addon">@</span>
+                    <select name="" class="input-group-btn form-control" id="">
+                        <option value="P">mines-paris.org</option>
+                        <option value="E">mines-saint-etienne.org</option>
+                        <option value="N">mines-nancy.org</option>
+                    </select>
+                  </div>
+                  <span class="help-block">Un email sera envoyé à cette adresse pour vérification.</span>
+                </div>
+                <div>
+                  <label for="passwordInput">Mot de Passe</label>
+                  <input type="password" class="form-control" id="passwordInput" placeholder="Password">
+                  <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
+                </div>
+                <button type="submit" class="btn btn-primary js-login-submit">Valider</button>
+                <a href="{{ url_for('login')}}" class="btn btn-link">J'ai déjà un compte</a>
+              </form>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

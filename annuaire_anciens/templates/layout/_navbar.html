@@ -1,5 +1,2 @@
-<a class="brand" href="{{ url_for('annuaire_view') }}">Annuaire Mines</a>
-<div class="pull-right">
-    <a class='btn btn-primary' href="{{ url_for('compte') }}">Mon compte</a>
-    <a class='btn' href="{{ url_for('logout') }}">D&eacute;connexion</a>
-</div>
+<li><a href="{{ url_for('compte') }}" class="navbar-link"><span class="glyphicon glyphicon-user"></span>  Mon Compte</a></li>
+<li><a href="{{ url_for('logout') }}" class="navbar-link"><span class="glyphicon glyphicon-log-out"></span>  Se déconnecter</a></li>
