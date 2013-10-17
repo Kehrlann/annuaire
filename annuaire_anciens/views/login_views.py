@@ -6,7 +6,7 @@ from flask.ext.login import LoginManager, current_user, login_user, login_requir
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
+login_manager.login_view = "inscription"
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -101,7 +101,7 @@ def inscription():
                     app.logger.info("REGISTER - created preinscription for ancien with id %s", ancien['id_ancien'])
                     return redirect(url_for("login"))
 
-    return render_template('user/register.html', form=form)
+    return render_template('user/home.html', form=form)
 
 @app.route('/renvoyer/<int:id_ancien>', methods=['GET'])
 def resend(id_ancien):
