@@ -8,7 +8,7 @@ _SMTP_USERNAME = app.config['SMTP_USERNAME']
 _SMTP_PASSWORD = app.config['SMTP_PASSWORD']
 _SERVER_NAME = app.config['SERVER_NAME']
 
-if 'DEFAULT_SUBDOMAIN' in app.config:
+if 'DEFAULT_SUBDOMAIN' in app.config and 'DEFAULT_SUBDOMAIN' != '':
     _SERVER_NAME = app.config['DEFAULT_SUBDOMAIN'] + "." + _SERVER_NAME
 
 
