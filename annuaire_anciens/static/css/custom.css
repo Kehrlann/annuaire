@@ -220,6 +220,33 @@ modification du compte
     vertical-align: middle;
 }
 
+/***********
+ * Footer  *
+ ***********/
+.custom-footer {
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 70px;
+    border-top: 1px solid #e5e5e5;
+    background-color: #f5f5f5;
+    color: #777;
+}
+.custom-footer p {
+    margin-bottom: 0;
+}
+.custom-footer-links {
+    margin: 10px 0;
+}
+.custom-footer-links li {
+    display: inline;
+    padding: 0 2px;
+}
+.custom-footer-links li:first-child {
+    padding-left: 0;
+}
+
+
+
 /* En mode "tablette", virer la position "fixed" pour mettre le menu tout en haut */
 @media (max-width: 979px) {
     .custom-search{
