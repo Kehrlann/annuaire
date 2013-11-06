@@ -27,6 +27,8 @@ Flask permet de lancer l'application sans configurer de serveur web. Il suffit d
 
   DEFAULT_SUBDOMAIN = ''
 
+Attention : **ne pas exécuter setup.py**. Cette installation sert à packager l'application pour un déploiement automatique sur un serveur de production, avec un connecteur WSGI.
+
 
 
 
