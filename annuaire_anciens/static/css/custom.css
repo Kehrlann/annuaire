@@ -1,131 +1,131 @@
 ﻿/*!
  * Custom css to override default bootstrap themes
  */
- 
- /* reset la couleur du fond du bandeau */
- header,.header,#header{
-  background: aliceblue;
+
+/* reset la couleur du fond du bandeau */
+header, .header, #header {
+    background: aliceblue;
 }
 
+html {
+    height:calc(100%);
+}
 body {
-    padding-top:40px;
-    overflow-y:scroll;
+    padding-top: 40px;
+    overflow-y: scroll;
+    height:calc(100% - 42px);
 }
-
 
 /* curseur "main" sur le tableau */
 .hand-pointer {
-    cursor: hand; 
-    cursor: pointer;
+    cursor: hand;
 }
 
 /******************************************
 menu de recherche
 *******************************************/
- /* offset pour le menu de recherche */
-.custom-search{
-    margin-top:20px;
-    top:30px;
-    padding-left:0px;
+/* offset pour le menu de recherche */
+.custom-search {
+    margin-top: 20px;
+    top: 30px;
+    padding-left: 0px;
     width: inherit;
-    height:auto;
+    height: auto;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
     background: aliceblue;
-} 
- 
- /* pour ne pas trop coller le premier champ de recherche aux onglets */
+}
+
+/* pour ne pas trop coller le premier champ de recherche aux onglets */
 .custom-search .tab-content {
-    padding-top:10px;
+    padding-top: 10px;
 }
 
 /* onglets en blanc */
 .custom-search .nav-tabs {
-    margin-bottom:0px;
-    margin-left:0px;
-    padding-left:5px;
-    background:white;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    padding-left: 5px;
+    background: white;
 }
 
 /* détacher le login */
 .custom-login {
-    padding-top:20px;
-    padding-bottom:5px;
- }
- 
- /* pour les champs de recherche */
+    padding-top: 20px;
+    padding-bottom: 5px;
+}
+
+/* pour les champs de recherche */
 .custom-input-width {
-    width:100%;
-    max-width:100%;
+    width: 100%;
+    max-width: 100%;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    height:30px;
-    min-height:30px;
+    height: 30px;
+    min-height: 30px;
     margin-right: 5px;
 }
 
 .custom-triple-height {
-    height:90px;
+    height: 90px;
 }
- 
+
 .custom-search .form-horizontal .control-label {
-    width:65px;
-    margin-left:10px;
+    width: 65px;
+    margin-left: 10px;
 }
 
 .custom-search .form-horizontal .controls {
-    margin-left:85px;
-    margin-right:10px;
+    margin-left: 85px;
+    margin-right: 10px;
 }
 
-.custom-padding-right{
-    padding-left:5px;
-    padding-right:20px;
+.custom-padding-right {
+    padding-left: 5px;
+    padding-right: 20px;
 }
 
-
- 
 /******************************************
 popup d'aide
 *******************************************/
-.custom-justify{
-    text-align:justify
+.custom-justify {
+    text-align: justify
 }
 
 .custom-justify > dl > dd {
-    text-align:justify;
+    text-align: justify;
 }
 
 .custom-justify > p {
-    text-align:justify;
+    text-align: justify;
 }
-
 
 .custom-inline {
-    display:block;
+    display: block;
 }
-.custom-inline .pagination{
-    display:inline-block;
+
+.custom-inline .pagination {
+    display: inline-block;
     text-align: center;
 }
 
- /******************************************
+/******************************************
 Menu d'en tête
 *******************************************/
 .custom-nav {
-    float:right;
+    float: right;
 }
 
 .custom-no-hover:hover {
-    text-decoration:none;
+    text-decoration: none;
 }
 
 /******************************************
 cosmétique pour l'autocomplete
 *******************************************/
-.ui-autocomplete{
+.ui-autocomplete {
     background-color: #ffffff;
     border: 1px solid;
     border-color: #CCCCCC;
@@ -156,9 +156,9 @@ fiches d'anciens
 }
 
 .custom-cadre-header {
-    border: 1px solid rgb(27,27,27);
-    background-color: rgb(27,27,27);
-    color: rgb(221,221,211);
+    border: 1px solid rgb(27, 27, 27);
+    background-color: rgb(27, 27, 27);
+    color: rgb(221, 221, 211);
     font-weight: bold;
     font-size: 20px;
     border-radius: 6px 6px 0px 0px;
@@ -166,16 +166,15 @@ fiches d'anciens
     padding: 9px;
 }
 
-
 /******************************************
 modification du compte
 *******************************************/
-.custom-ancien-container{
-    margin-top:20px;
+.custom-ancien-container {
+    margin-top: 20px;
 }
 
 .custom-thumbnails .span2 {
-    width:165px;
+    width: 165px;
 }
 
 .custom-sublabel {
@@ -185,7 +184,7 @@ modification du compte
 }
 
 .thumbnails {
-    text-align:center;
+    text-align: center;
 }
 
 .thumbnail {
@@ -194,17 +193,17 @@ modification du compte
 }
 
 .custom-thumbnail-content {
-    min-height:90px;
-    overflow:hidden;
+    min-height: 90px;
+    overflow: hidden;
 }
 
 /* aligner la taille des boutons sur l'icône LinkedIn en 32*32 */
 .custom-thumbnail .btn {
-    padding-top:5px;
-    padding-bottom:5px;
-    padding-left:8px;
-    padding-right:8px;
-    min-height:20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    min-height: 20px;
 }
 
 .custom-bold {
@@ -223,38 +222,50 @@ modification du compte
 /***********
  * Footer  *
  ***********/
+.custom-wrapper {
+    min-height: calc(100% - 120px);
+	height: auto !important;
+}
+
 .custom-footer {
     text-align: center;
-    padding: 30px 0;
-    margin-top: 70px;
+    padding: 20px 0;
     border-top: 1px solid #e5e5e5;
     background-color: #f5f5f5;
     color: #777;
+    height: 80px;
+    position:relative;
 }
+
+.custom-footer-spacer {
+    height: 0px;
+}
+
 .custom-footer p {
     margin-bottom: 0;
 }
+
 .custom-footer-links {
     margin: 10px 0;
 }
+
 .custom-footer-links li {
     display: inline;
     padding: 0 2px;
 }
+
 .custom-footer-links li:first-child {
     padding-left: 0;
 }
 
-
-
 /* En mode "tablette", virer la position "fixed" pour mettre le menu tout en haut */
 @media (max-width: 979px) {
-    .custom-search{
-        position:static;
+    .custom-search {
+        position: static;
     }
 
     body {
-        padding-top:0px;
+        padding-top: 0px;
     }
 
     [class*="span"] {
@@ -267,10 +278,10 @@ modification du compte
     }
 
     [class*="offset"] {
-        margin-left:0px;
+        margin-left: 0px;
     }
 
-    .navbar{
+    .navbar {
         margin-bottom: 0px;
     }
 
@@ -280,36 +291,36 @@ modification du compte
         box-sizing: border-box;
         display: block;
         float: none;
-        width:744px;
-        margin-left:20px;
+        width: 744px;
+        margin-left: 20px;
     }
 
     .custom-ancien-container .span6 {
-        margin-left:0px;
-        padding-left:20px;
+        margin-left: 0px;
+        padding-left: 20px;
     }
 }
 
 /* Fix pour le header du mode téléphone */
-@media (max-width: 767px){
-    header{
+@media (max-width: 767px) {
+    header {
         margin-right: -20px;
         margin-left: -20px;
         padding-right: 20px;
         padding-left: 20px;
     }
-    
+
     .custom-thumbnails .span2 {
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
         display: block;
         float: none;
-        width:100%;
-        margin-left:0px;
+        width: 100%;
+        margin-left: 0px;
     }
 
     .custom-ancien-container .span6 {
-        padding-left:0px;
+        padding-left: 0px;
     }
 }
