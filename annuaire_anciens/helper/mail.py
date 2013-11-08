@@ -21,7 +21,7 @@ def send_activation_mail(to, id_ancien, activation_code):
     """
     message = \
         u'Bonjour !\n\n' \
-        u'Vous avez demandé l\'ouverture d\'un compte sur http://mines-alumni.com. Afin d\'activer votre compteur, ' \
+        u'Vous avez demandé l\'ouverture d\'un compte sur http://mines-alumni.com. Afin de l\'activer, ' \
         u'veuillez cliquer sur le lien ci-dessous :\n' \
         u'http://%s/activation/%s/%s\n\n' \
         u'Cordialement,\n' \
