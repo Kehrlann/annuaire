@@ -79,21 +79,7 @@
 
         <!-- Le footer -->
         {% block footer %}
-        <footer class="custom-footer">
-            <div class="container">
-                    <p>Conception et maintenance par <a href="http://garnier.wf" target="_blank">Daniel Garnier</a>.</p>
-                    <p>Code sous licence <a href="https://gnu.org/licenses/gpl.html" target="_blank">GNU GPLv3</a>, disponible sur <a href="https://github.com/Kehrlann/annuaire" target="_blank">Github</a>.</p>
-                <ul class="custom-footer-links">
-                    <li>Kudos to </li>
-                    <li class="muted">:</li>
-                    <li><a href="http://flask.pocoo.org" target="_blank">Flask</a></li>
-                    <li class="muted">-</li>
-                    <li><a href="http://getbootstrap.com" target="_blank">Bootstrap</a></li>
-                    <li class="muted">-</li>
-                    <li><a href="http://glyphicons.com/" target="_blank">Glyphicons</a></li>
-                </ul>
-            </div>
-        </footer>
+            {% include "helper/_footer.html" %}
         {% endblock %}
     </body>
 </html>
