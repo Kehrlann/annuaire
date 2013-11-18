@@ -67,6 +67,7 @@ app.jinja_env.globals['jquery_cdn'] = app.config['JQUERY_CDN']
 app.jinja_env.globals['jquery_ui_cdn'] = app.config['JQUERY_UI_CDN']
 app.jinja_env.globals['bootstrap_css_cdn'] = app.config['BOOTSTRAP_CSS_CDN']
 app.jinja_env.globals['bootstrap_js_cdn'] = app.config['BOOTSTRAP_JS_CDN']
+app.jinja_env.globals['app_name'] = app.config['APP_NAME']
 
 def disconnect():
     if(app.testing):
