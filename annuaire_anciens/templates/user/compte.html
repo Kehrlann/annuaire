@@ -28,7 +28,7 @@
             <!-- preview account -->
             {% if ancien != None %}
             <p style="text-align:center;">
-                <a href="{{ url_for("ancien", id_ancien=ancien['id_ancien']) }}" class="btn btn-large btn-info" type="button" target="_blakn">
+                <a href="{{ url_for("ancien", id_ancien=ancien['id_ancien']) }}" class="btn btn-large btn-info" type="button">
                 Pr&eacute;visualiser mon profil</a>
             </p>
             {% endif %}
@@ -83,4 +83,8 @@
         </div>
     </div>
 {% endwith %}
+
+    <script type="text/javascript">
+        $("a[data-toggle=popover]").popover().click(function(e) { e.preventDefault() })
+    </script>
 {% endblock %}

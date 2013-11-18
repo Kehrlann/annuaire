@@ -61,6 +61,16 @@
                 <h5>Connectez votre compte LinkedIn</h5>
             </div>
             <a href="{{ url }}"><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
+            <a class="btn btn-info"
+                data-toggle="popover"
+                href="#"
+                title=""
+                data-placement="right"
+                data-original-title="Aide"
+                data-content="Permet d'afficher un lien vers votre profil LinkedIn sur votre fiche ancien.">
+                <i class="icon-question-sign icon-white"></i>
+            </a>
+
         </div>
     </li>
 {% elif ancien != None %}
@@ -84,7 +94,17 @@
             <div class="custom-thumbnail-content">
                 <h5>Importez vos expériences depuis LinkedIn</h5>
             </div>
-            <a href="{{ url }}"><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
+            <a href="{{ url }}"><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>&nbsp;
+            <a
+               class="btn btn-info"
+                data-toggle="popover"
+                href="#"
+                title=""
+                data-placement="right"
+                data-original-title="Aide"
+                data-content="Permet d'importer des expériences pro depuis LinkedIn. Vous pourrez ensuite les modifier à loisir.">
+                <i class="icon-question-sign icon-white"></i>
+            </a>
         </div>
     </li>
 {% endmacro %}
