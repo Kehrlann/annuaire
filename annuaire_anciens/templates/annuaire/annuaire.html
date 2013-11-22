@@ -27,7 +27,6 @@
         {% endif %}
       
         <form class="form form-horizontal" method=POST action='{{ url_for("annuaire_view") }}'>
-            {{ csrf_token()|hidden|safe }}
             {{ render_field(form.nom, class="custom-input-width", id="nom") }}
             {{ render_field(form.entreprise, class="custom-input-width", id="entreprise") }}
             {{ hidden_field(form.prenom) }}
@@ -48,7 +47,6 @@
         <div class="tab-pane fade" id="avance">
             {% endif %}
         <form class="form form-horizontal" method=POST action='{{ url_for("annuaire_view", type="avance") }}'>
-            {{ csrf_token()|hidden|safe }}
             {{ render_field(form.prenom, class="custom-input-width") }}
             {{ render_field(form.nom, class="custom-input-width", id="nom") }}
             {{ render_field(form.ecole, class="custom-input-width") }}
@@ -71,7 +69,7 @@
             source : '{{ url_for("autocomplete_nom") }}',
             //width: 300,
             max: 10,
-            delay: 500,
+            delay: 100,
             cacheLength: 1,
             scroll: false
         });
@@ -79,7 +77,7 @@
             source : '{{ url_for("autocomplete_ville") }}',
             //width: 300,
             max: 10,
-            delay: 500,
+            delay: 100,
             cacheLength: 1,
             scroll: false
         });
@@ -87,7 +85,7 @@
             source : '{{ url_for("autocomplete_entreprise") }}',
             //width: 300,
             max: 10,
-            delay: 500,
+            delay: 100,
             cacheLength: 1,
             scroll: false
         });

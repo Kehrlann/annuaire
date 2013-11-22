@@ -10,6 +10,15 @@ from uuid import uuid4
 from flask import request
 from flask import session, abort
 
+_exempt_views = []
+
+def csrf_exempt(view):
+    """
+    Décorateur à appliquer pour se débarasser des protections CSRF
+    """
+    _exempt_views.append(view)
+    return view
+
 @app.before_request
 def csrf_protect():
     """
@@ -19,7 +28,9 @@ def csrf_protect():
     @raise: abort(403) unauthorized si on détecte une csrf
     @return: None if okay
     """
-    if request.method == "POST":
+    destination_view = app.view_functions.get(request.endpoint)
+    exempt = destination_view in _exempt_views
+    if request.method == "POST" and not exempt:
         token = session.pop('_csrf_token', None)
         if not token or token != request.form.get('_csrf_token'):
             abort(403)
