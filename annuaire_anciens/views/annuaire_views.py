@@ -1,12 +1,14 @@
 # coding=utf-8
 from annuaire_anciens import app, helper, annuaire
 from flask import render_template, request
+from annuaire_anciens.helper.security import csrf_exempt
 from helper import search_anciens
 from flask import session
 from flask.ext.login import current_user, login_required
 
 
 @app.route('/annuaire', methods=['GET', 'POST'])
+@csrf_exempt
 @login_required
 def annuaire_view():
     avance = False
