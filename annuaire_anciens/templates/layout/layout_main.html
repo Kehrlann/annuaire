@@ -20,24 +20,18 @@
     <body id="body">
 
         <!-- Le user navbar -->
-        <div class="navbar navbar-inverse navbar-fixed-top">
-          <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href=".">Mines-Alumni.com</a>
+        <div class="container">
+            <div class="navbar">
+                <a class="navbar-brand" href=".">Mines-Alumni.com</a>
+                <div class="navbar-right">
+                    {% block navbar %}
+                    <a href="{{ url_for('login') }}" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</a>
+                    {% endblock %}
+                </div>
             </div>
-            <ul class="nav navbar-nav pull-right">
-            {% block navbar %}
-              <li><a href="{{ url_for('login') }}" class="navbar-link"><span class="glyphicon glyphicon-log-out"></span>  Se Connecter</a></li>
-            {% endblock %}
-            </ul>
-          </div>
         </div>
 
+        {% block top_container %}
         <div class="container">
             <!-- Le header -->
             {% block header %}
@@ -50,6 +44,7 @@
             <!-- Le page-defined layout. -->
             {% block layout %}{% endblock %}
         </div>
+        {% endblock %}
 
         <!-- Le modal block, to cram all your modal windows -->
         {% block modal %}{% endblock %}

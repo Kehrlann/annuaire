@@ -1,6 +1,32 @@
 ﻿body {
-    padding-top: 50px;
+    padding-top: 10px;
     padding-bottom: 20px;
+    background: url("../img/moutain.jpg") fixed;
+}
+
+.first-band,
+.second-band{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.first-band {
+  top: 0%;
+  padding-top: 70px;
+}
+
+.second-band {
+  background: white;
+  top: 100%;
+}
+
+#search-field {
+  background-color: rgba(255,255,255,0.5);
+}
+
+.search-field-container {
+  margin: 50px 0;
 }
 
 .custom-box-container {
@@ -18,4 +44,21 @@
 
 .custom-login-box {
     padding: 10px;
+}
+
+.btn.btn-default {
+  background: none;
+  border: 2px solid;
+}
+
+.btn.btn-default:hover {
+  border: 2px solid #333;
+  background: #333;
+  color: whitesmoke;
+}
+
+.btn.btn-default:active {
+  border: 2px solid #333;
+  background: none;
+  color: #333;
 }

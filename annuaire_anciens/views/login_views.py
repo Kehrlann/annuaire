@@ -76,8 +76,9 @@ def inscription():
         return redirect(url_for('annuaire_view'))
 
     if request.method == 'POST' and form.validate():
-        app.logger.info("REGISTER - Trying to add user for %s", form.mail_ancien.data)
-        ancien = annuaire.find_ancien_by_mail_asso(form.mail_ancien.data)
+        mail_ancien = form.mail_ancien+form.domaine_ancien
+        app.logger.info("REGISTER - Trying to add user for %s", mail_ancien)
+        ancien = annuaire.find_ancien_by_mail_asso(mail_ancien)
         if ancien is None:
             app.logger.warning("REGISTER - ancien not found for %s", form.mail_ancien.data)
             form.mail_ancien.errors.append("Il n'existe aucun ancien avec cette adresse mail")

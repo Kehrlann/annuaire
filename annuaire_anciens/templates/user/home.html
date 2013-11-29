@@ -1,60 +1,86 @@
-{% extends "layout/layout_mono.html" %}
+{% extends "layout/layout_main.html" %}
 
-{% block header %}
 
-    <div class="">
-        <h1>Mines-Alumni.com</h1>
-        <h3>Bienvenue sur l'annuaire des anciens de Mines*</h3>
-        <p><em>* de Nancy, Paris et Saint-Etienne</em></p>
+{% block top_container %}
+<div class="first-band">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+          <h1>Le moteur de recherche de Mineurs*</h1>
+          <h3>*Anciens des Mines de Nancy, Paris et Saint-Etienne</h3>
+      </div>
     </div>
-{% endblock %}
-
-{% block content %}
-{% from "helper/_formhelper.html" import render_field_error %}
-<br>
-<div class="col-lg-12">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title"><span class="glyphicon glyphicon-check"></span>&nbsp;&nbsp;Etes-vous bien un mineur? Choisissez votre option de vérification.</h3>
-    </div>
-    <div class="panel-body">
-      <div class="row custom-box-container">
-        <div class="col-md-5 custom-login-box">
-          <h5>En vous connectant avec votre profil LinkedIn</h5>
-          <a href="" class="btn btn-primary">Connexion avec LinkedIn</a><br>
-          <span class="help-block">Nous vérifierons notamment votre appartenance à un des groupes officiel d'Anciens des Mines.</span>
-          <br>
+    <div class="row search-field-container">
+      <div class="col-lg-12">
+        <div class="input-group">
+          <input type="text" class="form-control input-lg" id="search-field" placeholder="Ex: Pierre Durand SNCF" title="Vous devez être identifié pour effectuer une recherche sur l'annuaire." disabled>
+          <span class="input-group-btn">
+            <button class="btn btn-default btn-lg" disabled><span class="glyphicon glyphicon-search"></span></button>
+          </span>
         </div>
-        <div class="custom-box-divider hidden-sm hidden-xs"></div>
-        <div class="col-md-7 custom-login-box">
-          <h5>Ou, via votre email à vie</h5>
-          <form class="form form-horizontal" method="POST" role="form" action='{{ url_for("inscription") }}'>
-            {{ csrf_token()|hidden|safe }}
-            <div>
-              <label for="emailInput">Adresse email</label>
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="prenom.nom">
-                <span class="input-group-addon">@</span>
-                <select name="" class="input-group-btn form-control" id="">
-                    <option value="P">mines-paris.org</option>
-                    <option value="E">mines-saint-etienne.org</option>
-                    <option value="N">mines-nancy.org</option>
-                </select>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title"><span class="glyphicon glyphicon-check"></span>&nbsp;&nbsp;Etes-vous bien un mineur? Choisissez votre option de vérification.</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row custom-box-container">
+                <div class="col-md-5 custom-login-box">
+                  <h5>En vous connectant avec votre profil LinkedIn</h5>
+                  <a href="" class="btn btn-primary">Connexion avec LinkedIn</a><br>
+                  <span class="help-block">Nous vérifierons notamment votre appartenance à un des groupes officiel d'Anciens des Mines.</span>
+                  <br>
+                </div>
+                <div class="custom-box-divider hidden-sm hidden-xs"></div>
+                <div class="col-md-7 custom-login-box">
+                  <h5>Ou, via votre email à vie</h5>
+                  <form class="form form-horizontal" method="POST" role="form" action='{{ url_for("inscription") }}'>
+                    {{ csrf_token()|hidden|safe }}
+                    <div>
+                      <label for="emailInput">Adresse email</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom">
+                        <span class="input-group-addon">@</span>
+                        <select id="{{ form.domaine_ancien.id }}" class="input-group-btn form-control">
+                            <option value="@mines-paris.org">mines-paris.org</option>
+                            <option value="@mines-saint-etienne.org">mines-saint-etienne.org</option>
+                            <option value="@mines-nancy.org">mines-nancy.org</option>
+                        </select>
+                      </div>
+                      <span class="help-block">Un email sera envoyé à cette adresse pour vérification.</span>
+                    </div>
+                    <div>
+                      <label for="passwordInput">Mot de Passe</label>
+                      <input type="password" class="form-control" id="{{ form.password.id }}" placeholder="Password">
+                      <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
+                    </div>
+                    {% if form.errors != None and form.errors|count_not_null > 0 %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for error in form.errors %}
+                                {% if error != None %}<li>{{ error }}</li>{% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary js-login-submit">Valider</button>
+                    <a href="{{ url_for('login')}}" class="btn btn-link">J'ai déjà un compte</a>
+                  </form>
+                </div>
+                <div class="clearfix"></div>
               </div>
-              <span class="help-block">Un email sera envoyé à cette adresse pour vérification.</span>
             </div>
-            <div>
-              <label for="passwordInput">Mot de Passe</label>
-              <input type="password" class="form-control" id="passwordInput" placeholder="Password">
-              <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
-            </div>
-            <button type="submit" class="btn btn-primary js-login-submit">Valider</button>
-            <a href="{{ url_for('login')}}" class="btn btn-link">J'ai déjà un compte</a>
-          </form>
+          </div>
         </div>
-        <div class="clearfix"></div>
       </div>
     </div>
   </div>
 </div>
+<div class="second-band">
+  DEUX
+</div>
+
 {% endblock %}
