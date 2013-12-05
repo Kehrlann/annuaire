@@ -96,5 +96,5 @@ def prepare_for_fulltext(input):
     """
     result = ''
     if input is not None:
-        result = "&".join(input.split())
+        result = "&".join(slugify(input).split("-"))
     return result
