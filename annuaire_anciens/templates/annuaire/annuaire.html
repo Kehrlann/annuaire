@@ -98,6 +98,9 @@
                 $(this).parents("form").submit();
             }
         });
+        $("input").focus(function(){
+            this.select();
+        });
     </script>
 {% endblock %}
 

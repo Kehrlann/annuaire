@@ -46,4 +46,14 @@ def generate_csrf_token():
         session['_csrf_token'] = str(uuid4())
     return session['_csrf_token']
 
+def get_fulltext_from_session():
+    """
+    Récupérer la recherche fulltext, depuis n'importe quelle page
+    """
+    result = ""
+    if 'previous_fulltext' in session:
+        result = session['previous_fulltext']
+    return result
+
 app.jinja_env.globals['csrf_token'] = generate_csrf_token
+app.jinja_env.globals['previous_fulltext'] = get_fulltext_from_session
