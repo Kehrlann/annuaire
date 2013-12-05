@@ -1,4 +1,4 @@
-from slugifier import *
+from string import *
 from pagination import *
 from jsonify import *
 from validators import *

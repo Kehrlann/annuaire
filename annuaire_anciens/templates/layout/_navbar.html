@@ -1,5 +1,24 @@
 <a class="brand" href="{{ url_for('annuaire_view') }}">{{ app_name }}</a>
+<a class='navbar-text custom-no-hover'>Rechercher un ancien : </a>
+<form class="form-inline custom-inline" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
+    <input class="" id="fulltext" name="fulltext" value="" type="text"></input>
+    <button type="submit" class="btn btn-primary custom-margin-5">Go !</button>
+</form>
 <div class="pull-right">
     <a class='btn btn-primary' href="{{ url_for('compte') }}">Mon compte</a>
     <a class='btn' href="{{ url_for('logout') }}">D&eacute;connexion</a>
 </div>
+<script>
+$('input#fulltext').autocomplete({
+    source : '{{ url_for("autocomplete_fulltext") }}',
+    //width: 300,
+    max: 10,
+    delay: 50,
+    cacheLength: 1,
+    scroll: false,
+   select: function(event, ui) {
+         $(this).val(ui.item.value);
+         $(this).parents("form").submit();
+   }
+});
+</script>

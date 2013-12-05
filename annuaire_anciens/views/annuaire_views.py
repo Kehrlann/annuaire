@@ -1,8 +1,8 @@
 # coding=utf-8
-from annuaire_anciens import app, helper, annuaire
+from annuaire_anciens import app, helper, annuaire, ECOLES, PAYS
 from flask import render_template, request
 from annuaire_anciens.helper.security import csrf_exempt
-from helper import search_anciens
+from helper import search_anciens, search_fulltext
 from flask import session
 from flask.ext.login import current_user, login_required
 
@@ -12,18 +12,48 @@ from flask.ext.login import current_user, login_required
 @login_required
 def annuaire_view():
     avance = False
+    fulltext = False
     if request.args.get('type') == 'avance':
         avance = True
-    search = search_anciens(request.form, 1, request.method == 'POST')
-    pagination = search[0]
-    results = search[1]
-    annuaireForm = search[2]
-    if request.method == 'POST':
-        session['previous_search'] = request.form
-    elif 'previous_search' in session:
-        session.pop('previous_search')
+    elif request.args.get('type') == 'fulltext':
+        fulltext = True
+
+    annuaire_form = annuaire.SearchForm()
+    annuaire_form.setEcole(ECOLES)
+    annuaire_form.setPays(PAYS)
+
+    # recherche "normale" : construction du formulaire puis recherche
+    if not fulltext:
+        if 'previous_fulltext' in session:
+            session.pop('previous_fulltext')
+
+        if request.method == 'POST':
+            session['previous_search'] = request.form
+        elif 'previous_search' in session:
+            session.pop('previous_search')
+
+        search = search_anciens(request.form, 1)
+        pagination = search[0]
+        results = search[1]
+        annuaire_form = search[2]
+
+    # recherche "fulltext" : recherche brute
+    else:
+        if 'previous_search' in session:
+            session.pop('previous_search')
+
+        if request.method == 'POST':
+            session['previous_fulltext'] = request.form.get("fulltext")
+        elif 'previous_fulltext' in session:
+            session.pop('previous_fulltext')
+
+        search = search_fulltext(request.form.get("fulltext"), 1)
+        pagination = search[0]
+        results = search[1]
+
+
     return render_template('annuaire/annuaire.html',
-        form = annuaireForm,
+        form = annuaire_form,
         results = results,
         pagination = pagination,
         utilisateur = current_user,
@@ -34,7 +64,12 @@ def annuaire_view():
 @app.route('/anciens/page/<int:page>', methods=['GET'])
 @login_required
 def tableau_anciens(page):
-    search = search_anciens(None, page, True)
+    if 'previous_search' in session:
+        search = search_anciens(None, page)
+    elif 'previous_fulltext' in session:
+        search = search_fulltext(None, page)
+    else:
+        search = [None, []]
     pagination = search[0]
     results = search[1]
     return render_template('annuaire/_tableau_anciens.html',
@@ -86,6 +121,15 @@ def autocomplete_entreprise_simple():
     result = []
     if request.args.has_key('term'):
         query_result = annuaire.find_entreprise_autocomplete(request.args['term'])
+        result = helper.result_proxy_to_json(query_result)
+    return result
+
+@app.route('/autocomplete/fulltext', methods=['GET'])
+@login_required
+def autocomplete_fulltext():
+    result = []
+    if request.args.has_key('term'):
+        query_result = annuaire.find_mot_autocomplete(request.args['term'], limit=5)
         result = helper.result_proxy_to_json(query_result)
     return result
 

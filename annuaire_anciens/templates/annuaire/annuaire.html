@@ -1,8 +1,5 @@
 {% extends "layout/layout_floating.html" %}
 {% block title %}Anciens Intermines{% endblock %}
-{% block additional_scripts %}
-    {% include "helper/_jquery_ui.html" %}
-{% endblock %}
 
 {% block navbar %}
     {% include "layout/_navbar.html" %}
@@ -71,7 +68,11 @@
             max: 10,
             delay: 100,
             cacheLength: 1,
-            scroll: false
+            scroll: false,
+            select: function(event, ui) {
+                $(this).val(ui.item.value);
+                $(this).parents("form").submit();
+            }
         });
         $('input#ville').autocomplete({
             source : '{{ url_for("autocomplete_ville") }}',
@@ -79,7 +80,11 @@
             max: 10,
             delay: 100,
             cacheLength: 1,
-            scroll: false
+            scroll: false,
+            select: function(event, ui) {
+                $(this).val(ui.item.value);
+                $(this).parents("form").submit();
+            }
         });
         $('input#entreprise').autocomplete({
             source : '{{ url_for("autocomplete_entreprise") }}',
@@ -87,7 +92,11 @@
             max: 10,
             delay: 100,
             cacheLength: 1,
-            scroll: false
+            scroll: false,
+            select: function(event, ui) {
+                $(this).val(ui.item.value);
+                $(this).parents("form").submit();
+            }
         });
     </script>
 {% endblock %}
