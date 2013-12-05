@@ -39,6 +39,7 @@ def login():
             flash("Logged in successfully.")
             return redirect(url_for('annuaire_view'))
         else:
+            flash("Erreur de connexion : mot de passe incorrect ou utilisateur inconnu", "error")
             app.logger.warning("LOGIN - fail %s", form.mail.data)
     return render_template('user/login.html', form=form)
 
