@@ -44,7 +44,7 @@ $$ LANGUAGE plpgsql;
 -- va chercher son nom, prenom, ecole, promo, ville, pays et entreprises
 -- et update la table mot en le specifiant
 CREATE OR REPLACE FUNCTION
-    create_word_all() RETURNS VOID
+    index_all_words() RETURNS VOID
 AS $$
     DECLARE 
         ancien_record RECORD;
