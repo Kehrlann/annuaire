@@ -1,7 +1,6 @@
 {% extends "layout/layout_mono.html" %}
 
 {% block additional_scripts %}
-   {% include "helper/_jquery_ui.html" %}
     <link href="{{ url_for('static',filename='css/datepicker.css') }}" rel="stylesheet">
     <script type="text/javascript" src="{{ url_for('static',filename='js/bootstrap-datepicker.js') }}"></script>
 {% endblock %}

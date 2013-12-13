@@ -102,14 +102,6 @@ popup d'aide
     text-align: justify;
 }
 
-.custom-inline {
-    display: block;
-}
-
-.custom-inline .pagination {
-    display: inline-block;
-    text-align: center;
-}
 
 /******************************************
 Menu d'en tête
@@ -118,8 +110,17 @@ Menu d'en tête
     float: right;
 }
 
+.custom-margin-5 {
+    margin-top:5px;
+    margin-bottom:5px;
+}
+
 .custom-no-hover:hover {
     text-decoration: none;
+}
+
+.custom-inline {
+    display: inline;
 }
 
 /******************************************
