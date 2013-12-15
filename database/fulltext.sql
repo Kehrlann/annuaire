@@ -18,8 +18,8 @@ AS $$
 			INTO ancien_record 
 			WHERE id_ancien = input_id;
 		
-		res := setweight(to_tsvector('french', coalesce(ancien_record.prenom, '')), 'A')
-			|| setweight(to_tsvector('french', coalesce(ancien_record.nom, '')), 'A')
+		res := setweight(to_tsvector('french', slugify(coalesce(ancien_record.prenom, ''))), 'A')
+			|| setweight(to_tsvector('french', slugify(coalesce(ancien_record.nom, ''))), 'A')
 			|| setweight(to_tsvector('french', ancien_record.ecole_nom), 'B')
 			|| setweight(to_tsvector('french', CAST(ancien_record.promo AS TEXT)), 'B')
 			|| setweight(to_tsvector('french', ancien_record.ecole || substring(CAST(ancien_record.promo AS TEXT) FROM 3 FOR 2)), 'B');
@@ -34,8 +34,8 @@ AS $$
 			
 		IF adresse_record IS NOT NULL THEN
 			res := res
-				|| setweight(to_tsvector('french', coalesce(adresse_record.ville, '')), 'D')
-				|| setweight(to_tsvector('french', coalesce(adresse_record.pays, '')), 'D');				
+				|| setweight(to_tsvector('french', slugify(coalesce(adresse_record.ville, ''))), 'D')
+				|| setweight(to_tsvector('french', slugify(coalesce(adresse_record.pays, ''))), 'D');				
 		END IF;
 		
 		-- Ajouter l'entreprise, le poste, la ville et le pays des experiences pro
@@ -49,10 +49,10 @@ AS $$
                 WHERE ex.id_ancien=input_id
         LOOP
 			res := res
-				|| setweight(to_tsvector('french', coalesce(entreprise_record.poste, '')), 'C')
-				|| setweight(to_tsvector('french', coalesce(entreprise_record.nom, '')), 'B')
-				|| setweight(to_tsvector('french', coalesce(entreprise_record.ville, '')), 'D')
-				|| setweight(to_tsvector('french', coalesce(entreprise_record.pays, '')), 'D');
+				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.poste, ''))), 'C')
+				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.nom, ''))), 'B')
+				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.ville, ''))), 'D')
+				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.pays, ''))), 'D');
         END LOOP;
 
         RETURN res;
