@@ -21,7 +21,7 @@ def slugify(string):
     string = string.encode('utf-8','ignore').decode('utf-8', 'ignore')
     slug = unicodedata.normalize('NFKD', string)
     slug = slug.encode('ascii','ignore')
-    slug = re.sub(r'[^a-z0-9-@]+', '-', slug) 
+    slug = re.sub(r'[^a-z0-9@]+', '-', slug)
     return slug
 
     
@@ -85,4 +85,16 @@ def is_valid_integer(input):
         elif (type(input) is str or type(input) is unicode) and re.match(pattern, input.strip()):
             result = True
     
+    return result
+
+
+def prepare_for_fulltext(input):
+    """
+    Methode qui prend une str en entrée, et, si elle est non nulle, remplace les espaces par des &
+    @param input: str
+    @return : str
+    """
+    result = ''
+    if input is not None:
+        result = "&".join(slugify(input).split("-"))
     return result

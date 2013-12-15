@@ -10,6 +10,7 @@ Installation :
 Import de la base de données :
 ------------------------------
 Les schémas sont disponibles dans /database . Cette application a été conçue pour utiliser PostgreSQL, mais un schéma SQLite est fourni, pour les unit tests.
+Il faut également jouer slugify.sql, puis autocomplete.sql et fulltext.sql.
 
 *TODO* : ajouter un jeu de données basique.
 
@@ -28,6 +29,8 @@ Flask permet de lancer l'application sans configurer de serveur web. Il suffit d
   DEFAULT_SUBDOMAIN = ''
 
 Attention : **ne pas exécuter setup.py**. Cette installation sert à packager l'application pour un déploiement automatique sur un serveur de production, avec un connecteur WSGI.
+
+Penser également à ajouter un job quotidien qui exécute les procédures stockées **index_all_anciens()** et **index_all_words()**, afin de mettre à jour les indexes.
 
 
 

@@ -8,7 +8,7 @@ TODO : séparer les fonctions de lecture et d'écriture
 import sys
 sys.path.append('..')
 from annuaire_anciens import engine, connection
-from sqlalchemy import Table, MetaData, or_, and_, select, desc, func
+from sqlalchemy import Table, MetaData, or_, and_, select, desc, asc, func
 import annuaire_anciens.helper as helper
 from datetime import date
 
@@ -26,6 +26,7 @@ __asso_ancien_adresse = Table('asso_ancien_adresse', __metadata, autoload=True, 
 __entreprise = Table('entreprise', __metadata, autoload=True, autoload_with=__engine)
 __experience = Table('experience', __metadata, autoload=True, autoload_with=__engine)
 __ancien = Table('ancien', __metadata, autoload=True, autoload_with=__engine)
+__mot = Table('mot', __metadata, autoload=True, autoload_with=__engine)
 
 __entreprise_interne = __entreprise.alias()
 __villePerso = __ville.alias()
@@ -33,6 +34,70 @@ __villePro = __ville.alias()
 
 
 
+
+def count_fulltext(search_terms):
+    """
+    Compter les anciens trouvés par la recherche fulltext
+    @param form: formulaire de filtrage
+    @rtype: int
+    @return: le nombre d'anciens qui satisfont FORM
+    """
+    sel = select([func.count(__ancien.c.id_ancien.distinct())]).where("fulltext @@ to_tsquery('french', :input_str)")
+    res = __connection.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).first()[0]
+    return res
+
+
+def fulltext_search(search_terms, offset = 0, limit =0):
+    """
+    Recerche un ancien dans l'annuaire par fulltext search
+
+    @param search_terms: str, les termes de recherche
+    @param offset: int, démarrer la requête au  rang X
+    @param limit: int, prendre Y résultats
+    @return:
+    """
+    aaa = __asso_ancien_adresse
+    from_obj = __ancien
+    from_obj = from_obj.outerjoin(
+    aaa, and_(__ancien.c.id_ancien == aaa.c.id_ancien, aaa.c.actif == True)
+    ).outerjoin(
+        __adresse, aaa.c.id_adresse == __adresse.c.id_adresse
+    ).outerjoin(
+        __ville, __adresse.c.id_ville == __ville.c.id_ville
+    ).outerjoin(
+        __pays, __ville.c.id_pays == __pays.c.id_pays
+    ).outerjoin(
+        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien, __experience.c.actif == True)
+    ).outerjoin(
+        __entreprise, __experience.c.id_entreprise == __entreprise.c.id_entreprise
+    )
+
+    sel = select(
+    [
+        __ancien.c.id_ancien,
+        __ancien.c.prenom,
+        __ancien.c.nom,
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ville.c.nom,
+        __adresse.c.code,
+        __entreprise.c.nom,
+        __pays.c.nom
+    ],
+        from_obj=from_obj,
+        use_labels=True
+    ).order_by(
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ancien.c.nom,
+        __ancien.c.prenom
+    )
+    sel = sel.where("fulltext @@ to_tsquery('french', :input_str)")
+    sel = sel.distinct()
+    sel = sel.offset(offset).limit(limit)
+
+    res = __connection.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).fetchall()
+    return res
 
 
 def annuaire_search(form, offset = 0, limit =0):
@@ -79,12 +144,13 @@ def annuaire_search(form, offset = 0, limit =0):
         __ancien.c.ecole,
         __ancien.c.promo,
         __ancien.c.nom,
-        __ancien.c.prenom)
+        __ancien.c.prenom
+    )
 
     sel = sel.distinct()
     sel = sel.offset(offset).limit(limit)
 
-    return _filter_search(form, sel)
+    return _filter_search(form, sel).fetchall()
 
 
 def count_annuaire_search(form):
@@ -148,6 +214,7 @@ def _get_from_object(form):
         from_obj = from_obj.join(__villePerso, __villePerso.c.id_ville == ad_perso.c.id_ville)
 
     return from_obj
+
 
 
 def _filter_search(form, sel):
@@ -230,8 +297,8 @@ def find_ancien_by_id(id_ancien):
     @return: SELECT DISTINCT * FROM ancien WHERE id_ancien = id_ancien;
     """
     sel = select([__ancien], __ancien.c.id_ancien == id_ancien).distinct()
-    res = __connection.execute(sel)
-    return res.first()
+    res = __connection.execute(sel).first()
+    return res
 
 
 def find_ancien_by_mail_asso(mail_asso):
@@ -392,6 +459,31 @@ def find_entreprise_autocomplete(term, limit=5):
         sel = select([__entreprise.c.nom], __entreprise.c.slug.like(helper.slugify(term)+'%'))
         sel = sel.distinct().order_by(__entreprise.c.nom).limit(limit)
         result = __connection.execute(sel)
+    return result
+
+
+def find_mot_autocomplete(term, limit=10):
+    """
+    Recherche une liste de mot dans la table mot. Limite les réponses à _limit_ réponses.
+    On recherche d'abord l'expression complète, par exemple
+    '''SNCF Services'''
+    Puis on recherche le dernier mot, ici, '''Services'''
+
+    @param term: terme de recherche, une seule string
+    @return: SELECT mot FROM mot WHERE mot.slug LIKE 'slugify(term)%' OR mot.slug LIKE 'slugify(last_term%)'
+    """
+    result = None
+    if not (term is None or  term == ""):
+        slug = helper.slugify(term)
+        condition1 = __mot.c.slug.like(slug +'%')
+
+        sel = select([__mot.c.mot]).where(condition1).order_by(desc(__mot.c.occurence)).limit(limit)
+        result = __connection.execute(sel).fetchall()
+        #last_word = slug.strip("-").split("-")[-1]
+        #if len(result) == 0 and last_word != "":
+        #    condition2 = __mot.c.slug.like(last_word+"%")
+        #    sel = select([__mot.c.mot]).where(condition2).order_by(desc(__mot.c.occurence)).limit(limit)
+        #    result = __connection.execute(sel).fetchall()
     return result
 
 
