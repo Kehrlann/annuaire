@@ -21,13 +21,17 @@
 
         <!-- Le user navbar -->
         <div class="container">
-            <div class="navbar">
-                <a class="navbar-brand" href=".">Mines-Alumni.com</a>
-                <div class="navbar-right">
-                    {% block navbar %}
-                    <a href="{{ url_for('login') }}" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</a>
-                    {% endblock %}
+            <div class="row">
+              <div class="col-lg-10 col-lg-offset-1">
+                <div class="navbar">
+                    <a class="navbar-brand" href=".">Mines-Alumni.com</a>
+                    <div class="navbar-right">
+                        {% block navbar %}
+                        <a href="{{ url_for('login') }}" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</a>
+                        {% endblock %}
+                    </div>
                 </div>
+              </div>
             </div>
         </div>
 

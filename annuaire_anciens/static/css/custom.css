@@ -1,7 +1,15 @@
 ﻿body {
     padding-top: 10px;
     padding-bottom: 20px;
-    background: url("../img/moutain.jpg") fixed;
+    background: url("../img/nightsky-halfdome-dark.jpg") center center fixed;
+    background-size: cover;
+    color: #eee!important;
+    font-weight: 100;
+    letter-spacing: 0.5pt;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 100!important;
 }
 
 .first-band,
@@ -52,19 +60,25 @@
 
 .btn.btn-default {
   background: none;
-  border: 2px solid;
+  border: 2px solid #eee;
+  color: #eee;
 }
 
 .btn.btn-default:hover {
-  border: 2px solid #333;
-  background: #333;
-  color: whitesmoke;
+  border: 2px solid #eee;
+  background: rgba(255,255,255,0.2);
+  color: #eee;
 }
 
 .btn.btn-default:active {
-  border: 2px solid #333;
+  border: 2px solid #eee;
   background: none;
-  color: #333;
+  color: #eee;
+}
+
+.navbar a.navbar-brand {
+  color: #eee;
+  margin-left: -15px;
 }
 
 .auth-option.well {
@@ -73,5 +87,5 @@
 }
 
 .auth-option .help-block {
-  color: #333;
+  color: #eee;
 }
