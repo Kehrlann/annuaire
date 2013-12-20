@@ -4,7 +4,7 @@
     background: url("../img/nightsky-halfdome-dark.jpg") center center fixed;
     background-size: cover;
     color: #eee!important;
-    font-weight: 100;
+    font-weight: 200;
     letter-spacing: 0.5pt;
 }
 
@@ -12,10 +12,8 @@ h1, h2, h3, h4, h5 {
   font-weight: 100!important;
 }
 
-.first-band,
-.second-band{
+.first-band{
   position: absolute;
-  height: 100%;
   width: 100%;
 }
 
@@ -24,21 +22,50 @@ h1, h2, h3, h4, h5 {
   padding-top: 70px;
 }
 
-.second-band {
-  background: white;
-  top: 100%;
-}
-
 #search-field {
-  background-color: rgba(255,255,255,0.3);
+  height: 48px;
+  color: #eee;
+  border: 2px solid #eee;
+  border-right: none;
+  background: none;
 }
 
 .search-field-container {
   margin: 50px 0;
 }
 
+.search-field-container .auto-complete {
+  min-width: 70%;
+  position: absolute;
+  color: #333;
+  background: #eee;
+  border: 2px solid #fff;
+  border-top: none;
+  left: 20px;
+  z-index: 1000;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  font-weight: 200;
+  display: none;
+}
+
+.search-field-container .auto-complete ul{
+  list-style: none;
+  padding-left: 0
+}
+
+.search-field-container .auto-complete li{
+  padding: 2px 10px;
+}
+
+.search-field-container .auto-complete li:hover{
+  background: white;
+  cursor: pointer;
+}
+
 .first-auth-option {
   margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .custom-box-container {

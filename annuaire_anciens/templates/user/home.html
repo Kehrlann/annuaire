@@ -14,15 +14,25 @@
 
         <div class="search-field-container">
           <div class="input-group">
-            <input type="text" class="form-control input-lg" id="search-field" placeholder="Ex: Pierre Durand SNCF" title="Vous devez être identifié pour effectuer une recherche sur l'annuaire." disabled>
+            <input type="text" class="form-control input-lg" id="search-field" placeholder="Ex: Pierre Durand SNCF" title="Vous devez être identifié pour effectuer une recherche sur l'annuaire." onfocus="$('.auto-complete').show()" onblur="$('.auto-complete').hide()">
             <span class="input-group-btn">
-              <button class="btn btn-default btn-lg" disabled><span class="glyphicon glyphicon-search"></span></button>
+              <button class="btn btn-default btn-lg"><span class="glyphicon glyphicon-search"></span></button>
             </span>
+          </div>
+          <div class="auto-complete">
+            <ul>
+              <li>Resultat <b>auto</b>complété</li>
+              <li>Resultat <b>auto</b>complété</li>
+              <li>Resultat <b>auto</b>complété</li>
+              <li>Resultat <b>auto</b>complété</li>
+              <li>Resultat <b>auto</b>complété</li>
+              <li>Resultat <b>auto</b>complété</li>
+            </ul>
           </div>
         </div>
 
         <div>
-          <h3><span class="glyphicon glyphicon-lock"></span> Pour commencer, je prouve que je suis bien un ancien des Mines :</h3>
+          <h3><span class="glyphicon glyphicon-lock"></span> Pour commencer, je prouve que je suis bien un ancien des Mines&nbsp;:</h3>
           <div class="row">
             <div class="col-md-5 auth-option first-auth-option">
               <h4><b>Avec mon compte LinkedIn</b></h4>
@@ -75,9 +85,6 @@
       </div>
     </div>
   </div>
-</div>
-<div class="second-band">
-  DEUX
 </div>
 
 {% endblock %}
