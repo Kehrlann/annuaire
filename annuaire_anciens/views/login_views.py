@@ -102,7 +102,17 @@ def inscription():
                     app.logger.info("REGISTER - created preinscription for ancien with id %s", ancien['id_ancien'])
                     return redirect(url_for("login"))
 
-    return render_template('user/home.html', form=form)
+    linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+                        "response_type=code&"
+                        "client_id=%s&"
+                        "scope=%s"
+                        "&state=%s"
+                        "&redirect_uri=%s" %
+                        (app.config['LINKEDIN_KEY'],
+                         app.config['LINKEDIN_SCOPE'],
+                         generate_csrf_token(),
+                         url_for('connect_linkedin', _external=True)))
+    return render_template('user/home.html', form=form, linkedin_url=linkedin_url)
 
 @app.route('/renvoyer/<int:id_ancien>', methods=['GET'])
 def resend(id_ancien):
