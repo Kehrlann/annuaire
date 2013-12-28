@@ -6,7 +6,7 @@ from flask.ext.login import LoginManager, current_user, login_user, login_requir
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
+login_manager.login_view = "inscription"
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -77,8 +77,9 @@ def inscription():
         return redirect(url_for('annuaire_view'))
 
     if request.method == 'POST' and form.validate():
-        app.logger.info("REGISTER - Trying to add user for %s", form.mail_ancien.data)
-        ancien = annuaire.find_ancien_by_mail_asso(form.mail_ancien.data)
+        mail_ancien = form.mail_ancien+form.domaine_ancien
+        app.logger.info("REGISTER - Trying to add user for %s", mail_ancien)
+        ancien = annuaire.find_ancien_by_mail_asso(mail_ancien)
         if ancien is None:
             app.logger.warning("REGISTER - ancien not found for %s", form.mail_ancien.data)
             form.mail_ancien.errors.append("Il n'existe aucun ancien avec cette adresse mail")
@@ -102,7 +103,17 @@ def inscription():
                     app.logger.info("REGISTER - created preinscription for ancien with id %s", ancien['id_ancien'])
                     return redirect(url_for("login"))
 
-    return render_template('user/register.html', form=form)
+    linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+                        "response_type=code&"
+                        "client_id=%s&"
+                        "scope=%s"
+                        "&state=%s"
+                        "&redirect_uri=%s" %
+                        (app.config['LINKEDIN_KEY'],
+                         app.config['LINKEDIN_SCOPE'],
+                         generate_csrf_token(),
+                         url_for('connect_linkedin', _external=True)))
+    return render_template('user/home.html', form=form, linkedin_url=linkedin_url)
 
 @app.route('/renvoyer/<int:id_ancien>', methods=['GET'])
 def resend(id_ancien):

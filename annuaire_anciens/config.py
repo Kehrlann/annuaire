@@ -6,9 +6,9 @@ puis le référencer avec la variable d'environnement INTERMINES_CONFIG.
 
 
 # General
-APP_NAME = "My app's name"  # Nom de l'appli, pour être sûr de bien avoir chargé la config
-SERVER_NAME = "host:port"   # Host. Les callbacks LinkedIn sont faits sur cette adresse
-DEFAULT_SUBDOMAIN = "www"   # Subdomain principal de l'appli, pour le routing Flask. Peut être www.default
+APP_NAME = "PA's app"  # Nom de l'appli, pour être sûr de bien avoir chargé la config
+SERVER_NAME = "localhost:5000"   # Host. Les callbacks LinkedIn sont faits sur cette adresse
+DEFAULT_SUBDOMAIN = ""   # Subdomain principal de l'appli, pour le routing Flask. Peut être www.default
 SECRET_KEY = "%830q1>d?qw:" # Clef secrete pour signer les cookies de session
 
 LOGIN_DISABLED = False      # Forcer flask.ext.login à utiliser le login. Par défaut, en TESTING, est = True
@@ -18,10 +18,10 @@ DEBUG = False       # Mode DEBUG de flask. En production, toujours = FALSE
 DEBUG_SQL = False   # Mode DEBUG de sqlalchemy (verbeux)
 
 # Database URI, plus d'info : http://docs.sqlalchemy.org/en/rel_0_8/core/engines.html#sqlalchemy.create_engine
-DATABASE_URI = "dialect+driver://user:password@host/dbname"
+DATABASE_URI = "postgresql+psycopg2://localhost:5432/annuaire"
 
 # Upload
-UPLOAD_FOLDER = "/var/www/static"                   # Dossier où uploader les photos d'ancien
+UPLOAD_FOLDER = "/Users/paduc/Desktop"                   # Dossier où uploader les photos d'ancien
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}  # Formats de photo autorisés
 MAX_CONTENT_LENGTH = 2 * 1024 * 1024                # Taille maximale des requêtes
 

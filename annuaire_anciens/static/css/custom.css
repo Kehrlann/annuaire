@@ -1,327 +1,120 @@
-﻿/*!
- * Custom css to override default bootstrap themes
- */
-
-/* reset la couleur du fond du bandeau */
-header, .header, #header {
-    background: aliceblue;
-}
-
-html {
+﻿html {
     height:calc(100%);
 }
 body {
-    padding-top: 40px;
     overflow-y: scroll;
     height:calc(100% - 42px);
-}
-
-/* curseur "main" sur le tableau */
-.hand-pointer {
-    cursor: hand;
-}
-
-/******************************************
-menu de recherche
-*******************************************/
-/* offset pour le menu de recherche */
-.custom-search {
-    margin-top: 20px;
-    top: 30px;
-    padding-left: 0px;
-    width: inherit;
-    height: auto;
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
-    background: aliceblue;
-}
-
-/* pour ne pas trop coller le premier champ de recherche aux onglets */
-.custom-search .tab-content {
     padding-top: 10px;
+    padding-bottom: 20px;
+    background: url("../img/nightsky-halfdome-dark.jpg") center center fixed;
+    background-size: cover;
+    color: #eee!important;
+    font-weight: 200;
+    letter-spacing: 0.5pt;
 }
 
-/* onglets en blanc */
-.custom-search .nav-tabs {
-    margin-bottom: 0px;
-    margin-left: 0px;
-    padding-left: 5px;
-    background: white;
+h1, h2, h3, h4, h5 {
+  font-weight: 100!important;
 }
 
-/* détacher le login */
-.custom-login {
-    padding-top: 20px;
-    padding-bottom: 5px;
+.first-band{
+  position: absolute;
+  width: 100%;
 }
 
-/* pour les champs de recherche */
-.custom-input-width {
-    width: 100%;
-    max-width: 100%;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    height: 30px;
-    min-height: 30px;
-    margin-right: 5px;
 }
 
-.custom-triple-height {
-    height: 90px;
+#search-field {
+  height: 48px;
+  color: #eee;
+  border: 2px solid #eee;
+  border-right: none;
+  background: none;
 }
 
-.custom-search .form-horizontal .control-label {
-    width: 65px;
-    margin-left: 10px;
+.search-field-container {
+  margin: 50px 0;
 }
 
-.custom-search .form-horizontal .controls {
-    margin-left: 85px;
-    margin-right: 10px;
+.search-field-container .auto-complete {
+  min-width: 70%;
+  position: absolute;
+  color: #333;
+  background: #eee;
+  border: 2px solid #fff;
+  border-top: none;
+  left: 20px;
+  z-index: 1000;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  font-weight: 200;
+  display: none;
 }
 
-.custom-padding-right {
-    padding-left: 5px;
-    padding-right: 20px;
+.search-field-container .auto-complete ul{
+  list-style: none;
+  padding-left: 0
 }
 
-/******************************************
-popup d'aide
-*******************************************/
-.custom-justify {
-    text-align: justify
+.search-field-container .auto-complete li{
+  padding: 2px 10px;
 }
 
-.custom-justify > dl > dd {
-    text-align: justify;
+.search-field-container .auto-complete li:hover{
+  background: white;
+  cursor: pointer;
 }
 
-.custom-justify > p {
-    text-align: justify;
+.first-auth-option {
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
-
-/******************************************
-Menu d'en tête
-*******************************************/
-.custom-nav {
-    float: right;
+.custom-box-container {
+  position: relative;
 }
 
-.custom-margin-5 {
-    margin-top:5px;
-    margin-bottom:5px;
+.custom-box-divider {
+  position: absolute;
+  top: 0;
+  left: 40%;
+  height: 100%;
+  width: 1px;
+  border-left: 1px solid #ddd;
 }
 
-.custom-no-hover:hover {
-    text-decoration: none;
+.custom-login-box {
+    padding: 10px;
 }
 
-.custom-inline {
-    display: inline;
+.btn.btn-default {
+  background: none;
+  border: 2px solid #eee;
+  color: #eee;
 }
 
-/******************************************
-cosmétique pour l'autocomplete
-*******************************************/
-.ui-autocomplete {
-    background-color: #ffffff;
-    border: 1px solid;
-    border-color: #CCCCCC;
+.btn.btn-default:hover {
+  border: 2px solid #eee;
+  background: rgba(255,255,255,0.2);
+  color: #eee;
 }
 
-.ui-autocomplete > .ui-menu-item {
-    border-bottom: 1px dotted;
-    border-color: #CCCCCC;
+.btn.btn-default:active {
+  border: 2px solid #eee;
+  background: none;
+  color: #eee;
 }
 
-/******************************************
-fiches d'anciens
-*******************************************/
-.custom-img {
-    max-width: 460px;
-    max-height: 400px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px;
+.navbar a.navbar-brand {
+  color: #eee;
+  margin-left: -15px;
 }
 
-.custom-cadre {
-    border: 1px solid rgb(221, 221, 221);
-    border-radius: 0px 0px 6px 6px;
-    margin-bottom: 20px;
-    padding: 9px;
+.auth-option.well {
+  background-color: rgba(255,255,255,0.3);
+  border: none;
 }
 
-.custom-cadre-header {
-    border: 1px solid rgb(27, 27, 27);
-    background-color: rgb(27, 27, 27);
-    color: rgb(221, 221, 211);
-    font-weight: bold;
-    font-size: 20px;
-    border-radius: 6px 6px 0px 0px;
-    -moz-border-radius: 12px;
-    padding: 9px;
-}
-
-/******************************************
-modification du compte
-*******************************************/
-.custom-ancien-container {
-    margin-top: 20px;
-}
-
-.custom-thumbnails .span2 {
-    width: 165px;
-}
-
-.custom-sublabel {
-    font-weight: bold;
-    color: #5A5A5A;
-    line-height: 14px;
-}
-
-.thumbnails {
-    text-align: center;
-}
-
-.thumbnail {
-    padding-bottom: 10px;
-    text-align: center;
-}
-
-.custom-thumbnail-content {
-    min-height: 100px;
-    overflow: hidden;
-}
-
-/* aligner la taille des boutons sur l'icône LinkedIn en 32*32 */
-.custom-thumbnail .btn {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 8px;
-    padding-right: 8px;
-    min-height: 20px;
-}
-
-.custom-bold {
-    font-weight: bold;
-}
-
-.custom-center {
-    text-align: center;
-}
-
-.table .custom-valign-middle {
-    text-align: center;
-    vertical-align: middle;
-}
-
-/***********
- * Footer  *
- ***********/
-.custom-wrapper {
-    min-height: calc(100% - 120px);
-	height: auto !important;
-}
-
-.custom-footer {
-    text-align: center;
-    padding: 20px 0;
-    border-top: 1px solid #e5e5e5;
-    background-color: #f5f5f5;
-    color: #777;
-    height: 80px;
-    position:relative;
-}
-
-.custom-footer-spacer {
-    height: 0px;
-}
-
-.custom-footer p {
-    margin-bottom: 0;
-}
-
-.custom-footer-links {
-    margin: 10px 0;
-}
-
-.custom-footer-links li {
-    display: inline;
-    padding: 0 2px;
-}
-
-.custom-footer-links li:first-child {
-    padding-left: 0;
-}
-
-/* En mode "tablette", virer la position "fixed" pour mettre le menu tout en haut */
-@media (max-width: 979px) {
-    .custom-search {
-        position: static;
-    }
-
-    body {
-        padding-top: 0px;
-    }
-
-    [class*="span"] {
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        display: block;
-        float: none;
-        width: 100%;
-    }
-
-    [class*="offset"] {
-        margin-left: 0px;
-    }
-
-    .navbar {
-        margin-bottom: 0px;
-    }
-
-    .custom-thumbnails .span2 {
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        display: block;
-        float: none;
-        width: 744px;
-        margin-left: 20px;
-    }
-
-    .custom-ancien-container .span6 {
-        margin-left: 0px;
-        padding-left: 20px;
-    }
-}
-
-/* Fix pour le header du mode téléphone */
-@media (max-width: 767px) {
-    header {
-        margin-right: -20px;
-        margin-left: -20px;
-        padding-right: 20px;
-        padding-left: 20px;
-    }
-
-    .custom-thumbnails .span2 {
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        display: block;
-        float: none;
-        width: 100%;
-        margin-left: 0px;
-    }
-
-    .custom-ancien-container .span6 {
-        padding-left: 0px;
-    }
+.auth-option .help-block {
+  color: #eee;
 }

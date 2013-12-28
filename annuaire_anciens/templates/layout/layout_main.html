@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">  
+        <meta name="author" content="">
 
         <!-- Le jQuery, mother of everything -->
         {% if jquery_cdn != None %}
@@ -14,14 +15,8 @@
             <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-1.8.3.min.js') }}"></script>
         {% endif %}
 
-        <!-- Le jQuery UI, mostly for autocomplete -->
-        {% if jquery_ui_cdn != None %}
-            <script type="text/javascript" src="{{ jquery_ui_cdn }}"></script>
-        {% else %}
-            <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-ui-1.10.0.custom.min.js') }}"></script>
-        {% endif %}
-        <link href="{{ url_for('static',filename='css/jquery-ui-1.10.0.custom.min.css') }}" rel="stylesheet">
 
+        <link href="{{ url_for('static',filename='css/custom.css') }}" rel="stylesheet">
 
         <!-- Le bootstrap (functional, and stylish). -->
         {% if bootstrap_css_cdn != None %}
@@ -39,7 +34,7 @@
 
         <!-- Le analytics, to spy on you. -->
         {% if google_analytics != None %}
-            {{ google_analytics|safe }}
+            {{ google_analytics }}
         {% endif %}
 
         <!-- Le custom stuff. -->
@@ -53,41 +48,38 @@
     </head>
     <body id="body">
 
-        <div class="custom-wrapper">
         <!-- Le user navbar -->
-        <div class="navbar navbar-inverse navbar-fixed-top">
-             <div class="navbar-inner">
-                <div class="container">
-                    {% block navbar %}
-                        <a class="brand" href="{{ url_for('login') }}">Annuaire Mines</a>
-                        <a class='navbar-text custom-no-hover'>Bonjour. Avant de commencer &agrave; utiliser l'annuaire, veuillez vous identifier.</a>
-                    {% endblock %}
+        <div class="container">
+            <div class="row">
+              <div class="col-lg-10 col-lg-offset-1">
+                <div class="navbar">
+                    <a class="navbar-brand" href=".">Mines-Alumni.com</a>
+                    <div class="navbar-right">
+                        {% block navbar %}
+                        <a href="{{ url_for('login') }}" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</a>
+                        {% endblock %}
+                    </div>
                 </div>
+              </div>
             </div>
         </div>
-        
-        <!-- Le header -->
-        <header class="subhead" id="overview">
-            <div class="container">
-                {% block header %}
-                    <h1>Annuaire des anciens des Mines</h1>
-                    <p class="lead">Annuaire des anciens des Mines de Paris, Saint-Etienne et Nancy.</p>
-                {% endblock %}
-            </div>
-        </header>
 
-    
-        <!-- Le page-defined layout. -->
-        {% block layout %}{% endblock %}
-            <div class="custom-footer-spacer"></div>
+        {% block top_container %}
+        <div class="container">
+            <!-- Le header -->
+            {% block header %}
+                <h1>Annuaire des anciens des Mines</h1>
+                <p class="lead">Annuaire des anciens des Mines de Paris, Saint-Etienne et Nancy.</p>
+            {% endblock %}
+
+
+
+            <!-- Le page-defined layout. -->
+            {% block layout %}{% endblock %}
         </div>
+        {% endblock %}
 
         <!-- Le modal block, to cram all your modal windows -->
         {% block modal %}{% endblock %}
-
-        <!-- Le footer -->
-        {% block footer %}
-            {% include "helper/_footer.html" %}
-        {% endblock %}
     </body>
 </html>
