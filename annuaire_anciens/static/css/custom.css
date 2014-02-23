@@ -17,11 +17,9 @@ h1, h2, h3, h4, h5 {
   font-weight: 100!important;
 }
 
-.first-band{
+.first-band {
   position: absolute;
   width: 100%;
-}
-
 }
 
 #search-field {
