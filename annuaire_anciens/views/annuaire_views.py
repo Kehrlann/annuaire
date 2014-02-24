@@ -2,7 +2,7 @@
 from annuaire_anciens import app, helper, annuaire, ECOLES, PAYS
 from flask import render_template, request
 from annuaire_anciens.helper.security import csrf_exempt
-from helper import search_anciens, search_fulltext
+from search import search_anciens, search_fulltext
 from flask import session
 from flask.ext.login import current_user, login_required
 
@@ -32,10 +32,10 @@ def annuaire_view():
         elif 'previous_search' in session:
             session.pop('previous_search')
 
-        search = search_anciens(request.form, 1)
-        pagination = search[0]
-        results = search[1]
-        annuaire_form = search[2]
+        s = search_anciens(request.form, 1)
+        pagination = s[0]
+        results = s[1]
+        annuaire_form = s[2]
 
     # recherche "fulltext" : recherche brute
     else:
@@ -47,9 +47,9 @@ def annuaire_view():
         elif 'previous_fulltext' in session:
             session.pop('previous_fulltext')
 
-        search = search_fulltext(request.form.get("fulltext"), 1)
-        pagination = search[0]
-        results = search[1]
+        s = search_fulltext(request.form.get("fulltext"), 1)
+        pagination = s[0]
+        results = s[1]
 
 
     return render_template('annuaire/annuaire.html',
@@ -65,13 +65,13 @@ def annuaire_view():
 @login_required
 def tableau_anciens(page):
     if 'previous_search' in session:
-        search = search_anciens(None, page)
+        s = search_anciens(None, page)
     elif 'previous_fulltext' in session:
-        search = search_fulltext(None, page)
+        s = search_fulltext(None, page)
     else:
-        search = [None, []]
-    pagination = search[0]
-    results = search[1]
+        s = [None, []]
+    pagination = s[0]
+    results = s[1]
     return render_template('annuaire/_tableau_anciens.html',
         results = results,
         pagination = pagination)
