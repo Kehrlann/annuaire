@@ -1,7 +1,7 @@
 <a class="brand" href="{{ url_for('annuaire_view') }}">{{ app_name }}</a>
 <a class='navbar-text custom-no-hover'>Rechercher un ancien : </a>
 <form class="form-inline custom-inline" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
-    <input autocomplete="off" class="ui-autocomplete-input" id="fulltext" name="fulltext" value="{{ previous_fulltext() }}" type="text" ></input>
+    <input autocomplete="off" class="ui-autocomplete-input" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" type="text" ></input>
     <button type="submit" class="btn btn-primary custom-margin-5">Go !</button>
 </form>
 <div class="pull-right">
@@ -9,7 +9,7 @@
     <a class='btn' href="{{ url_for('logout') }}">D&eacute;connexion</a>
 </div>
 <script>
-$('input#fulltext').autocomplete({
+$('input#fulltext_top').autocomplete({
     source : '{{ url_for("autocomplete_fulltext") }}',
     //width: 300,
     max: 10,
@@ -21,7 +21,7 @@ $('input#fulltext').autocomplete({
          $(this).parents("form").submit();
    }
 });
-$("input#fulltext").focus(function(){
+$("input#fulltext_top").focus(function(){
     this.select();
 });
 </script>

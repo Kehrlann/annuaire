@@ -38,5 +38,15 @@
         </tbody>
     </table>
     {{ render_pagination(pagination) }}
+
+    {% if google_analytics != None %}
+    <script>
+        $(document).ready(
+                function (){
+                    ga('send', 'pageview', '/search_results?q={{ previous_fulltext() }}');
+                }
+        );
+    </script>
+    {% endif %}
 </div>
 {% endif %}
