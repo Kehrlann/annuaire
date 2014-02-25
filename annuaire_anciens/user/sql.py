@@ -31,7 +31,7 @@ def find_user_by_mail(form):
         password = ""
     if mail is not None:
         utilisateur = __utilisateur
-        sel = select([utilisateur]).where(__utilisateur.c.mail == mail)
+        sel = select([utilisateur]).where(__utilisateur.c.mail == mail.lower())
         res = __connection.execute(sel)
     if res is not None:
         row = res.first()

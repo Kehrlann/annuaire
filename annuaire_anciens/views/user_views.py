@@ -4,7 +4,7 @@ import os
 
 from werkzeug.utils import secure_filename
 from flask import render_template, request, url_for, redirect, session, flash
-from flask.ext.login import current_user, login_required
+from flask.ext.login import current_user, login_required, login_user
 import requests
 from lxml import etree
 
@@ -45,7 +45,7 @@ def compte():
                         (app.config['LINKEDIN_KEY'],
                          app.config['LINKEDIN_SCOPE'],
                          generate_csrf_token(),
-                         url_for('connect_linkedin', _external=True)))
+                         url_for('linkedin_associer', _external=True)))
 
     # préparer l'url pour connecter l'utilisateur à LinkedIn si ce n'est pas déjà fait
     import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
@@ -57,7 +57,7 @@ def compte():
                         (app.config['LINKEDIN_KEY'],
                          app.config['LINKEDIN_SCOPE'],
                          generate_csrf_token(),
-                         url_for('import_linkedin', _external=True)))
+                         url_for('linkedin_importer', _external=True)))
 
     return render_template('user/compte.html',
                            adresse = adresse_label,
@@ -348,7 +348,11 @@ def remove_experience(id_experience):
 
 @app.route("/compte/linkedin/authorize/", methods=['GET'])
 @login_required
-def connect_linkedin():
+def linkedin_associer():
+    """"
+    Fonction de callback appelée par LinkedIn.
+    Associer un compte ancien à un compte LinkedIn
+    """
     success = False
     utilisateur = user.find_user_by_id(current_user.id)
     app.logger.info(
@@ -359,7 +363,7 @@ def connect_linkedin():
     if utilisateur.id_ancien is not None:
         ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
         if ancien is not None:
-            access_token = __get_linkedin_token(url_for('connect_linkedin', _external=True))
+            access_token = __get_linkedin_token(url_for('linkedin_associer', _external=True))
             api_url = "https://api.linkedin.com/v1/people/~:(id,public-profile-url)?oauth2_access_token=%s" % access_token
             api_req =  requests.get(api_url)
             if api_req is not None and api_req.status_code == requests.codes.ok:
@@ -392,9 +396,9 @@ def connect_linkedin():
 
 @app.route("/compte/linkedin/disconnect/", methods=['POST'])
 @login_required
-def disconnect_linkedin():
+def linkedin_dissocier():
     """
-    Virer l'experience linkedin d'un ancien
+    Virer l'association au compte linkedin d'un ancien
     @return:
     """
     utilisateur = user.find_user_by_id(current_user.id)
@@ -409,7 +413,11 @@ def disconnect_linkedin():
 
 @app.route("/compte/linkedin/import/", methods=['GET'])
 @login_required
-def import_linkedin():
+def linkedin_importer():
+    """
+    Fonction de callback appelée par LinkedIn.
+    Importer les expériences depuis linkedin
+    """
     import_success = False
     saved_positions = 0
     utilisateur = user.find_user_by_id(current_user.id)
@@ -421,7 +429,7 @@ def import_linkedin():
     if utilisateur.id_ancien is not None:
         ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
         if ancien is not None:
-            access_token = __get_linkedin_token(url_for('import_linkedin', _external=True))
+            access_token = __get_linkedin_token(url_for('linkedin_importer', _external=True))
             api_url = "https://api.linkedin.com/v1/people/~:(id,positions)?oauth2_access_token=%s" % access_token
             api_req =  requests.get(api_url)
             if api_req is not None and api_req.status_code == requests.codes.ok:
@@ -496,6 +504,59 @@ def import_linkedin():
         flash("Oups ! Il y a eu un probl&egrave;me pendant la connexion. Merci de contacter l'administrateur.", "error")
 
     return redirect(url_for("compte"))
+
+
+@app.route("/linkedin/login", methods=['GET'])
+def linkedin_login():
+    """
+    Fonction de callback appelée par LinkedIn.
+
+    Log-in un membre à partir de LinkedIn.
+    """
+    app.logger.info("LINKEDIN - begin login")
+
+    access_token = __get_linkedin_token(url_for('linkedin_associer', _external=True))
+    api_url = "https://api.linkedin.com/v1/people/~:(id)?oauth2_access_token=%s" % access_token
+    api_req =  requests.get(api_url)
+    if api_req is not None and api_req.status_code == requests.codes.ok:
+        parsed = etree.fromstring(api_req.text.encode("utf-8"))
+        if parsed is not None:
+            id_linkedin = None
+            for e in parsed:
+                if e.tag == "id":
+                    id_linkedin = e.text
+            if id_linkedin is not None:
+                app.logger.info("LINKEDIN - search ancien for id id_linkedin : %s", id_linkedin)
+                ancien = annuaire.find_ancien_by_id_linkedin(id_linkedin)
+                if ancien is not None:
+                    app.logger.info("LINKEDIN - found ancien with ID : %s", ancien['id_ancien'])
+                    utilisateur = user.find_user_by_id_ancien(ancien['id_ancien'])
+                    if utilisateur is not None :
+                        app.logger.info("LOGIN - linkedin login successful, with id %s",  utilisateur.id)
+                        login_user(utilisateur)
+                        flash("Logged in successfully.")
+                        return redirect(url_for('annuaire_view'))
+                    else:
+                        flash("Erreur de connexion : mot de passe incorrect ou utilisateur inconnu", "error")
+                        app.logger.warning("LOGIN - linkedin login failed for id_linkedin %s", id_linkedin)
+
+                else:
+                    app.logger.warning("LINKEDIN - no ancien for id_linkedin : %s", id_linkedin)
+
+        else:
+            app.logger.error("LINKEDIN - blank API response file")
+
+    elif api_req is None:
+        app.logger.error("LINKEDIN - bad people API request, null response")
+    else:
+        app.logger.error(
+            "LINKEDIN - bad people API request ... code : %s, request response : %s",
+            api_req.status_code,
+            api_req.text
+        )
+
+    return redirect(url_for("login"))
+
 
 
 def __get_linkedin_token(url):

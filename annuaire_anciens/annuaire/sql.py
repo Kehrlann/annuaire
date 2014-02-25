@@ -316,6 +316,21 @@ def find_ancien_by_mail_asso(mail_asso):
     return res
 
 
+def find_ancien_by_id_linkedin(id_linkedin):
+    """
+    Trouver un ancien par ID_linkedin.
+
+    @param id_linkedin: l'id renvoyé par LinkedIn pour identifier un compte.
+    @return :
+        - SELECT DISTINCT * FROM ancien WHERE id_linkedin = id_linkedin;
+        - First result only
+        - NONE if not found
+    """
+    sel = select([__ancien], __ancien.c.id_linkedin == id_linkedin).distinct()
+    res = __connection.execute(sel).first()
+    return res
+
+
 
 def find_adresse_by_id_ancien(id_ancien):
     """

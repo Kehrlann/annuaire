@@ -79,7 +79,7 @@
             <div class="custom-thumbnail-content">
                 <h5>Dissociez votre compte LinkedIn</h5>
             </div>
-            <form action="{{ url_for('disconnect_linkedin') }}" method="POST" style="margin-bottom: 0;">
+            <form action="{{ url_for('linkedin_dissocier') }}" method="POST" style="margin-bottom: 0;">
                 {{ token|hidden|safe }}
                 <button type="submit" role="button" class="btn btn-danger"><i class="icon-remove icon-white"></i></button>
             </form>

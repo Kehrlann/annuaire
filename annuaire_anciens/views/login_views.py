@@ -112,7 +112,7 @@ def inscription():
                         (app.config['LINKEDIN_KEY'],
                          app.config['LINKEDIN_SCOPE'],
                          helper.generate_csrf_token(),
-                         url_for('connect_linkedin', _external=True)))
+                         url_for('linkedin_login', _external=True)))
     return render_template('user/home.html', form=form, linkedin_url=linkedin_url)
 
 @app.route('/renvoyer/<int:id_ancien>', methods=['GET'])
@@ -183,9 +183,4 @@ def activation(id_ancien, code_activation):
 def logout():
     app.logger.info("Logout user with id %s", current_user.id)
     logout_user()
-    return redirect(url_for('login'))
-
-
-@app.route("/test")
-def osef():
     return redirect(url_for('login'))
