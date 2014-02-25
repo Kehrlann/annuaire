@@ -364,8 +364,10 @@ def linkedin_associer():
         ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
         if ancien is not None:
             access_token = __get_linkedin_token(url_for('linkedin_associer', _external=True))
-            api_url = "https://api.linkedin.com/v1/people/~:(id,public-profile-url)?oauth2_access_token=%s" % access_token
+            print access_token
+            api_url = "https://api.linkedin.com/v1/people/~:(id)?oauth2_access_token=%s" % access_token
             api_req =  requests.get(api_url)
+            print api_req
             if api_req is not None and api_req.status_code == requests.codes.ok:
                 parsed = etree.fromstring(api_req.text.encode("utf-8"))
                 if parsed is not None:
@@ -515,7 +517,7 @@ def linkedin_login():
     """
     app.logger.info("LINKEDIN - begin login")
 
-    access_token = __get_linkedin_token(url_for('linkedin_associer', _external=True))
+    access_token = __get_linkedin_token(url_for('linkedin_login', _external=True))
     api_url = "https://api.linkedin.com/v1/people/~:(id)?oauth2_access_token=%s" % access_token
     api_req =  requests.get(api_url)
     if api_req is not None and api_req.status_code == requests.codes.ok:
@@ -576,6 +578,9 @@ def __get_linkedin_token(url):
     @return:
     """
     access_token = None
+    user_id = "Anonymous"
+    if current_user.is_authenticated():
+        user_id = current_user.id
     if request.args.get('error') is None:
         state = request.args.get('state')
         code = request.args.get('code')
@@ -594,21 +599,21 @@ def __get_linkedin_token(url):
             req = requests.post(linkedin_url)
             app.logger.info(
                 "LINKEDIN - Request for user : %s, request : %s",
-                current_user.id, linkedin_url)
+                user_id, linkedin_url)
             if req.status_code == requests.codes.ok:
                 access_token = req.json()['access_token']
             else:
                 app.logger.error(
                     "LINKEDIN - bad access request for user : %s, code : %s, request response : %s",
-                    current_user.id, req.status_code, req.json())
+                    user_id, req.status_code, req.json())
         else:
             app.logger.error(
                 "LINKEDIN - CSRF or no code for user : %s, code : %s, token (LinkedIn state) : %s, should be : %s",
-                current_user.id, code, state, session['_csrf_token'])
+                user_id, code, state, session['_csrf_token'])
     else:
         app.logger.error(
             "LINKEDIN - error authorizing LinkedIn access for user : %s, errors : %s",
-            current_user.id, request.args.get('error'))
+            user_id, request.args.get('error'))
 
     return access_token
 
