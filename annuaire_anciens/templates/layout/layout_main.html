@@ -5,7 +5,7 @@
         <title> {% block title %}Ancien Intermines{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
-        <meta name="author" content="">  
+        <meta name="author" content="">
         <meta name="author" content="">
 
         <!-- Le jQuery, mother of everything -->
@@ -49,20 +49,21 @@
     <body id="body">
 
         <!-- Le user navbar -->
-        <div class="container">
-            <div class="row">
-              <div class="col-lg-10 col-lg-offset-1">
-                <div class="navbar">
+        <header class="navbar navbar-static-top nav-container">
+            <div class="container">
+                <div class="row">
+                  <div class="col-lg-10 col-lg-offset-1">
                     <a class="navbar-brand" href=".">Mines-Alumni.com</a>
                     <div class="navbar-right">
                         {% block navbar %}
                         <a href="{{ url_for('login') }}" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</a>
                         {% endblock %}
                     </div>
+                  </div>
                 </div>
-              </div>
             </div>
-        </div>
+        </header>
+
 
         {% block top_container %}
         <div class="container">

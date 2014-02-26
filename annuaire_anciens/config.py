@@ -43,4 +43,4 @@ LINKEDIN_SECRET = "secret"                          # Secret Linkedin
 LINKEDIN_SCOPE = "r_basicprofile%20r_fullprofile"   # Infos profil LinkeDin. full_profile pour avoir les expériences
 
 # logging
-LOGFILE="/var/log/annuaire.log"     # Fichier de log
+LOGFILE="local/annuaire.log"     # Fichier de log

@@ -4,13 +4,39 @@
 body {
     overflow-y: scroll;
     height:calc(100% - 42px);
-    padding-top: 10px;
+    padding-top: 0px;
     padding-bottom: 20px;
-    background: url("../img/nightsky-halfdome-dark.jpg") center center fixed;
-    background-size: cover;
+    background: #34495e;
     color: #eee!important;
     font-weight: 200;
     letter-spacing: 0.5pt;
+}
+
+.navbar.nav-container {
+  background-color: white;
+  color: #34495e;
+}
+
+.navbar a.navbar-brand {
+  color: #34495e;
+  margin-left: -15px;
+}
+
+.navbar .btn.btn-default {
+  border: 2px solid #34495e;
+  color: #34495e;
+}
+
+.navbar .btn.btn-default:hover {
+  border: 2px solid #34495e;
+  background: rgba(52,73,94,0.1);
+  color: #34495e;
+}
+
+.navbar .btn.btn-default:active {
+  border: 2px solid #34495e;
+  background: none;
+  color: #34495e;
 }
 
 h1, h2, h3, h4, h5 {
@@ -103,10 +129,26 @@ h1, h2, h3, h4, h5 {
   color: #eee;
 }
 
-.navbar a.navbar-brand {
-  color: #eee;
-  margin-left: -15px;
+.btn.btn-primary {
+  background-color: none;
 }
+
+.btn.btn-primary:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.btn.btn-primary:active {
+  background: rgba(255,255,255,0.2);
+}
+
+
+input.form-control {
+  background: none;
+  border: 2px solid #eee;
+  color: #eee;
+}
+
+
 
 .auth-option.well {
   background-color: rgba(255,255,255,0.3);
