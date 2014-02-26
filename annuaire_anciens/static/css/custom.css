@@ -6,7 +6,7 @@ body {
     height:calc(100% - 42px);
     padding-top: 0px;
     padding-bottom: 20px;
-    background: #34495e;
+    background: #2c3e50;
     color: #eee!important;
     font-weight: 200;
     letter-spacing: 0.5pt;
@@ -14,29 +14,29 @@ body {
 
 .navbar.nav-container {
   background-color: white;
-  color: #34495e;
+  color: #2c3e50;
 }
 
 .navbar a.navbar-brand {
-  color: #34495e;
+  color: #2c3e50;
   margin-left: -15px;
 }
 
 .navbar .btn.btn-default {
-  border: 2px solid #34495e;
-  color: #34495e;
+  border: 2px solid #2c3e50;
+  color: #2c3e50;
 }
 
 .navbar .btn.btn-default:hover {
-  border: 2px solid #34495e;
+  border: 2px solid #2c3e50;
   background: rgba(52,73,94,0.1);
-  color: #34495e;
+  color: #2c3e50;
 }
 
 .navbar .btn.btn-default:active {
-  border: 2px solid #34495e;
+  border: 2px solid #2c3e50;
   background: none;
-  color: #34495e;
+  color: #2c3e50;
 }
 
 h1, h2, h3, h4, h5 {
@@ -130,7 +130,10 @@ h1, h2, h3, h4, h5 {
 }
 
 .btn.btn-primary {
-  background-color: none;
+  background: #3498db;
+  color: #2c3e50;
+  font-weight: bold;
+  border: none;
 }
 
 .btn.btn-primary:hover {
@@ -141,6 +144,10 @@ h1, h2, h3, h4, h5 {
   background: rgba(255,255,255,0.2);
 }
 
+.btn.btn-link, a {
+  color: #3498db;
+}
+
 
 input.form-control {
   background: none;
@@ -148,6 +155,37 @@ input.form-control {
   color: #eee;
 }
 
+input.form-control::-webkit-input-placeholder {
+   color: #eee;
+}
+
+input.form-control:-moz-placeholder { /* Firefox 18- */
+   color: #eee;
+}
+
+input.form-control::-moz-placeholder {  /* Firefox 19+ */
+   color: #eee;
+}
+
+input.form-control:-ms-input-placeholder {
+   color: #eee;
+}
+
+input.form-control:focus::-webkit-input-placeholder {
+   color: #34495e;
+}
+
+input.form-control:focus:-moz-placeholder { /* Firefox 18- */
+   color: #34495e;
+}
+
+input.form-control:focus::-moz-placeholder {  /* Firefox 19+ */
+   color: #34495e;
+}
+
+input.form-control:focus:-ms-input-placeholder {
+   color: #34495e;
+}
 
 
 .auth-option.well {

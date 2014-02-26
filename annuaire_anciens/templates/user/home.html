@@ -11,7 +11,65 @@
           <h5>*Anciens des Mines de Nancy, Paris et Saint-Etienne</h5>
         </div>
 
-        <div class="search-field-container">
+                <div>
+                  <h4 style="padding-top: 40px; padding-bottom: 10px">1. Je prouve que je suis bien un ancien des Mines</h4>
+                  <div class="row">
+        <!--             <div class="col-md-5 auth-option first-auth-option">
+                      <h4><b>Avec mon compte LinkedIn</b></h4>
+                      <a href="{{ linkedin_url }}" class="btn btn-default"><img height="20" src="{{ url_for('static',filename='img/linkedin.gif') }}"/> Connexion avec LinkedIn</a><br>
+                      <span class="help-block">Nous vérifierons votre appartenance à un des groupes privés d'Anciens des Mines.</span>
+                    </div> -->
+
+                    <div class="col-md-6 auth-option" >
+                      <!-- <h4><b>Avec mon adresse email d'ancien</b></h4> -->
+                      <form class="form form-inline" method="POST" role="form" action='{{ url_for("inscription") }}'>
+                        {{ csrf_token()|hidden|safe }}
+                        <div class="row">
+                            <div class="form-group col-xs-6" style="padding-right: 1px">
+                              <input type="text" class="form-control" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom" onkeyup="if(this.value.length > 4){ $('.js-hide-until-email').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-email').hide() }">
+                            </div>
+                            <div class="form-group col-xs-6" style="padding-left: 1px">
+                              <select id="{{ form.domaine_ancien.id }}" class="form-control">
+                                  <option value="@mines-paris.org">@mines-paris.org</option>
+                                  <option value="@mines-saint-etienne.org">@mines-saint-etienne.org</option>
+                                  <option value="@mines-nancy.org">@mines-nancy.org</option>
+                              </select>
+                            </div>
+                        </div>
+
+
+                      <span class="help-block">Un email sera envoyé à cette adresse pour vérification.</span>
+
+                        <div style="display: none" class="js-hide-until-email">
+                          <h4 style="padding-top: 40px; padding-bottom: 10px">2. Je choisis un mot de passe pour les fois prochaines</h4>
+                          <div>
+                            <input type="password" class="form-control" id="{{ form.password.id }}" placeholder="Mot de passe" onkeyup="if(this.value.length > 5){ $('.js-hide-until-password').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-password').hide() }">
+                            <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
+                          </div>
+                          {% if form.errors != None and form.errors|count_not_null > 0 %}
+                          <div class="alert alert-danger">
+                              <ul>
+                                  {% for error in form.errors %}
+                                      {% if error != None %}<li>{{ error }}</li>{% endif %}
+                                  {% endfor %}
+                              </ul>
+                          </div>
+                          {% endif %}
+                          <div style="padding-top: 40px; display: none" class="js-hide-until-password">
+                            <button type="submit" class="btn btn-default js-login-submit">Valider</button>
+                            <a href="{{ url_for('login')}}" class="btn btn-link">J'ai déjà un compte</a>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                </div>
+
+
+
+<!--         <div class="search-field-container">
+          <h4 style="padding-top: 20px; padding-bottom: 10px">2. Je cherche, je trouve</h4>
           <div class="input-group">
             <input type="text" class="form-control input-lg" id="search-field" placeholder="Ex: Pierre Durand SNCF" title="Vous devez être identifié pour effectuer une recherche sur l'annuaire." onfocus="$('.auto-complete').show()" onblur="$('.auto-complete').hide()">
             <span class="input-group-btn">
@@ -28,59 +86,9 @@
               <li>Resultat <b>auto</b>complété</li>
             </ul>
           </div>
-        </div>
-
-        <div>
-          <h3><span class="glyphicon glyphicon-lock"></span> Pour commencer, je prouve que je suis bien un ancien des Mines&nbsp;:</h3>
-          <div class="row">
-            <div class="col-md-5 auth-option first-auth-option">
-              <h4><b>Avec mon compte LinkedIn</b></h4>
-              <a href="{{ linkedin_url }}" class="btn btn-default"><img height="20" src="{{ url_for('static',filename='img/linkedin.gif') }}"/> Connexion avec LinkedIn</a><br>
-              <span class="help-block">Nous vérifierons votre appartenance à un des groupes privés d'Anciens des Mines.</span>
-            </div>
-
-            <div class="col-md-6 auth-option" >
-              <h4><b>Avec mon adresse email</b></h4>
-              <form class="form form-inline" method="POST" role="form" action='{{ url_for("inscription") }}'>
-                {{ csrf_token()|hidden|safe }}
-                <div class="row">
-                    <div class="form-group col-xs-6" style="padding-right: 1px">
-                      <input type="text" class="form-control" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom" onkeyup="if(this.value.length > 0){ $('.js-hide-until-focus').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-focus').hide() }">
-                    </div>
-                    <div class="form-group col-xs-6" style="padding-left: 1px">
-                      <select id="{{ form.domaine_ancien.id }}" class="form-control">
-                          <option value="@mines-paris.org">@mines-paris.org</option>
-                          <option value="@mines-saint-etienne.org">@mines-saint-etienne.org</option>
-                          <option value="@mines-nancy.org">@mines-nancy.org</option>
-                      </select>
-                    </div>
-                </div>
+        </div> -->
 
 
-              <span class="help-block">Un email sera envoyé à cette adresse pour vérification.</span>
-
-                <div style="display: none" class="js-hide-until-focus">
-                  <div>
-                    <input type="password" class="form-control" id="{{ form.password.id }}" placeholder="Mot de passe">
-                    <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
-                  </div>
-                  {% if form.errors != None and form.errors|count_not_null > 0 %}
-                  <div class="alert alert-danger">
-                      <ul>
-                          {% for error in form.errors %}
-                              {% if error != None %}<li>{{ error }}</li>{% endif %}
-                          {% endfor %}
-                      </ul>
-                  </div>
-                  {% endif %}
-                  <button type="submit" class="btn btn-primary js-login-submit">Valider</button>
-                  <a href="{{ url_for('login')}}" class="btn btn-link">J'ai déjà un compte</a>
-                </div>
-              </form>
-            </div>
-          </div>
-
-        </div>
       </div>
     </div>
   </div>
