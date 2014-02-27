@@ -12,6 +12,10 @@ body {
     letter-spacing: 0.5pt;
 }
 
+.help-block {
+  color: #eee;
+}
+
 .navbar.nav-container,
 footer {
   background-color: white;
