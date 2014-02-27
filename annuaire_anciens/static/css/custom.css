@@ -30,6 +30,7 @@ footer {
 .navbar .btn.btn-default {
   border: 2px solid #2c3e50;
   color: #2c3e50;
+  background: none;
 }
 
 .navbar .btn.btn-default:hover {
@@ -119,19 +120,17 @@ h1, h2, h3, h4, h5 {
 }
 
 .btn.btn-default {
-  background: none;
-  border: 2px solid #eee;
-  color: #eee;
+  background: #eee;
+  color: #2c3e50;
+  border: none
 }
 
 .btn.btn-default:hover {
-  border: 2px solid #eee;
   background: rgba(255,255,255,0.2);
   color: #eee;
 }
 
 .btn.btn-default:active {
-  border: 2px solid #eee;
   background: none;
   color: #eee;
 }
