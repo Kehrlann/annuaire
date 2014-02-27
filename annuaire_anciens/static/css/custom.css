@@ -1,12 +1,29 @@
 ﻿html {
     height:calc(100%);
 }
+
+.header-color {
+  background: white;
+}
+
+.text-color {
+  background: #eee;
+}
+
+.main-background-color {
+  background: #2980b9;
+}
+
+.title-band-color {
+  background: #3498db;
+}
+
 body {
     overflow-y: scroll;
     height:calc(100% - 42px);
     padding-top: 0px;
     padding-bottom: 20px;
-    background: #2c3e50;
+    background: #2980b9;
     color: #eee!important;
     font-weight: 200;
     letter-spacing: 0.5pt;
@@ -19,30 +36,30 @@ body {
 .navbar.nav-container,
 footer {
   background-color: white;
-  color: #2c3e50;
+  color: #2980b9;
 }
 
 .navbar a.navbar-brand {
-  color: #2c3e50;
+  color: #2980b9;
   margin-left: -15px;
 }
 
 .navbar .btn.btn-default {
-  border: 2px solid #2c3e50;
-  color: #2c3e50;
+  border: 2px solid #2980b9;
+  color: #2980b9;
   background: none;
 }
 
 .navbar .btn.btn-default:hover {
-  border: 2px solid #2c3e50;
+  border: 2px solid #2980b9;
   background: rgba(52,73,94,0.1);
-  color: #2c3e50;
+  color: #2980b9;
 }
 
 .navbar .btn.btn-default:active {
-  border: 2px solid #2c3e50;
+  border: 2px solid #2980b9;
   background: none;
-  color: #2c3e50;
+  color: #2980b9;
 }
 
 h1, h2, h3, h4, h5 {
@@ -50,7 +67,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .top-band {
-  background: #34495e;
+  background: #3498db;
   margin-top: -20px;
   padding-top: 20px;
   padding-bottom: 30px;
@@ -121,7 +138,7 @@ h1, h2, h3, h4, h5 {
 
 .btn.btn-default {
   background: #eee;
-  color: #2c3e50;
+  color: #2980b9;
   border: none
 }
 
@@ -137,7 +154,7 @@ h1, h2, h3, h4, h5 {
 
 .btn.btn-primary {
   background: #3498db;
-  color: #2c3e50;
+  color: #2980b9;
   font-weight: bold;
   border: none;
 }
@@ -178,19 +195,19 @@ input.form-control:-ms-input-placeholder {
 }
 
 input.form-control:focus::-webkit-input-placeholder {
-   color: #34495e;
+   color: #3498db;
 }
 
 input.form-control:focus:-moz-placeholder { /* Firefox 18- */
-   color: #34495e;
+   color: #3498db;
 }
 
 input.form-control:focus::-moz-placeholder {  /* Firefox 19+ */
-   color: #34495e;
+   color: #3498db;
 }
 
 input.form-control:focus:-ms-input-placeholder {
-   color: #34495e;
+   color: #3498db;
 }
 
 
