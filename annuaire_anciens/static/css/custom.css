@@ -25,7 +25,7 @@ body {
     padding-bottom: 20px;
     background: #2980b9;
     color: #eee!important;
-    font-weight: 200;
+    font-weight: 400;
     letter-spacing: 0.5pt;
 }
 
@@ -45,25 +45,25 @@ footer {
 }
 
 .navbar .btn.btn-default {
-  border: 2px solid #2980b9;
-  color: #2980b9;
-  background: none;
+  border: none;
+  color: white;
+  background: #1abc9c;
 }
 
 .navbar .btn.btn-default:hover {
-  border: 2px solid #2980b9;
+  border: none;
   background: rgba(52,73,94,0.1);
-  color: #2980b9;
+  color: #eee;
 }
 
 .navbar .btn.btn-default:active {
-  border: 2px solid #2980b9;
+  border: none;
   background: none;
-  color: #2980b9;
+  color: #eee;
 }
 
 h1, h2, h3, h4, h5 {
-  font-weight: 100!important;
+  font-weight: 200!important;
 }
 
 .top-band {
