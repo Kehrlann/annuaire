@@ -28,32 +28,40 @@
                     <span class="help-block">Nous vérifierons votre appartenance à un des groupes privés d'Anciens des Mines.</span>
                   </div> -->
 
-                  <div class="col-md-6 auth-option" >
+                  <div class="col-md-12 auth-option" >
                     <!-- <h4><b>Avec mon adresse email d'ancien</b></h4> -->
+
                     <form class="form form-inline" method="POST" role="form" action='{{ url_for("inscription") }}'>
                       {{ csrf_token()|hidden|safe }}
                       <div class="row">
-                          <div class="form-group col-xs-6" style="padding-right: 1px">
-                            <input type="text" class="form-control" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom" onkeyup="if(this.value.length > 4){ $('.js-hide-until-email').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-email').hide() }">
+                        <div class="col-md-6">
+                          <div class="row">
+                              <div class="form-group col-xs-6" style="padding-right: 1px">
+                                <input type="text" class="form-control" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom" onkeyup="if(this.value.length > 4){ $('.js-hide-until-email').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-email').hide() }">
+                              </div>
+                              <div class="form-group col-xs-6" style="padding-left: 1px">
+                                <select id="{{ form.domaine_ancien.id }}" class="form-control">
+                                    <option value="@mines-paris.org">@mines-paris.org</option>
+                                    <option value="@mines-saint-etienne.org">@mines-saint-etienne.org</option>
+                                    <option value="@mines-nancy.org">@mines-nancy.org</option>
+                                </select>
+                              </div>
                           </div>
-                          <div class="form-group col-xs-6" style="padding-left: 1px">
-                            <select id="{{ form.domaine_ancien.id }}" class="form-control">
-                                <option value="@mines-paris.org">@mines-paris.org</option>
-                                <option value="@mines-saint-etienne.org">@mines-saint-etienne.org</option>
-                                <option value="@mines-nancy.org">@mines-nancy.org</option>
-                            </select>
-                          </div>
+                        </div>
                       </div>
 
+                    <span class="help-block">Un email sera envoyé à cette adresse pour vérification. <a href="{{ url_for('login')}}">J'ai déjà un compte.</a></span>
 
-                    <span class="help-block">Un email sera envoyé à cette adresse pour vérification.</span>
+
 
                       <div style="display: none" class="js-hide-until-email">
                         <h4 style="padding-top: 40px; padding-bottom: 10px">2. Je choisis un mot de passe pour les fois prochaines</h4>
-                        <div>
-                          <input type="password" class="form-control" id="{{ form.password.id }}" placeholder="Mot de passe" onkeyup="if(this.value.length > 5){ $('.js-hide-until-password').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-password').hide() }">
-                          <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <input type="password" class="form-control" id="{{ form.password.id }}" placeholder="Mot de passe" onkeyup="if(this.value.length > 5){ $('.js-hide-until-password').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-password').hide() }">
+                          </div>
                         </div>
+                        <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
                         {% if form.errors != None and form.errors|count_not_null > 0 %}
                         <div class="alert alert-danger">
                             <ul>
@@ -64,8 +72,7 @@
                         </div>
                         {% endif %}
                         <div style="padding-top: 40px; display: none" class="js-hide-until-password">
-                          <button type="submit" class="btn btn-default js-login-submit">Valider</button>
-                          <a href="{{ url_for('login')}}" class="btn btn-link">J'ai déjà un compte</a>
+                          <button type="submit" class="btn btn-default js-login-submit">Je Valide</button>
                         </div>
                       </div>
                     </form>
