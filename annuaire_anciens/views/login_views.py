@@ -110,7 +110,7 @@ def inscription():
                         "&state=%s"
                         "&redirect_uri=%s" %
                         (app.config['LINKEDIN_KEY'],
-                         app.config['LINKEDIN_SCOPE'],
+                         'r_basicprofile',
                          helper.generate_csrf_token(),
                          url_for('linkedin_login', _external=True)))
     return render_template('user/home.html', form=form, linkedin_url=linkedin_url)
