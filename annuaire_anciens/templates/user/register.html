@@ -1,31 +1,73 @@
-{% extends "layout/layout_mono.html" %}
+{% extends "layout/layout_main.html" %}
 
-{% block header %}
-    <h1>Demande d'inscription</h1>
-{% endblock %}
+{% block layout %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1">
 
-{% block content %}
-{% from "helper/_formhelper.html" import render_field_error %}
-<div class="row">
-    <div class="span6 offset3 custom-ancien-container">
-        <p class="custom-justify">
-            Utilisez ce formulaire pour demander l'activation de votre compte sur le site des anciens.
-            Vous devez fournir une adresse @mines-paris.org, @mines-nancy.org ou @mines-saint-etienne.org valide,
-            &agrave; laquelle vous sera envoy&eacute; un mail de confirmation.
-        </p>
-         <form class="form form-horizontal" method=POST action='{{ url_for("inscription") }}'>
-            {{ csrf_token()|hidden|safe }}
-            {{ render_field_error(form.mail_ancien, class="custom-input-width") }}
-            {{ render_field_error(form.password, class="custom-input-width") }}
-            {{ render_field_error(form.password_confirm, class="custom-input-width") }}
-            <div class="control-group">
-                <div class="controls">
-                    <button type="submit" class="btn btn-primary">S'inscrire</button>
+      <div>
+        <h4 style="padding-top: 40px; padding-bottom: 10px">1. Je prouve que je suis bien un ancien des Mines</h4>
+        <div class="row">
+<!--             <div class="col-md-5 auth-option first-auth-option">
+            <h4><b>Avec mon compte LinkedIn</b></h4>
+            <a href="{{ linkedin_url }}" class="btn btn-default"><img height="20" src="{{ url_for('static',filename='img/linkedin.gif') }}"/> Connexion avec LinkedIn</a><br>
+            <span class="help-block">Nous vérifierons votre appartenance à un des groupes privés d'Anciens des Mines.</span>
+          </div> -->
+
+          <div class="col-md-12 auth-option" >
+            <!-- <h4><b>Avec mon adresse email d'ancien</b></h4> -->
+
+            <form class="form form-inline" method="POST" role="form" action='{{ url_for("inscription") }}'>
+              {{ csrf_token()|hidden|safe }}
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="row">
+                      <div class="form-group col-xs-6" style="padding-right: 1px">
+                        <input type="text" class="form-control" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom" onkeyup="if(this.value.length > 4){ $('.js-hide-until-email').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-email').hide() }">
+                      </div>
+                      <div class="form-group col-xs-6" style="padding-left: 1px">
+                        <select id="{{ form.domaine_ancien.id }}" class="form-control">
+                            <option value="@mines-paris.org">@mines-paris.org</option>
+                            <option value="@mines-saint-etienne.org">@mines-saint-etienne.org</option>
+                            <option value="@mines-nancy.org">@mines-nancy.org</option>
+                        </select>
+                      </div>
+                  </div>
                 </div>
-            </div>
-        </form>
+              </div>
+
+            <span class="help-block">Un email sera envoyé à cette adresse pour vérification. </span>
+
+
+
+              <div style="display: none" class="js-hide-until-email">
+                <h4 style="padding-top: 40px; padding-bottom: 10px">2. Je choisis un mot de passe pour les fois prochaines</h4>
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="password" class="form-control" id="{{ form.password.id }}" placeholder="Mot de passe" onkeyup="if(this.value.length > 5){ $('.js-hide-until-password').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-password').hide() }">
+                  </div>
+                </div>
+                <span class="help-block">Ce mot de passe servira pour vous connecter à Mines-Alumni.com</span>
+                {% if form.errors != None and form.errors|count_not_null > 0 %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for error in form.errors %}
+                            {% if error != None %}<li>{{ error }}</li>{% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <div style="padding-top: 40px; display: none" class="js-hide-until-password">
+                  <button type="submit" class="btn btn-default js-login-submit">Je Valide</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+
 {% endblock %}
 
-{% block footer %} {% endblock %}

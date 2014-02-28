@@ -113,7 +113,7 @@ def inscription():
                          'r_basicprofile',
                          helper.generate_csrf_token(),
                          url_for('linkedin_login', _external=True)))
-    return render_template('user/home.html', form=form, linkedin_url=linkedin_url)
+    return render_template('user/register.html', form=form, linkedin_url=linkedin_url)
 
 @app.route('/renvoyer/<int:id_ancien>', methods=['GET'])
 def resend(id_ancien):

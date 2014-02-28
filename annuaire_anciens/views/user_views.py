@@ -15,6 +15,9 @@ from annuaire_anciens.helper.security import generate_csrf_token
 @app.route('/compte/', methods=['GET'])
 @login_required
 def compte():
+    """
+    Page de gestion du profil et des préférences utilisateur.
+    """
     adresse_label =  ""
     ancien_form = user.update_ancien_form()
 
@@ -71,6 +74,15 @@ def compte():
 @app.route('/compte/password/', methods=['GET', 'POST'])
 @login_required
 def update_password():
+    """
+    Page pour mettre à jour son mot de passe.
+
+    Lors de la mise à jour, on vérifie que l'utilisateur connait bien le mot de passe actuel,
+    afin d'éviter les reset par des tierces personnes sur des sessions ouvertes.
+
+    GET  : afficher la page
+    POST : "commit" les données
+    """
     form = user.change_password_form()
 
     if request.method == 'POST':
@@ -100,6 +112,12 @@ def update_password():
 @app.route('/compte/info/', methods=['GET', 'POST'])
 @login_required
 def update_info_perso():
+    """
+    Page pour mettre à jour les infos perso d'un ancien
+
+    GET  : afficher la page
+    POST : "commit" les données
+    """
     form = user.update_ancien_form()
 
     utilisateur = user.find_user_by_id(current_user.id)
@@ -141,6 +159,12 @@ def update_info_perso():
 @app.route('/compte/adresse/', methods=['GET', 'POST'])
 @login_required
 def update_adresse():
+    """
+    Page pour mettre à jour l'adresse
+
+    GET  : afficher la page
+    POST : "commit" les données
+    """
     adresse_form = user.update_adresse_form()
     adresse_form.set_pays(PAYS)
 
@@ -177,6 +201,12 @@ def update_adresse():
 @app.route('/compte/experience/<int:id_experience>', methods=['GET', 'POST'])
 @login_required
 def update_experience(id_experience = None):
+    """
+    Page pour mettre à jour les expériences utilisateur d'un ancien
+
+    GET  : afficher la page
+    POST : "commit" les données
+    """
     experience_form = user.update_experience_form()
     experience_form.set_pays(PAYS)
 
@@ -235,18 +265,15 @@ def update_experience(id_experience = None):
     else:
         return redirect(url_for('compte'))
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
+
 
 @app.route('/compte/photo/', methods=['GET', 'POST'])
 @login_required
 def update_photo():
     """
     Mettre à jour la photo d'un ancien.
-    Si GET : la page de mise à jour
-    Si POST : on récupère la photo, on la sauvegarde, on vire l'ancienne et on redirige vers compte
-    @return:
+    GET  : la page de mise à jour
+    POST : on récupère la photo, on la sauvegarde, on vire l'ancienne et on redirige vers compte
     """
     utilisateur = user.find_user_by_id(current_user.id)
     if utilisateur.id_ancien is not None:
@@ -259,7 +286,7 @@ def update_photo():
         # Si c'est une requete post (envoi) alors c'est une nouvelle photo  à traiter
         if request.method == 'POST' and ancien is not None:
             uploaded_file = request.files['file']
-            if uploaded_file and allowed_file(uploaded_file.filename):
+            if uploaded_file and _allowed_file(uploaded_file.filename):
 
                 # upload de l'ancienne photo
                 id_photo = user.get_next_photo_id()
@@ -290,7 +317,7 @@ def update_photo():
 
                 flash('Photo mise &agrave; jour', 'success')
 
-            elif uploaded_file and not allowed_file(uploaded_file.filename):
+            elif uploaded_file and not _allowed_file(uploaded_file.filename):
                 app.logger.info(
                     "PHOTO - forbidden for ancien : %s, photo : %s",
                     ancien['id_ancien'],
@@ -331,7 +358,7 @@ def update_photo():
 def remove_experience(id_experience):
     """
     Supprimer une expérience par id
-    @param id_experience:
+    @param id_experience: id_experience de l'experience à supprimer.
     @return: redirect @compte
     """
     utilisateur = user.find_user_by_id(current_user.id)
@@ -349,9 +376,18 @@ def remove_experience(id_experience):
 @app.route("/compte/linkedin/authorize/", methods=['GET'])
 @login_required
 def linkedin_associer():
-    """"
+    """
     Fonction de callback appelée par LinkedIn.
-    Associer un compte ancien à un compte LinkedIn
+    Associer un compte ancien à un compte LinkedIn.
+
+    Permet de :
+    - Afficher le widget linkedin dans le profil de l'Ancien
+    - Se connecter avec LinkedIn.
+
+    Worfklow :
+    - Request un token
+    - Faire un appel sur l'API "people" pour obtenir l'id_linkedin et l'url du profil.
+    - Récupérer ces données et les insérer en base
     """
     success = False
     utilisateur = user.find_user_by_id(current_user.id)
@@ -364,10 +400,8 @@ def linkedin_associer():
         ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
         if ancien is not None:
             access_token = __get_linkedin_token(url_for('linkedin_associer', _external=True))
-            print access_token
-            api_url = "https://api.linkedin.com/v1/people/~:(id)?oauth2_access_token=%s" % access_token
+            api_url = "https://api.linkedin.com/v1/people/~:(id,public-profile-url)?oauth2_access_token=%s" % access_token
             api_req =  requests.get(api_url)
-            print api_req
             if api_req is not None and api_req.status_code == requests.codes.ok:
                 parsed = etree.fromstring(api_req.text.encode("utf-8"))
                 if parsed is not None:
@@ -419,6 +453,16 @@ def linkedin_importer():
     """
     Fonction de callback appelée par LinkedIn.
     Importer les expériences depuis linkedin
+
+    Worfklow :
+    - Request un token
+    - Faire un appel sur l'API "people" pour obtenir les "positions"
+    - Récupérer ces données et les insérer en base
+
+    Sujet ouvert :
+    - Est-ce qu'on met à jour une position déjà existante (écraser)
+    - Ou alors est-ce qu'on l'importe une deuxième fois ?
+        -> Pour l'instant, on importe une deuxième fois
     """
     import_success = False
     saved_positions = 0
@@ -514,6 +558,17 @@ def linkedin_login():
     Fonction de callback appelée par LinkedIn.
 
     Log-in un membre à partir de LinkedIn.
+
+    Worfklow :
+    - Request un token
+    - Faire un appel sur l'API "people" pour obtenir l'id_linkedin
+    - Regarder si il existe un ancien avec cet id_linkedin
+    - Regarder si il existe un utilisateur pour cet id_ancien
+    - Logguer cet utilisateur !
+
+    Notes :
+    - On pourrait stocker les tokens pour ne pas avoir la demande systématique, mais ça veut dire modifier le workflow
+    - Il faut penser à garder le "remember me", si on décide d'en faire une variable.
     """
     app.logger.info("LINKEDIN - begin login")
 
@@ -535,6 +590,7 @@ def linkedin_login():
                     utilisateur = user.find_user_by_id_ancien(ancien['id_ancien'])
                     if utilisateur is not None :
                         app.logger.info("LOGIN - linkedin login successful, with id %s",  utilisateur.id)
+                        # TODO : remember me
                         login_user(utilisateur)
                         flash("Logged in successfully.")
                         return redirect(url_for('annuaire_view'))
@@ -650,13 +706,13 @@ def __get_positions(element):
         position = dict()
 
         id_exp = e.find("id")
-        position['id_experience_linkedin'] = __getNodeText(id_exp)
+        position['id_experience_linkedin'] = _getNodeText(id_exp)
 
         title = e.find("title")
-        position['position'] = __getNodeText(title)
+        position['position'] = _getNodeText(title)
 
         summary = e.find("summary")
-        position['description'] = __getNodeText(summary)
+        position['description'] = _getNodeText(summary)
 
         start_date = e.find("start-date")
         date_debut = None
@@ -686,12 +742,12 @@ def __get_positions(element):
         entreprise = None
         if company is not None:
             entreprise = company.find("name")
-        position['entreprise'] = __getNodeText(entreprise)
+        position['entreprise'] = _getNodeText(entreprise)
         positions.append(position)
     return positions
 
 
-def __getNodeText(nodeElement):
+def _getNodeText(nodeElement):
     """
     Helper pour récupérer le texte d'un etree s'il n'est pas nul
     @param nodeElement: etree.node
@@ -699,3 +755,11 @@ def __getNodeText(nodeElement):
     """
     if nodeElement is not None:
         return nodeElement.text
+
+
+def _allowed_file(filename):
+    """
+    Vérifier qu'un fichier est bien dans la liste des extensions autorisées.
+    """
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']

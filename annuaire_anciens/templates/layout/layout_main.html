@@ -65,31 +65,32 @@
         </header>
 
 
-        {% block top_container %}
-        <div class="container">
-            <!-- Le header -->
-            {% block header %}
-                <h1>Annuaire des anciens des Mines</h1>
-                <p class="lead">Annuaire des anciens des Mines de Paris, Saint-Etienne et Nancy.</p>
-            {% endblock %}
-
-
-
+        <div class="footer-hack-container">
+            <div class="top-band">
+              <div class="container">
+                <div class="row">
+                  <div class="col-lg-10 col-lg-offset-1">
+                    <div>
+                      <h1>Le moteur de recherche de Mineurs*</h1>
+                      <h5>*Anciens des Mines de Nancy, Paris et Saint-Etienne</h5>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <!-- Le page-defined layout. -->
             {% block layout %}{% endblock %}
+            <div class="footer-hack"></div>
         </div>
-        {% endblock %}
 
         <!-- Le modal block, to cram all your modal windows -->
         {% block modal %}{% endblock %}
-        <footer>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        Idée originale, conception et réalisation par Pierre-Antoine Duchâteau, Daniel Garnier-Moiroux et Philippe Kalousdian
-                    </div>
-                </div>
-            </div>
-        </footer>
+
+
+        <!-- Le crazy footer. -->
+        {% block footer %}
+            {% include "helper/_footer.html" %}
+        {% endblock %}
+
     </body>
 </html>
