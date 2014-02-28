@@ -35,7 +35,7 @@ def login():
         utilisateur = user.find_user_by_mail(form)
         if utilisateur is not None:
             app.logger.info("LOGIN - success %s, with id %s", form.mail.data, utilisateur.id)
-            login_user(utilisateur)
+            login_user(utilisateur, remember=True)
             flash("Logged in successfully.")
             return redirect(url_for('annuaire_view'))
         else:
