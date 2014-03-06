@@ -48,6 +48,10 @@ footer {
     margin-left: -15px;
 }
 
+.navbar a.navbar-brand:hover {
+    border: none;
+}
+
 .modal .btn.btn-default, .navbar .btn.btn-default {
     border: none;
     color: white;
