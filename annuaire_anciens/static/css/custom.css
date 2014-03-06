@@ -48,8 +48,8 @@ footer {
     margin-left: -15px;
 }
 
-.navbar a.navbar-brand:hover {
-    border: none;
+.navbar a.navbar-brand:hover, a.btn.btn-link:hover {
+    border-bottom: none;
 }
 
 .modal .btn.btn-default, .navbar .btn.btn-default {
@@ -159,6 +159,7 @@ h1, h2, h3, h4, h5 {
 
 .btn.btn-link, a {
     color: #2ecc71;
+    border: none;
 }
 
 .btn.btn-link:hover, a:hover {
