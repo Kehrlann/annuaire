@@ -2,22 +2,6 @@
     height:100%;
 }
 
-.header-color {
-    background: white;
-}
-
-.text-color {
-    background: #eee;
-}
-
-.main-background-color {
-    background: #2c3e50;
-}
-
-.title-band-color {
-    background: #34495e;
-}
-
 body {
     overflow-y: scroll;
     height:calc(100% - 51px);
@@ -29,8 +13,9 @@ body {
     letter-spacing: 0.5pt;
 }
 
-.modal {
-  color: #333;
+.navbar-right > .popover {
+  max-width: none;
+  width: 300px;
 }
 
 .help-block {
@@ -52,18 +37,18 @@ footer {
     border-bottom: none;
 }
 
-.modal .btn.btn-default, .navbar .btn.btn-default {
+.popover .btn.btn-default, .navbar .btn.btn-default {
     border: none;
     color: white;
     background: #1abc9c;
 }
 
-.modal .btn.btn-default:hover, .navbar .btn.btn-default:hover {
+.popover .btn.btn-default:hover, .navbar .btn.btn-default:hover {
     border: none;
     background: #16a085;
 }
 
-.modal .btn.btn-default:active, .navbar .btn.btn-default:active {
+.popover .btn.btn-default:active, .navbar .btn.btn-default:active {
     border: none;
     color: white;
     background: #1abc9c;
@@ -169,41 +154,41 @@ h1, h2, h3, h4, h5 {
 }
 
 
-.container input.form-control {
+.footer-hack-container input.form-control {
     background: none;
     border: 2px solid #eee;
     color: #eee;
 }
 
-.container input.form-control::-webkit-input-placeholder {
+.footer-hack-container input.form-control::-webkit-input-placeholder {
    color: #eee;
 }
 
-.container input.form-control:-moz-placeholder { /* Firefox 18- */
+.footer-hack-container input.form-control:-moz-placeholder { /* Firefox 18- */
    color: #eee;
 }
 
-.container input.form-control::-moz-placeholder {  /* Firefox 19+ */
+.footer-hack-container input.form-control::-moz-placeholder {  /* Firefox 19+ */
    color: #eee;
 }
 
-.container input.form-control:-ms-input-placeholder {
+.footer-hack-container input.form-control:-ms-input-placeholder {
    color: #eee;
 }
 
-.container input.form-control:focus::-webkit-input-placeholder {
+.footer-hack-container input.form-control:focus::-webkit-input-placeholder {
    color: #34495e;
 }
 
-.container input.form-control:focus:-moz-placeholder { /* Firefox 18- */
+.footer-hack-container input.form-control:focus:-moz-placeholder { /* Firefox 18- */
    color: #34495e;
 }
 
-.container input.form-control:focus::-moz-placeholder {  /* Firefox 19+ */
+.footer-hack-container input.form-control:focus::-moz-placeholder {  /* Firefox 19+ */
    color: #34495e;
 }
 
-.container input.form-control:focus:-ms-input-placeholder {
+.footer-hack-container input.form-control:focus:-ms-input-placeholder {
    color: #34495e;
 }
 

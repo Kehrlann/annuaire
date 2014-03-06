@@ -4,3 +4,14 @@ function intermines_pagination_page(url){
     });
     return false;
 }
+
+$(function(){
+  $('#js-login-popover').popover({
+      html : true,
+      placement: "bottom",
+      content: function() {
+        return $("#js-login-form").html();
+      }
+  });
+});
+
