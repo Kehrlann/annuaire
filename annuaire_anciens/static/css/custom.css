@@ -96,6 +96,10 @@ h1, h2, h3, h4, h5 {
 .top-band {
     background: #34495e;
     margin-top: -20px;
+    padding-bottom: 10px;
+}
+
+.top-band.top-band-large {
     padding-top: 20px;
     padding-bottom: 30px;
 }
