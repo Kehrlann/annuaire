@@ -3,7 +3,7 @@ import sys
 from utilisateur import Utilisateur
 
 sys.path.append('..')
-from annuaire_anciens import engine, connection
+from annuaire_anciens import app, engine, connection
 from werkzeug.security import check_password_hash as check, generate_password_hash as gen
 from sqlalchemy import Table, Sequence, MetaData, select
 from datetime import datetime
@@ -37,14 +37,12 @@ def find_user_by_mail(form):
         row = res.first()
         if row is not None and check(row['password'], password):
             return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'])
-            
-            
     return None
-    
+
 def find_user_by_id(id_user):
     """
     Rechercher un utilisateur
-    
+
     @param id_user: user id, no shit ...
 
     @rtype : Utilisateur
@@ -167,7 +165,7 @@ def confirm_password(id_user, password):
     @params :
     id_user         -- user id
     password    -- pass
-    
+
     @return : True si c'est le bon pass, False si c'est le mauvais
     """
     result = False

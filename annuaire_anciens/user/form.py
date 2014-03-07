@@ -1,5 +1,5 @@
 # coding=utf-8
-from wtforms import Form, PasswordField, validators, TextField, SelectField, TextAreaField
+from wtforms import Form, PasswordField, validators, TextField, SelectField, TextAreaField, BooleanField
 import operator
 import annuaire_anciens.helper as helper
 from datetime import date
@@ -24,6 +24,7 @@ class login_form(Form):
     """
     mail = TextField('Mail', [validators.Required()])
     password = PasswordField('Mot de passe', [validators.Required()])
+    rememberme = BooleanField('Se souvenir de moi')
 
 
 class registration_form(Form):

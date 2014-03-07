@@ -1,7 +1,8 @@
 # coding=utf-8
 from annuaire_anciens import app, annuaire, user, helper
 from uuid import uuid4
-from flask import render_template, request, redirect, url_for, flash
+from werkzeug.security import generate_password_hash as gen
+from flask import abort, render_template, request, redirect, url_for, flash
 from flask.ext.login import LoginManager, current_user, login_user, login_required, logout_user
 
 login_manager = LoginManager()
@@ -17,31 +18,41 @@ def load_user(user_id):
 def home():
     return redirect(url_for('annuaire_view'))
 
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
     """
     Méthode pour logguer un utilisateur (no shit) à partir de son adresse mail et son mot de pass
-    GET  : afficher la page de login
-    POST : valider les infos et logguer ou invalider les infos et réafficher la page de login
-    @return:
+    POST : valider les infos et logguer ou invalider les infos et retourner l'url sur lequel rediriger
+    @return: code 401 si échec de l'authentification, code 200 et url en cas de réussite
     """
     form = user.login_form(request.form)
 
     if current_user.is_authenticated():
-        return redirect(url_for('annuaire_view'))
+        return url_for('annuaire_view')
 
-    if request.method == 'POST' and form.validate():
+    if form.validate():
         utilisateur = user.find_user_by_mail(form)
+        app.logger.info("LOGIN - valid form")
         if utilisateur is not None:
             app.logger.info("LOGIN - success %s, with id %s", form.mail.data, utilisateur.id)
-            login_user(utilisateur, remember=True)
-            flash("Logged in successfully.")
-            return redirect(url_for('annuaire_view'))
+            # app.logger.info("LOGIN - rememberme is %b", form.rememberme.data)
+            login_user(utilisateur, remember=form.rememberme.data)
+            return url_for('annuaire_view')
         else:
-            flash("Erreur de connexion : mot de passe incorrect ou utilisateur inconnu", "error")
             app.logger.warning("LOGIN - fail %s", form.mail.data)
-    return render_template('user/login.html', form=form)
+    abort(401)
+
+@app.route('/login', methods=['GET'])
+def login_page():
+    """
+    Méthode legacy pour supporter l'url /login
+    GET  : afficher l'annuaire si l'utilisateur est loggué, la page d'inscription sinon
+    @return:
+    """
+    if current_user.is_authenticated():
+        return redirect(url_for('annuaire_view'))
+    else:
+        return redirect(url_for('inscription'))
 
 
 @app.route('/inscription', methods=['GET', 'POST'])
