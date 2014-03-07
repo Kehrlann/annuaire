@@ -6,10 +6,6 @@
     render_linkedin_box,
     render_link %}
 
-{% block navbar %}
-    {% include "layout/_navbar.html" %}
-{% endblock %}
-
 {% block header %}
     {% if ancien != None%}
         <h1>{{ ancien['prenom']|escape_none+' '+ancien['nom'] }}</h1>
@@ -24,7 +20,7 @@
 
 {% block title %}Anciens Intermines{% endblock %}
 {% block content %}
-    
+
         {% if ancien != None%}
             <div class="row custom-ancien-container">
                 <div class="span6">
@@ -91,7 +87,7 @@
             </div>
             {% endfor %}
 
-            
+
         {% else %}
             <h2>Oups ! Pas de donn&eacute;es ...</h2>
             L'ancien que vous recherchez ne semble pas exister ...

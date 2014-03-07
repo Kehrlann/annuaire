@@ -1,0 +1,22 @@
+{% include "layout/_navbar.html" %}
+<form class="navbar-form navbar-right nav-search-zone" role="search" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
+    <span class="glyphicon glyphicon-search"></span>
+    <input type="text" autocomplete="off" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" class="form-control">
+</form>
+<script>
+$('input#fulltext_top').autocomplete({
+    source : '{{ url_for("autocomplete_fulltext") }}',
+    //width: 300,
+    max: 10,
+    delay: 50,
+    cacheLength: 1,
+    scroll: false,
+   select: function(event, ui) {
+         $(this).val(ui.item.value);
+         $(this).parents("form").submit();
+   }
+});
+$("input#fulltext_top").focus(function(){
+    this.select();
+});
+</script>

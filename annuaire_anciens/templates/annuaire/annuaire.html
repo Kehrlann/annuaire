@@ -5,6 +5,9 @@
     {% include "layout/_navbar.html" %}
 {% endblock %}
 
+<!-- Remove the search bar from the search page -->
+
+
 {% block search_form %}
 {% from "helper/_formhelper.html" import hidden_field, render_field, render_promo, render_ville, render_radio %}
     <ul id="searchTab" class="nav nav-tabs">
@@ -36,7 +39,7 @@
             </div>
         </form>
       </div>
-      
+
         {% if avance %}
         <div class="tab-pane fade in active" id="avance">
         {% else %}
@@ -56,7 +59,7 @@
                 <a href="#aideModal" role="button" class="btn btn-info" data-toggle="modal"><i class="icon-question-sign icon-white"></i> Aide</a>
             </div>
         </form>
-      
+
       </div>
     </div>
 
@@ -118,7 +121,7 @@
 {% block content %}
 
     {% include "annuaire/_tableau_anciens.html" %}
-    
+
 {% endblock %}
 
 {% block modal %}

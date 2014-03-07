@@ -1,0 +1,22 @@
+<button id="js-login-popover" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</button>
+
+<div id="js-login-form-content" style="display: none">
+    <form role="form" id="js-login-form" action="{{ url_for("login") }}">
+      <div class="form-group">
+        <label for="exampleInputEmail1">Adresse email</label>
+        <input type="email" class="form-control" id="mail" name="mail" placeholder="Enter email">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Mot de passe</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" id="rememberme" name="rememberme" checked="checked"> Se souvenir de moi
+        </label>
+      </div>
+      <div class="error"></div>
+      <button type="submit" class="btn btn-default">Valider</button>
+      <a class="btn btn-link" onclick="$('#js-login-popover').popover('hide')">Annuler</a>
+    </form>
+</div>
