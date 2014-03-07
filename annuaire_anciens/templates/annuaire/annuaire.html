@@ -1,141 +1,21 @@
-{% extends "layout/layout_floating.html" %}
-{% block title %}Anciens Intermines{% endblock %}
+{% extends "layout/layout_main.html" %}
 
+<!-- Remove the search bar from the search page -->
 {% block navbar %}
     {% include "layout/_navbar.html" %}
 {% endblock %}
 
-<!-- Remove the search bar from the search page -->
-
-
-{% block search_form %}
-{% from "helper/_formhelper.html" import hidden_field, render_field, render_promo, render_ville, render_radio %}
-    <ul id="searchTab" class="nav nav-tabs">
-        {% if not avance %}
-        <li class="active"><a href="#simple" data-toggle="tab">Simple</a></li>
-        <li><a href="#avance" data-toggle="tab">Recherche avanc&eacute;e</a></li>
-        {% else %}
-        <li><a href="#simple" data-toggle="tab">Simple</a></li>
-        <li class="active"><a href="#avance" data-toggle="tab">Recherche avanc&eacute;e</a></li>
-        {% endif %}
-    </ul>
-    <div id="myTabContent" class="tab-content">
-        {% if not avance %}
-        <div class="tab-pane fade in active" id="simple">
-        {% else %}
-        <div class="tab-pane fade" id="simple">
-        {% endif %}
-
-        <form class="form form-horizontal" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
-            <div class="control-group">
-                <label class="control-label" for="fulltext">Recherche</label>
-                    <div class="controls">
-                        <input autocomplete="off" class="custom-input-width" id="fulltext" name="fulltext" value="{{ previous_fulltext() }}" type="text" ></input>
-                    </div>
-                </div>
-                <div class="controls">
-                <button type="submit" class="btn btn-primary custom-margin-5">Go !</button>
-                <a href="#aideModal" role="button" class="btn btn-info" data-toggle="modal"><i class="icon-question-sign icon-white"></i> Aide</a>
-            </div>
-        </form>
+{% block layout %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1">
+      <div class="main-search-field" style="position: relative">
+        <input type="text" class="form-control input-lg">
+        <span class="glyphicon glyphicon-search"></span>
       </div>
-
-        {% if avance %}
-        <div class="tab-pane fade in active" id="avance">
-        {% else %}
-        <div class="tab-pane fade" id="avance">
-            {% endif %}
-        <form class="form form-horizontal" method=POST action='{{ url_for("annuaire_view", type="avance") }}'>
-            {{ render_field(form.prenom, class="custom-input-width") }}
-            {{ render_field(form.nom, class="custom-input-width", id="nom") }}
-            {{ render_field(form.ecole, class="custom-input-width") }}
-            {{ render_field(form.promo, class="custom-input-width") }}
-            {{ render_field(form.ville, class="custom-input-width", id="ville") }}
-            {{ render_field(form.pays, class="custom-input-width") }}
-            {{ render_radio(form.adresse) }}
-            {{ render_field(form.entreprise, class="custom-input-width",  id="entreprise") }}
-            <div class="controls">
-                <button  type=submit class="btn btn-primary">Recherche</button>
-                <a href="#aideModal" role="button" class="btn btn-info" data-toggle="modal"><i class="icon-question-sign icon-white"></i> Aide</a>
-            </div>
-        </form>
-
-      </div>
+      <a href="" class="pull-right btn btn-link">Recherche avancée</a>
     </div>
+  </div>
+</div>
 
-    <script>
-        $('input#nom').autocomplete({
-            source : '{{ url_for("autocomplete_nom") }}',
-            //width: 300,
-            max: 10,
-            delay: 100,
-            cacheLength: 1,
-            scroll: false,
-            select: function(event, ui) {
-                $(this).val(ui.item.value);
-                $(this).parents("form").submit();
-            }
-        });
-        $('input#ville').autocomplete({
-            source : '{{ url_for("autocomplete_ville") }}',
-            //width: 300,
-            max: 10,
-            delay: 100,
-            cacheLength: 1,
-            scroll: false,
-            select: function(event, ui) {
-                $(this).val(ui.item.value);
-                $(this).parents("form").submit();
-            }
-        });
-        $('input#entreprise').autocomplete({
-            source : '{{ url_for("autocomplete_entreprise") }}',
-            //width: 300,
-            max: 10,
-            delay: 100,
-            cacheLength: 1,
-            scroll: false,
-            select: function(event, ui) {
-                $(this).val(ui.item.value);
-                $(this).parents("form").submit();
-            }
-        });
-        $('input#fulltext').autocomplete({
-            source : '{{ url_for("autocomplete_fulltext") }}',
-            //width: 300,
-            max: 10,
-            delay: 50,
-            cacheLength: 1,
-            scroll: false,
-           select: function(event, ui) {
-                 $(this).val(ui.item.value);
-                 $(this).parents("form").submit();
-           }
-        });
-        $("input").focus(function(){
-            this.select();
-        });
-    </script>
-{% endblock %}
-
-{% block content %}
-
-    {% include "annuaire/_tableau_anciens.html" %}
-
-{% endblock %}
-
-{% block modal %}
-    <div id="aideModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="aideModaleLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h3 id="myModalLabel">Aide pour la recherche</h3>
-        </div>
-        <div class="modal-body custom-justify">
-            {% include "annuaire/_aide_recherche_text.html" %}
-
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Fermer</button>
-        </div>
-    </div>
 {% endblock %}
