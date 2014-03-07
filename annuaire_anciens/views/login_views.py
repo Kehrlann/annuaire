@@ -18,6 +18,7 @@ def load_user(user_id):
 def home():
     return redirect(url_for('annuaire_view'))
 
+@helper.csrf_exempt
 @app.route('/login', methods=['POST'])
 def login():
     """
