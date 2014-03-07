@@ -13,6 +13,21 @@ body {
     letter-spacing: 0.5pt;
 }
 
+/* This is to prevent hidden-xs divs to become blocks */
+/* http://stackoverflow.com/questions/20838883/inline-objects-becomes-block-while-using-some-hidden-xs-classes-in-twitter-boo*/
+.navbar-btn.hidden-xs {
+    display: inline-block !important;
+}
+
+@media (max-width: 767px) {
+ .navbar-btn.hidden-xs {
+  display: none!important;
+ }
+ .navbar-btn.visible-xs {
+     display: inline-block !important;
+ }
+}
+
 .navbar-right > .popover {
   max-width: none;
   width: 300px;
@@ -28,6 +43,26 @@ footer {
     color: #2c3e50;
 }
 
+.nav-search-zone {
+    position: relative;
+}
+
+.nav-search-zone .glyphicon {
+    position: absolute;
+    padding: 8px 22px;
+    pointer-events: none;
+    right: 0;
+}
+
+@media (max-width: 767px) {
+    .nav-search-zone .glyphicon {
+        position: absolute;
+        padding: 17px 22px;
+        pointer-events: none;
+        right: 0;
+    }
+}
+
 .navbar a.navbar-brand {
     color: #2c3e50;
     margin-left: -15px;
@@ -38,18 +73,18 @@ footer {
 }
 
 .popover .btn.btn-default, .navbar .btn.btn-default {
-    border: none;
+    border: 1px solid #1abc9c;
     color: white;
     background: #1abc9c;
 }
 
 .popover .btn.btn-default:hover, .navbar .btn.btn-default:hover {
-    border: none;
+    border: 1px solid #16a085;
     background: #16a085;
 }
 
 .popover .btn.btn-default:active, .navbar .btn.btn-default:active {
-    border: none;
+    border: 1px solid #1abc9c;
     color: white;
     background: #1abc9c;
 }
@@ -131,7 +166,7 @@ h1, h2, h3, h4, h5 {
 .btn.btn-default {
     background: #ecf0f1;
     color: #2c3e50;
-    border: none
+    border: 1px solid #ecf0f1;
 }
 
 .btn.btn-default:hover {

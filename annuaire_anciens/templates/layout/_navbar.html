@@ -1,13 +1,13 @@
-<a class="brand" href="{{ url_for('annuaire_view') }}">{{ app_name }}</a>
-<a class='navbar-text custom-no-hover'>Rechercher un ancien : </a>
-<form class="form-inline custom-inline" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
-    <input autocomplete="off" class="ui-autocomplete-input" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" type="text" ></input>
-    <button type="submit" class="btn btn-primary custom-margin-5">Go !</button>
-</form>
-<div class="pull-right">
-    <a class='btn btn-primary' href="{{ url_for('compte') }}">Mon compte</a>
-    <a class='btn' href="{{ url_for('logout') }}">D&eacute;connexion</a>
+<div class="nav navbar-nav navbar-right">
+    <a class='btn btn-default navbar-btn hidden-xs' href="{{ url_for('compte') }}">Mon compte</a>
+    <a class='btn btn-link navbar-btn hidden-xs' href="{{ url_for('logout') }}">D&eacute;connexion</a>
+    <a class='btn btn-default navbar-btn visible-xs' href="{{ url_for('compte') }}"><span class="glyphicon glyphicon-user"></span></a>
+    <a class='btn btn-danger navbar-btn visible-xs' href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span></a>
 </div>
+<form class="navbar-form navbar-right nav-search-zone" role="search" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
+    <span class="glyphicon glyphicon-search"></span>
+    <input type="text" autocomplete="off" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" class="form-control">
+</form>
 <script>
 $('input#fulltext_top').autocomplete({
     source : '{{ url_for("autocomplete_fulltext") }}',
