@@ -193,6 +193,17 @@ def activation(id_ancien, code_activation):
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
+    """
+    Logout the user, duh.
+    """
     app.logger.info("Logout user with id %s", current_user.id)
     logout_user()
     return redirect(url_for('login'))
+
+
+@app.context_processor
+def inject_auth():
+    """
+    Ajoute automatiquement une variable `user_is_auth` au contexte Jinja
+    """
+    return dict(user_is_auth=current_user.is_authenticated())

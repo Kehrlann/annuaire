@@ -59,11 +59,7 @@
                     <a class="navbar-brand" href="/">Mines-Alumni.com</a>
                     <div class="navbar-right">
                         {% block navbar %}
-                            {% if not utilisateur %}
-                                {% include "layout/_navbar_with_login.html" %}
-                            {% else %}
-                                {% include "layout/_navbar_with_search.html" %}
-                            {% endif %}
+                                {% include "layout/_navbar.html" %}
                         {% endblock %}
                     </div>
                   </div>

@@ -1,11 +1,5 @@
 {% extends "layout/layout_mono.html" %}
 
-{% block navbar %}
-    {% with utilisateur = None %}
-        {% include "layout/_navbar.html" %}
-    {% endwith %}
-{% endblock %}
-
 {% block header %}
     <h1>Modifier mon adresse</h1>
 {% endblock %}
@@ -23,7 +17,7 @@
             <div class="control-group">
                 <div class="controls">
                     <button type="submit" class="btn btn-primary">Mettre &agrave; jour</button>
-                    <a href="{{ url_for("compte") }}" role="button" class="btn">Annuler</a>
+                    <a href="{{ url_for('compte') }}" role="button" class="btn">Annuler</a>
                 </div>
             </div>
         </form>
