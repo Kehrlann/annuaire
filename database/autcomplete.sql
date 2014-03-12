@@ -64,12 +64,14 @@ AS $$
 		-- troisieme loop pour inclure ancien.prenom || " " || ancien.nom
 		RAISE NOTICE 'Insertion des noms complets';
 		FOR ancien_record IN
-			SELECT prenom || " " || nom as pn, nom || " " || p as np
+			SELECT prenom || ' ' || nom as pn, nom || ' ' || prenom as np
 				FROM ancien
 		LOOP
 			PERFORM insert_or_update_mot(ancien_record.pn, slugify(ancien_record.pn), 1);
 			PERFORM insert_or_update_mot(ancien_record.np, slugify(ancien_record.np), 1);
 		END LOOP;
+		RAISE NOTICE 'Insertion des noms complets ... done';
+
 
 		-- ecole
 		RAISE NOTICE 'Insertion des ecoles';
