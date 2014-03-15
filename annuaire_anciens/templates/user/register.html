@@ -32,16 +32,16 @@
           <div class="col-md-12 auth-option" >
             <!-- <h4><b>Avec mon adresse email d'ancien</b></h4> -->
 
-            <form class="form form-inline" method="POST" role="form" action='{{ url_for("inscription") }}'>
+            <form class="form form-inline" method="POST" action='{{ url_for("inscription") }}'>
               {{ csrf_token()|hidden|safe }}
               <div class="row">
-                <div class="col-sm-6">
-                  <div class="row">
-                      <div class="form-group col-xs-6" style="padding-right: 1px">
-                        <input type="text" class="form-control" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom" onkeyup="if(this.value.length > 4){ $('.js-hide-until-email').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-email').hide() }">
-                      </div>
-                      <div class="form-group col-xs-6" style="padding-left: 1px">
-                        <select id="{{ form.domaine_ancien.id }}" class="form-control">
+                  <div class="col-sm-6">
+                      <div class="row">
+                          <div class="form-group col-xs-6" style="padding-right: 1px">
+                              <input type="text" class="form-control" name="{{ form.mail_ancien.name }}" id="{{ form.mail_ancien.id }}" placeholder="prenom.nom" onkeyup="if(this.value.length > 4){ $('.js-hide-until-email').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-email').hide() }">
+                          </div>
+                          <div class="form-group col-xs-6" style="padding-left: 1px">
+                        <select name="{{ form.domaine_ancien.name }}" id="{{ form.domaine_ancien.id }}" class="form-control">
                             <option value="@mines-paris.org">@mines-paris.org</option>
                             <option value="@mines-saint-etienne.org">@mines-saint-etienne.org</option>
                             <option value="@mines-nancy.org">@mines-nancy.org</option>
@@ -59,7 +59,7 @@
                 <h4 style="padding-top: 40px; padding-bottom: 10px">2. Je choisis un mot de passe pour les fois prochaines</h4>
                 <div class="row">
                   <div class="col-sm-6">
-                    <input type="password" class="form-control" id="{{ form.password.id }}" placeholder="Mot de passe" onkeyup="if(this.value.length > 5){ $('.js-hide-until-password').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-password').hide() }">
+                    <input type="password" class="form-control" name="{{ form.password.name }}" id="{{ form.password.id }}" placeholder="Mot de passe" onkeyup="if(this.value.length > 5){ $('.js-hide-until-password').show() }" onblur="if(this.value.length == 0){ $('.js-hide-until-password').hide() }">
                   </div>
                 </div>
                 <span class="help-block">Ce mot de passe servira pour me connecter à Mines-Alumni.com</span>

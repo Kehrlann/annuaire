@@ -89,7 +89,7 @@ def inscription():
         return redirect(url_for('annuaire_view'))
 
     if request.method == 'POST' and form.validate():
-        mail_ancien = form.mail_ancien+form.domaine_ancien
+        mail_ancien = form.mail_ancien.data+form.domaine_ancien.data
         app.logger.info("REGISTER - Trying to add user for %s", mail_ancien)
         ancien = annuaire.find_ancien_by_mail_asso(mail_ancien)
         if ancien is None:
