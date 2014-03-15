@@ -17,17 +17,65 @@ from annuaire_anciens.helper.security import generate_csrf_token
 def compte():
     """
     Page de gestion du profil et des préférences utilisateur.
+
+    Permet, entre autres, d'associer un utilisateur à un ancien :
+    - Si l'utilisateur U n'a pas d'ancien associé
+        - Trouver si il y a un ancien A tel que A.mail_asso == U.mail
+            - Si oui, vérifier qu'il n'y a pas d'utilisateur U2
+            tel que U2.id_ancien == A.id_ancien
+                - Si U2 n'existe pas, alors UPDATE U tel que U.id_ancien = A.id_ancien
+
     """
     adresse_label =  ""
-    ancien_form = user.update_ancien_form()
 
     # chopper l'ancien associé à l'utilisateur
     utilisateur = user.find_user_by_id(current_user.id)
 
-    # get data by id ancien
+    # Trouver si l'utilisateur a un ancien associé
     ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
-    if ancien is not None:
-        ancien_form.load_ancien(ancien)
+
+    # Si l'utilisateur n'a pas d'ancien, on va vérifier
+    # Via le mail asso, s'il existe un ancien dans la base pour lui
+    if ancien is None:
+        ancien_temp = annuaire.find_ancien_by_mail_asso(utilisateur.mail)
+
+        # si il y a effectivement un ancien, vérifier
+        # qu'il n'est pas déjà associé à un utilisateur
+        if ancien_temp is not None:
+            app.logger.info(
+                "USER ASSOCIATION - trying to associate user %s with ancien %s",
+                current_user.id,
+                ancien_temp['id_ancien']
+            )
+            user_temp = user.find_user_by_id_ancien(ancien_temp['id_ancien'])
+
+            # Si ça n'existe pas, alors faire l'association
+            if user_temp is None:
+                # On récupère le nouvel utilisateur
+                sql_res = user.update_id_ancien(utilisateur.id, ancien_temp['id_ancien'])
+
+                # Si l'association réussit
+                # réucpérer l'ancien
+                if sql_res :
+                    ancien = ancien_temp
+                    utilisateur = user.find_user_by_id(utilisateur.id)
+                    app.logger.info(
+                        "USER ASSOCIATION - Success, associated user %s with ancien %s",
+                        user_temp.id,
+                        ancien_temp['id_ancien']
+                    )
+
+                else:
+                    app.logger.error(
+                        "USER ASSOCIATION - Oops ... update went wrong."
+                    )
+
+            else:
+                app.logger.warning(
+                    "USER ASSOCIATION - user %s already associated with ancien %s",
+                    user_temp.id,
+                    ancien_temp['id_ancien']
+                )
 
     adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
     if adresse is not None:
@@ -590,7 +638,6 @@ def linkedin_login():
                     utilisateur = user.find_user_by_id_ancien(ancien['id_ancien'])
                     if utilisateur is not None :
                         app.logger.info("LOGIN - linkedin login successful, with id %s",  utilisateur.id)
-                        # TODO : remember me
                         login_user(utilisateur)
                         flash("Logged in successfully.")
                         return redirect(url_for('annuaire_view'))

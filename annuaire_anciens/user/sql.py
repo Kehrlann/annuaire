@@ -179,6 +179,31 @@ def confirm_password(id_user, password):
     return result
 
 
+def update_id_ancien(id_user, id_ancien):
+    """
+    Mettre à jour l'id_ancien pour un utilisateur donné
+
+    @params :
+    id_user     -- user id
+    id_ancien   -- id de l'ancien à associer à ce compte
+
+    @return : L'objet utilisateur
+    """
+    res = False
+    if id_ancien and id_user:
+        up = __utilisateur.update().where(
+            __utilisateur.c.id_utilisateur == id_user
+        ).values(
+            id_ancien = id_ancien
+        )
+        sql_result = __connection.execute(up)
+        if sql_result is not None:
+            sql_result.close() # close this shit.
+            res = True
+    return res
+
+
+
 def get_next_photo_id():
     """
     récupérer un id pour la photo pour ne pas écraser une photo existante
@@ -187,7 +212,6 @@ def get_next_photo_id():
     """
     res = __connection.execute(__s_id_photo)
     return res
-
 
 
 def __select_user_by_id(id_user=None):
