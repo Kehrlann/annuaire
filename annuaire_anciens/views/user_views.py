@@ -61,7 +61,7 @@ def compte():
                     utilisateur = user.find_user_by_id(utilisateur.id)
                     app.logger.info(
                         "USER ASSOCIATION - Success, associated user %s with ancien %s",
-                        user_temp.id,
+                        utilisateur.id,
                         ancien_temp['id_ancien']
                     )
 
