@@ -326,7 +326,9 @@ def find_ancien_by_id_linkedin(id_linkedin):
         - NONE if not found
     """
     sel = select([__ancien], __ancien.c.id_linkedin == id_linkedin).distinct()
-    res = __connection.execute(sel).first()
+    res = engine.execute(sel)
+    if res is not None:
+        res = res.first()
     return res
 
 

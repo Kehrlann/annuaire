@@ -3,7 +3,7 @@ import sys
 from utilisateur import Utilisateur
 
 sys.path.append('..')
-from annuaire_anciens import app, engine
+from annuaire_anciens import engine
 from werkzeug.security import check_password_hash as check, generate_password_hash as gen
 from sqlalchemy import Table, Sequence, MetaData, select
 from datetime import datetime
@@ -37,7 +37,7 @@ def find_user_by_mail(form):
         print res
         if row is not None and check(row['password'], password):
             return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'])
-                return None
+    return None
 
 def find_user_by_id(id_user):
     """
@@ -196,7 +196,7 @@ def update_id_ancien(id_user, id_ancien):
         ).values(
             id_ancien = id_ancien
         )
-        sql_result = __connection.execute(up)
+        sql_result = engine.execute(up)
         if sql_result is not None:
             sql_result.close() # close this shit.
             res = True
