@@ -297,7 +297,7 @@ def update_photo():
                     uploaded_file.filename)
                 flash("Format de photo invalide", "error")
 
-            elif not uploaded_file:
+            elif not uploaded_file and request.form.get("suppr"):
                  # supprimer la photo dans la fiche ancien
                 app.logger.info(
                     "PHOTO - remove for : %s",
@@ -306,13 +306,13 @@ def update_photo():
                 annuaire.update_photo(ancien['id_ancien'], None)
 
                 # supression de l'ancienne photo
-                # supression de l'ancienne photo
                 try:
                     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(ancien['photo'])))
                     app.logger.info(
                         "PHOTO - ancien : %s, removed file : %s",
                         ancien['id_ancien'],
-                        ancien['photo'])
+                        ancien['photo']
+                    )
                 except:
                     app.logger.info(
                         "PHOTO - failed to remove for : %s",
