@@ -7,7 +7,7 @@ TODO : séparer les fonctions de lecture et d'écriture
 
 import sys
 sys.path.append('..')
-from annuaire_anciens import engine, connection
+from annuaire_anciens import engine
 from sqlalchemy import Table, MetaData, or_, and_, select, desc, asc, func
 import annuaire_anciens.helper as helper
 from datetime import date
@@ -16,7 +16,6 @@ from datetime import date
 # set up the module with the connection and stuff
 __engine = engine
 __metadata = MetaData()
-__connection = connection
 
 # set up the tables
 __pays = Table('pays', __metadata, autoload=True, autoload_with=__engine)
@@ -43,7 +42,7 @@ def count_fulltext(search_terms):
     @return: le nombre d'anciens qui satisfont FORM
     """
     sel = select([func.count(__ancien.c.id_ancien.distinct())]).where("fulltext @@ to_tsquery('french', :input_str)")
-    res = __connection.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).first()[0]
+    res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).first()[0]
     return res
 
 
@@ -96,7 +95,7 @@ def fulltext_search(search_terms, offset = 0, limit =0):
     sel = sel.distinct()
     sel = sel.offset(offset).limit(limit)
 
-    res = __connection.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).fetchall()
+    res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).fetchall()
     return res
 
 
@@ -285,7 +284,7 @@ def _filter_search(form, sel):
     if promo is not None and promo !='':
         sel = _refine_by_promo(sel, promo) # no slug, post-traitement
 
-    res = __connection.execute(sel)
+    res = engine.execute(sel)
     return res
 
 
@@ -297,7 +296,7 @@ def find_ancien_by_id(id_ancien):
     @return: SELECT DISTINCT * FROM ancien WHERE id_ancien = id_ancien;
     """
     sel = select([__ancien], __ancien.c.id_ancien == id_ancien).distinct()
-    res = __connection.execute(sel).first()
+    res = engine.execute(sel).first()
     return res
 
 
@@ -312,7 +311,7 @@ def find_ancien_by_mail_asso(mail_asso):
         - NONE if not found
     """
     sel = select([__ancien], __ancien.c.mail_asso == mail_asso).distinct()
-    res = __connection.execute(sel).first()
+    res = engine.execute(sel).first()
     return res
 
 
@@ -350,7 +349,7 @@ def find_adresse_by_id_ancien(id_ancien):
             and_(aaa.c.id_ancien == id_ancien, aaa.c.actif==True),
             from_obj=aaa.join(__adresse).outerjoin(__ville).outerjoin(__pays),
             use_labels=True).distinct()
-        return __connection.execute(sel).first()
+        return engine.execute(sel).first()
     else:
         return None
 
@@ -389,7 +388,7 @@ def find_experience_by_id_ancien(id_ancien):
             ex.c.id_ancien == id_ancien,
             from_obj=ex.outerjoin(en).outerjoin(a).outerjoin(v).outerjoin(p),
             use_labels=True).order_by(desc(ex.c.debut).nullslast()).order_by(desc(ex.c.actif)).distinct()
-        return __connection.execute(sel)
+        return engine.execute(sel)
     else:
         return None
 
@@ -428,7 +427,7 @@ def find_experience_by_id_ancien_id_experience(id_ancien, id_experience):
             and_(ex.c.id_ancien == id_ancien, ex.c.id_experience == id_experience),
             from_obj=ex.outerjoin(en).outerjoin(a).outerjoin(v).outerjoin(p),
             use_labels=True).order_by(desc(ex.c.debut)).order_by(desc(ex.c.actif)).distinct()
-        return __connection.execute(sel)
+        return engine.execute(sel)
     else:
         return None
 
@@ -443,7 +442,7 @@ def find_nom_autocomplete(term, limit=5):
     if not (term is None or term == ""):
         sel = select([__ancien.c.nom], __ancien.c.nom_slug.like(helper.slugify(term)+'%'))
         sel = sel.distinct().order_by(__ancien.c.nom).limit(limit)
-        result = __connection.execute(sel)
+        result = engine.execute(sel)
     return result
 
 
@@ -458,7 +457,7 @@ def find_ville_autocomplete(term, limit=5):
     if not (term is None or term == ""):
         sel = select([__ville.c.nom], __ville.c.slug.like(helper.slugify(term)+'%'))
         sel = sel.distinct().order_by(__ville.c.nom).limit(limit)
-        result = __connection.execute(sel)
+        result = engine.execute(sel)
     return result
 
 
@@ -473,7 +472,7 @@ def find_entreprise_autocomplete(term, limit=5):
     if not (term is None or term == ""):
         sel = select([__entreprise.c.nom], __entreprise.c.slug.like(helper.slugify(term)+'%'))
         sel = sel.distinct().order_by(__entreprise.c.nom).limit(limit)
-        result = __connection.execute(sel)
+        result = engine.execute(sel)
     return result
 
 
@@ -493,12 +492,12 @@ def find_mot_autocomplete(term, limit=10):
         condition1 = __mot.c.slug.like(slug +'%')
 
         sel = select([__mot.c.mot]).where(condition1).order_by(desc(__mot.c.occurence)).limit(limit)
-        result = __connection.execute(sel).fetchall()
+        result = engine.execute(sel).fetchall()
         #last_word = slug.strip("-").split("-")[-1]
         #if len(result) == 0 and last_word != "":
         #    condition2 = __mot.c.slug.like(last_word+"%")
         #    sel = select([__mot.c.mot]).where(condition2).order_by(desc(__mot.c.occurence)).limit(limit)
-        #    result = __connection.execute(sel).fetchall()
+        #    result = engine.execute(sel).fetchall()
     return result
 
 
@@ -516,7 +515,7 @@ def update_ancien_date(id_ancien):
                 date_update=date.today()
             )
         osef = date.today()
-        result = __connection.execute(up)
+        result = engine.execute(up)
         if result is not None:
             success = True
     return success
@@ -541,7 +540,7 @@ def update_fiche_ancien(id_ancien, telephone="", mobile="", site="", mail_perso=
             site = site,
             mail_perso=mail_perso
         )
-        result = __connection.execute(up)
+        result = engine.execute(up)
         if result is not None:
             success = update_ancien_date(id_ancien)
     return success
@@ -563,7 +562,7 @@ def update_linkedin_ancien(id_ancien, id_linkedin=None, url_linkedin=None):
             id_linkedin=id_linkedin,
             url_linkedin= url_linkedin
         )
-        result = __connection.execute(up)
+        result = engine.execute(up)
         if result is not None:
             success = update_ancien_date(id_ancien)
     return success
@@ -577,7 +576,7 @@ def update_photo(id_ancien, filename):
     """
     success = False
     up = __ancien.update().where(__ancien.c.id_ancien == id_ancien).values(photo=filename)
-    result = __connection.execute(up)
+    result = engine.execute(up)
     if result is not None:
         success = update_ancien_date(id_ancien)
     return success
@@ -601,7 +600,7 @@ def update_adresse_perso(id_ancien, ville, id_pays, adresse="", code=""):
     aaa = __asso_ancien_adresse
     # 1 : est-ce que l'adresse existe ?
     sel = select([aaa.c.id_adresse]).where(and_(aaa.c.actif == True, aaa.c.id_ancien == id_ancien))
-    res = __connection.execute(sel).first()
+    res = engine.execute(sel).first()
     if res is not None:
         id_adresse = res[0]
         new_adresse = False
@@ -611,7 +610,7 @@ def update_adresse_perso(id_ancien, ville, id_pays, adresse="", code=""):
     if new_adresse:
         # insérer l'asso
         ins =  __asso_ancien_adresse.insert().values(id_ancien=id_ancien, id_adresse=id_adresse, actif=True)
-        __connection.execute(ins)
+        engine.execute(ins)
     success = update_ancien_date(id_ancien)
     return success
 
@@ -644,7 +643,7 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
         # s'occuper de l'adresse
         id_adresse = None
         sel = select([__experience.c.id_adresse]).where(and_(__experience.c.id_ancien == id_ancien, __experience.c.id_experience == id_experience))
-        res = __connection.execute(sel).first()
+        res = engine.execute(sel).first()
         if res is not None:
             id_adresse = res[0]
         id_adresse = _insert_update_adresse(ville, id_pays, id_adresse, adresse, code)
@@ -652,15 +651,15 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
         # s'occuper de l'entreprise
         id_entreprise = None
         sel = select([__entreprise.c.id_entreprise]).where(_slug_by_column(__entreprise.c.slug, helper.slugify(entreprise), True))
-        res = __connection.execute(sel).first()
+        res = engine.execute(sel).first()
         if res is not None:
             id_entreprise = res[0]
 
         if id_entreprise is None and entreprise != "":
             ins = __entreprise.insert().values(nom=entreprise, slug=helper.slugify(entreprise))
-            __connection.execute(ins)
+            engine.execute(ins)
             sel = select([__entreprise.c.id_entreprise]).where(_slug_by_column(__entreprise.c.slug, helper.slugify(entreprise), True))
-            id_entreprise = __connection.execute(sel).first()[0]
+            id_entreprise = engine.execute(sel).first()[0]
 
         # insert / update experience
         if id_experience is not None:
@@ -683,7 +682,7 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 debut = date_debut,
                 fin = date_fin
             )
-            __connection.execute(up)
+            engine.execute(up)
         else:
             ins = __experience.insert().values(
                 id_ancien = id_ancien,
@@ -699,7 +698,7 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 fin = date_fin,
                 id_experience_linkedin = id_experience_linkedin
             )
-            __connection.execute(ins)
+            engine.execute(ins)
 
         success = update_ancien_date(id_ancien)
     return success
@@ -720,7 +719,7 @@ def remove_experience(id_ancien, id_experience):
         )
     )
     success = update_ancien_date(id_ancien)
-    __connection.execute(suppr)
+    engine.execute(suppr)
 
 
 def _insert_update_adresse(ville, id_pays, id_adresse, adresse="", code=""):
@@ -741,7 +740,7 @@ def _insert_update_adresse(ville, id_pays, id_adresse, adresse="", code=""):
         sel = select([__ville.c.id_ville])
         sel = sel.where(and_(_slug_by_column(__ville.c.slug, helper.slugify(ville), True), __ville.c.id_pays == id_pays))
         sel = sel.distinct()
-        res = __connection.execute(sel).first()
+        res = engine.execute(sel).first()
 
         if res is not None:
             # si la ville existe, on récupère son numéro
@@ -751,10 +750,10 @@ def _insert_update_adresse(ville, id_pays, id_adresse, adresse="", code=""):
             # si la ville n'existe pas, mais qu'il y a un texte et un pays
             # on l'insère et on récupère son numéro
             ins = __ville.insert().values(nom=ville, slug=helper.slugify(ville), id_pays=id_pays)
-            __connection.execute(ins)
+            engine.execute(ins)
             sel = select([__ville.c.id_ville])
             sel = sel.where(and_(_slug_by_column(__ville.c.slug, helper.slugify(ville), True), __ville.c.id_pays == id_pays))
-            res = __connection.execute(sel).first()
+            res = engine.execute(sel).first()
             id_ville = res[0]
 
     # 3 : update (ou insert) de l'adresse
@@ -765,17 +764,17 @@ def _insert_update_adresse(ville, id_pays, id_adresse, adresse="", code=""):
             # si l'adresse existe, la mettre à jour
             up = a.update().where(a.c.id_adresse == id_adresse).values(id_ville=id_ville, adresse=adresse, code=code)
 
-            __connection.execute(up)
+            engine.execute(up)
 
         else:
             a = __adresse
 
             # si l'adresse n'existe pas, l'insérer
             ins = a.insert().values(id_ville=id_ville, adresse=adresse, code=code)
-            __connection.execute(ins)
+            engine.execute(ins)
 
             sel = select([a.c.id_adresse]).where(and_(a.c.id_ville == id_ville, a.c.adresse == adresse, a.c.code == code))
-            id_adresse = __connection.execute(sel).first()[0]
+            id_adresse = engine.execute(sel).first()[0]
 
     return id_adresse
 

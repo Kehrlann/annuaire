@@ -74,12 +74,7 @@ app.jinja_env.globals['bootstrap_css_cdn'] = app.config['BOOTSTRAP_CSS_CDN']
 app.jinja_env.globals['bootstrap_js_cdn'] = app.config['BOOTSTRAP_JS_CDN']
 app.jinja_env.globals['app_name'] = app.config['APP_NAME']
 
-def disconnect():
-    if(app.testing):
-        connection.close()
-    else:
-        app.logger.error("Tried to disconnect while not testing !!")
-
+connection.close()
 
 print ""
 print "=> 3..."

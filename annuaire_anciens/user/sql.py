@@ -3,14 +3,13 @@ import sys
 from utilisateur import Utilisateur
 
 sys.path.append('..')
-from annuaire_anciens import app, engine, connection
+from annuaire_anciens import app, engine
 from werkzeug.security import check_password_hash as check, generate_password_hash as gen
 from sqlalchemy import Table, Sequence, MetaData, select
 from datetime import datetime
 
 __engine = engine
 __metadata = MetaData()
-__connection = connection
 __utilisateur = Table('utilisateur', __metadata, autoload = True, autoload_with = __engine)
 __inscription = Table('inscription', __metadata, autoload = True, autoload_with = __engine)
 __s_id_photo = Sequence('s_id_photo')
@@ -32,12 +31,13 @@ def find_user_by_mail(form):
     if mail is not None:
         utilisateur = __utilisateur
         sel = select([utilisateur]).where(__utilisateur.c.mail == mail.lower())
-        res = __connection.execute(sel)
+        res = engine.execute(sel)
     if res is not None:
         row = res.first()
+        print res
         if row is not None and check(row['password'], password):
             return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'])
-    return None
+                return None
 
 def find_user_by_id(id_user):
     """
@@ -64,7 +64,7 @@ def find_user_by_id_ancien(id_ancien):
     """
     if id_ancien is  not None:
         sel = select([__utilisateur]).where(__utilisateur.c.id_ancien == id_ancien)
-        result = __connection.execute(sel)
+        result = engine.execute(sel)
         if result is not None:
             row = result.first()
             if row is not None:
@@ -81,7 +81,7 @@ def find_inscription_by_id_ancien(id_ancien):
     """
     if id_ancien is  not None:
         sel = select([__inscription]).where(__inscription.c.id_ancien == id_ancien)
-        result = __connection.execute(sel)
+        result = engine.execute(sel)
         if result is not None:
             inscription = result.first()
             return inscription
@@ -104,7 +104,7 @@ def create_preinscription(id_ancien, password, code_activation):
             date_inscription=datetime.now(),
             code_activation=code_activation
         )
-        __connection.execute(ins)
+        engine.execute(ins)
 
 def validate_preinscription(inscription, ancien):
     """
@@ -122,10 +122,10 @@ def validate_preinscription(inscription, ancien):
             mail = ancien['mail_asso'],
             password = inscription['password']
         )
-        __connection.execute(ins)
+        engine.execute(ins)
 
         suppr = __inscription.delete().where(__inscription.c.id_inscription==inscription['id_inscription'])
-        __connection.execute(suppr)
+        engine.execute(suppr)
 
 
 def update_password_by_id(id_user, old_pass, new_pass):
@@ -153,7 +153,7 @@ def update_password_by_id(id_user, old_pass, new_pass):
             ).values(
                 password = gen(new_pass,'pbkdf2:sha512:1000', 12)
             )
-            __connection.execute(up)
+            engine.execute(up)
             result = True
     return result
 
@@ -210,7 +210,7 @@ def get_next_photo_id():
 
     @return: long, un id
     """
-    res = __connection.execute(__s_id_photo)
+    res = engine.execute(__s_id_photo)
     return res
 
 
@@ -225,5 +225,5 @@ def __select_user_by_id(id_user=None):
     result = None
     if id_user is  not None:
         sel = select([__utilisateur]).where(__utilisateur.c.id_utilisateur == id_user)
-        result = __connection.execute(sel)
+        result = engine.execute(sel)
     return result
