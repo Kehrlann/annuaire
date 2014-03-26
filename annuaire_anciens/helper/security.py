@@ -7,8 +7,11 @@ CSRF : https://en.wikipedia.org/wiki/Cross-site_request_forgery
 """
 from annuaire_anciens import app
 from uuid import uuid4
+from itsdangerous import URLSafeSerializer
+from hashlib import sha256
 from flask import request
 from flask import session, abort
+
 
 _exempt_views = []
 
@@ -34,6 +37,33 @@ def csrf_protect():
         token = session.pop('_csrf_token', None)
         if not token or token != request.form.get('_csrf_token'):
             abort(403)
+
+
+def generate_signed_string_from_mail(mail):
+    """
+    Générer une string signée par itsdangerous à partir d'un mail
+
+    @param mail: le mail à signer
+    @return une string signée à utiliser en URL
+    """
+    signer_kwargs = { "digest_method" : sha256 }
+    signer = URLSafeSerializer(app.secret_key, signer_kwargs=signer_kwargs)
+    payload = { "mail" : mail }
+    signature = signer.dumps(payload)
+    return signature
+
+
+def get_mail_from_signed_string(signed_string):
+    """
+    Récupérer le mail depuis une string signée
+
+    @param signed_string: la string signée
+    @returns: le mail caché dedans
+    """
+    signer_kwargs = { "digest_method" : sha256 }
+    signer = URLSafeSerializer(app.secret_key, signer_kwargs=signer_kwargs)
+    res = signer.loads(signed_string)
+    return res['mail']
 
 
 def generate_csrf_token():

@@ -32,7 +32,8 @@ $(function(){
         window.location.replace(data);
       },
       error: function(){
-        $this.find('.error').html('Erreur');
+        var message = "<div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'>&times;</button>Erreur de login !</div>";
+        $this.find('.error').html(message);
       }
     });
 

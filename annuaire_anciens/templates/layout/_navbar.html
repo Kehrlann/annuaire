@@ -34,7 +34,7 @@ $("input#fulltext_top").focus(function(){
 {% else %}
 <button id="js-login-popover" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</button>
 <div id="js-login-form-content" style="display: none">
-    <form role="form" id="js-login-form" action="{{ url_for("login") }}">
+    <form role="form" id="js-login-form" action="{{ url_for('login_ajax') }}">
       <div class="form-group">
         <label for="mail">Adresse email</label>
         <input type="email" class="form-control" id="mail" name="mail" placeholder="Enter email">

@@ -6,16 +6,35 @@ sys.path.append('..')
 from annuaire_anciens import engine
 from werkzeug.security import check_password_hash as check, generate_password_hash as gen
 from sqlalchemy import Table, Sequence, MetaData, select
-from datetime import datetime
 
 __engine = engine
 __metadata = MetaData()
 __utilisateur = Table('utilisateur', __metadata, autoload = True, autoload_with = __engine)
-__inscription = Table('inscription', __metadata, autoload = True, autoload_with = __engine)
 __s_id_photo = Sequence('s_id_photo')
 
 
-def find_user_by_mail(form):
+def find_user_by_mail(mail, actif_only=True):
+    """
+    Rechercher un utilisateur dans l'annuaire
+
+    @param mail: le mail de l'utilisateur
+    @rtype: Utilisateur
+    @return: un utilisateur
+    """
+    if mail is not None:
+        condition = __utilisateur.c.mail == mail.lower()
+        if actif_only:
+            condition &= __utilisateur.c.actif
+        sel = select([__utilisateur]).where(condition)
+        res = engine.execute(sel)
+        if res is not None:
+            row = res.first()
+            if row is not None:
+                return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
+    return None
+
+
+def find_user_by_mail_and_password(form, actif_only=True):
     """
     Rechercher un utilisateur dans l'annuaire
 
@@ -29,14 +48,15 @@ def find_user_by_mail(form):
     if password is None:
         password = ""
     if mail is not None:
-        utilisateur = __utilisateur
-        sel = select([utilisateur]).where(__utilisateur.c.mail == mail.lower())
+        condition = __utilisateur.c.mail == mail.lower()
+        if actif_only:
+            condition &= __utilisateur.c.actif
+        sel = select([__utilisateur]).where(condition)
         res = engine.execute(sel)
     if res is not None:
         row = res.first()
-        print res
         if row is not None and check(row['password'], password):
-            return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'])
+            return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
     return None
 
 def find_user_by_id(id_user):
@@ -52,80 +72,41 @@ def find_user_by_id(id_user):
     res = __select_user_by_id(id_user)
     if res is not None:
         row = res.first()
-        return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'])
+        return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
     return None
 
 
-def find_user_by_id_ancien(id_ancien):
+def find_user_by_id_ancien(id_ancien, actif_only=False):
     """
     Rechercher un utilisateur par id ancien
     @param id_ancien:  int, id_ancien
     @return: Utilisateur (None if not exist)
     """
     if id_ancien is  not None:
-        sel = select([__utilisateur]).where(__utilisateur.c.id_ancien == id_ancien)
+        condition = __utilisateur.c.id_ancien == id_ancien
+        if actif_only:
+            condition &= __utilisateur.c.actif
+        sel = select([__utilisateur]).where(condition)
         result = engine.execute(sel)
         if result is not None:
             row = result.first()
             if row is not None:
-                return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'])
+                return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
     return None
 
 
-
-def find_inscription_by_id_ancien(id_ancien):
+def activate_user(id_user):
     """
-    Rechercher une inscription par id ancien
-    @param id_ancien:  int, id_ancien
-    @return: inscription (None if not exist)
+    Activer un utilisateur
+
+    @param id_user: L'utilisateur à activer
     """
-    if id_ancien is  not None:
-        sel = select([__inscription]).where(__inscription.c.id_ancien == id_ancien)
-        result = engine.execute(sel)
-        if result is not None:
-            inscription = result.first()
-            return inscription
-    return None
-
-
-def create_preinscription(id_ancien, password, code_activation):
-    """
-    Créer une préinscription pour un id_ancien donné.
-    On suppose qu'il n'existe pas de préinscription pour cet id_ancien. Si c'est le cas, SQL exception
-
-    @param id_ancien:
-    @param password: mot de passe en clair
-    @param code_activation: code d'activation qu'on va également envoyer par mail
-    """
-    if id_ancien is not None and password is not None and password != "":
-        ins = __inscription.insert().values(
-            id_ancien=id_ancien,
-            password=gen(password,'pbkdf2:sha512:1000', 12),
-            date_inscription=datetime.now(),
-            code_activation=code_activation
-        )
-        engine.execute(ins)
-
-def validate_preinscription(inscription, ancien):
-    """
-    Valider une préinscription pour un ancien donné.
-    1/ On crée l'utilisateur associé
-    2/ On efface la préinscription associée
-
-    @param inscription: la préinscription à valider
-    @param ancien: l'ancien à associer au compte
-    @return:
-    """
-    if inscription is not None and ancien is not None:
-        ins = __utilisateur.insert().values(
-            id_ancien = inscription['id_ancien'],
-            mail = ancien['mail_asso'],
-            password = inscription['password']
-        )
-        engine.execute(ins)
-
-        suppr = __inscription.delete().where(__inscription.c.id_inscription==inscription['id_inscription'])
-        engine.execute(suppr)
+    res = False
+    if id_user is not None:
+        up = __utilisateur.update().where(__utilisateur.c.id_utilisateur == id_user).values(actif=True)
+        engine.execute(up)
+        res = True
+    return res
 
 
 def update_password_by_id(id_user, old_pass, new_pass):
@@ -203,13 +184,30 @@ def update_id_ancien(id_user, id_ancien):
     return res
 
 
+def create_user(mail, password):
+    """
+    Créer un utilisateur dans la base de données.
+    @param mail: le mail de l'utilisateur, unique
+    @param password: le mot de passe
+    """
+    res = False
+    if mail is not None:
+        ins = __utilisateur.insert().values(
+            id_ancien = None,
+            mail = mail,
+            password = password
+        )
+        engine.execute(ins)
+        res = True
+    return res
+
 
 def get_next_photo_id():
     """
     récupérer un id pour la photo pour ne pas écraser une photo existante
-
     @return: long, un id
     """
+    # TODO : déplacer ça dans l'annuaire
     res = engine.execute(__s_id_photo)
     return res
 

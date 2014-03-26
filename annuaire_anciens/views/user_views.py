@@ -635,7 +635,7 @@ def linkedin_login():
                 ancien = annuaire.find_ancien_by_id_linkedin(id_linkedin)
                 if ancien is not None:
                     app.logger.info("LINKEDIN - found ancien with ID : %s", ancien['id_ancien'])
-                    utilisateur = user.find_user_by_id_ancien(ancien['id_ancien'])
+                    utilisateur = user.find_user_by_id_ancien(ancien['id_ancien'], actif_only=True)
                     if utilisateur is not None :
                         app.logger.info("LOGIN - linkedin login successful, with id %s",  utilisateur.id)
                         login_user(utilisateur)

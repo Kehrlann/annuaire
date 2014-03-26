@@ -4,10 +4,11 @@ __author__ = 'dgarnier-moiroux'
 
 class Utilisateur(UserMixin):
 
-    def __init__(self, id_user, mail, id_ancien):
+    def __init__(self, id_user, mail, id_ancien, actif):
         self.id = id_user
         self._mail = mail
         self._id_ancien = id_ancien
+        self._actif = actif
 
     @property
     def mail(self):
@@ -16,3 +17,7 @@ class Utilisateur(UserMixin):
     @property
     def id_ancien(self):
         return self._id_ancien
+
+    @property
+    def actif(self):
+        return self._actif
