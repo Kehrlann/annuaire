@@ -34,7 +34,7 @@ def find_user_by_mail(mail, actif_only=True):
     return None
 
 
-def find_user_by_mail_and_password(form, actif_only=True):
+def find_user_by_mail_and_password(mail, password, actif_only=True):
     """
     Rechercher un utilisateur dans l'annuaire
 
@@ -42,8 +42,6 @@ def find_user_by_mail_and_password(form, actif_only=True):
     @rtype: Utilisateur
     @return: un utilisateur
     """
-    mail = form.mail.data
-    password = form.password.data
     res = None
     if password is None:
         password = ""
@@ -194,8 +192,8 @@ def create_user(mail, password):
     if mail is not None:
         ins = __utilisateur.insert().values(
             id_ancien = None,
-            mail = mail,
-            password = password
+            mail = mail.lower(),
+            password = gen(password,'pbkdf2:sha512:1000', 12)
         )
         engine.execute(ins)
         res = True
