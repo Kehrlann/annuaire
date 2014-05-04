@@ -31,7 +31,7 @@ def login_ajax():
         return url_for('annuaire_view')
 
     if form.validate():
-        utilisateur = user.find_user_by_mail_and_password(form, actif_only=True)
+        utilisateur = user.find_user_by_mail_and_password(form.mail.data, form.password.data, actif_only=True)
         app.logger.info("LOGIN - valid form")
         if utilisateur is not None:
             app.logger.info("LOGIN - success %s, with id %s", form.mail.data, utilisateur.id)
@@ -61,7 +61,11 @@ def inscription():
     Vue d'enregistrement pour les nouveaux utilisateurs.
 
     GET :
-    1/ L'utilisateur rentre une adresse mail @mines-paris.org / @mines-nancy.org / @mines-saint-etienne.org
+    1/  Page d'accueil qui permet de se logguer ou créer un utilisateur.
+        On peut se logguer via son compte ou via LinkedIn.
+    2/  Si l'utilisateur veut créer un compte, il rentre une adresse
+        adresse mail @mines-paris.org / @mines-nancy.org / @mines-saint-etienne.org
+        ainsi qu'un mot de passe.
 
     POST :
     1/ On vérifie que le form est valable (mots de passe corrects et égaux)
