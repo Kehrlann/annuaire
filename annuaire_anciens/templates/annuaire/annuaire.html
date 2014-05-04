@@ -2,15 +2,39 @@
 
 {% block layout %}
 <div class="container">
-  <div class="row">
-    <div class="col-lg-10 col-lg-offset-1">
-      <div class="main-search-field" style="position: relative">
-        <input type="text" class="form-control input-lg">
-        <span class="glyphicon glyphicon-search"></span>
-      </div>
-      <a href="" class="pull-right btn btn-link">Recherche avancée</a>
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div class="main-search-field" style="position: relative">
+                <form>
+                    <input type="text" class="form-control input-lg" id="fulltext_main">
+                    <span class="glyphicon glyphicon-search"></span>
+                </form>
+            </div>
+            <a href="" class="pull-right btn btn-link">Recherche avancée</a>
+        </div>
     </div>
-  </div>
 </div>
 
+
+<script>
+$(document).ready(
+        function() {
+            $('input#fulltext_main').autocomplete({
+                source : '{{ url_for("autocomplete_fulltext") }}',
+                max: 10,
+                delay: 50,
+                cacheLength: 1,
+                scroll: false,
+                select: function(event, ui) {
+                    $(this).val(ui.item.value);
+                    $(this).parents("form").submit();
+                }
+            });
+            $("input#fulltext_main").focus(function(){
+                this.select();
+            });
+        }
+);
+
+</script>
 {% endblock %}

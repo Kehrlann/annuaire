@@ -289,3 +289,25 @@ footer .btn.btn-link:hover, footer a:hover {
     text-decoration: none;
     border-bottom: 1px solid;
 }
+
+
+/***********************
+ * AUTOCOMPLETE NAVBAR *
+ ***********************/
+/******************************************
+cosmétique pour l'autocomplete
+*******************************************/
+.ui-autocomplete{
+    background-color: #ffffff;
+    border: 1px solid;
+    border-color: #CCCCCC;
+}
+
+.ui-autocomplete > .ui-menu-item {
+    border-bottom: 1px dotted;
+    border-color: #CCCCCC;
+}
+
+.ui-autocomplete > .ui-menu-item:hover {
+    background-color: lightgrey;
+}
