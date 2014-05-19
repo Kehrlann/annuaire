@@ -133,13 +133,3 @@ def autocomplete_fulltext():
         result = helper.result_proxy_to_json(query_result)
     return result
 
-@app.route('/ancien/<int:id_ancien>')
-@login_required
-def ancien(id_ancien):
-    # get data by id ancien
-    ancien = annuaire.find_ancien_by_id(id_ancien)
-    adresse = annuaire.find_adresse_by_id_ancien(id_ancien)
-    experiences = annuaire.find_experience_by_id_ancien(id_ancien)
-    # load page
-    return render_template('annuaire/ancien.html', ancien=ancien, adresse=adresse,  experiences=experiences, utilisateur=current_user)
-

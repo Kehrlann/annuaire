@@ -1,0 +1,37 @@
+{% from "helper/_ancienhelper.html" import
+    render_descriptor,
+    render_descriptor_mult,
+    render_descriptor,
+    render_linkedin,
+    render_link,
+    render_adresse,
+    br_not_empty %}
+
+
+<div class="row custom-ancien-container">
+    <div class="custom-header-experience col-sm-10 col-sm-offset-2" >
+        {% with url = exp['experience_site'] %}
+            {% if url != None and url != '' and url != ' ' %}
+                <a href="{{ url|to_http }}" target="_blank">{{ exp['entreprise_nom'] }}</a>
+            {% else %}
+                    {{ exp['entreprise_nom'] }}
+            {% endif %}
+
+            {% if exp['experience_debut'] != None or exp['experience_fin'] != None %}
+                &nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class="col-sm-12">
+        {{ render_descriptor('Poste', exp['experience_poste']) }}
+        {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
+
+        {{ br_not_empty(exp, ['adresse_adresse', 'adresse_code', 'ville_nom', 'pays_nom']) }}
+        {{ render_adresse(exp['adresse_adresse'], exp['ville_nom'], exp['adresse_code'], exp['pays_nom']) }}
+
+        {{ br_not_empty(exp, ['experience_mail', 'experience_telephone', 'experience_mobile']) }}
+        {{ render_descriptor('Mail', exp['experience_mail']) }}
+        {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
+        {{ render_descriptor('Mobile', exp['experience_mobile']) }}
+    </div>
+</div>

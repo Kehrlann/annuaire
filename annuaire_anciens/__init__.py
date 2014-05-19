@@ -74,6 +74,10 @@ app.jinja_env.globals['bootstrap_css_cdn'] = app.config['BOOTSTRAP_CSS_CDN']
 app.jinja_env.globals['bootstrap_js_cdn'] = app.config['BOOTSTRAP_JS_CDN']
 app.jinja_env.globals['app_name'] = app.config['APP_NAME']
 
+
+# Jinja plugin
+app.jinja_env.add_extension("jinja2.ext.do")
+
 connection.close()
 
 print ""

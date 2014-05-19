@@ -1,0 +1,246 @@
+{% from "helper/_ancienhelper.html" import
+    render_descriptor,
+    render_descriptor_mult,
+    render_descriptor,
+    render_linkedin,
+    render_link,
+    render_adresse,
+    br_not_empty %}
+
+
+{% from "helper/_formhelper.html" import render_field, render_field_error, render_uneditable %}
+
+
+
+<div class="row custom-ancien-container" id="info-perso">
+    <div class="col-sm-12">
+            {% include "helper/_flashes.html" %}
+    </div>
+    <script>
+        $(document).ready(
+            function () {
+                $('#info-perso-form').hide();
+                $('#photo-form').hide();
+                $('#info-perso-text').show();
+                $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+                    var input = $(this).parents('.input-group').find(':text'),
+                        log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+                    if( input.length ) {
+                        input.val(log);
+                    } else {
+                        if( log ) alert(log);
+                    }
+
+			    });
+
+                $('input#ville').autocomplete({
+                    source : '{{ url_for("autocomplete_ville_simple") }}',
+                    //width: 300,
+                    max: 10,
+                    delay: 500,
+                    cacheLength: 1,
+                    scroll: false
+                });
+            }
+        );
+
+        $(document)
+			.on('change', '.btn-file :file', function() {
+				var input = $(this),
+				numFiles = input.get(0).files ? input.get(0).files.length : 1,
+				label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+				input.trigger('fileselect', [numFiles, label]);
+		});
+
+        var showPhotoForm = function()
+        {
+            $('#info-perso-text').hide();
+            $('#info-perso-form').hide();
+            $('#photo-form').show();
+        };
+
+        var showPersoForm = function()
+        {
+            $('#info-perso-text').hide();
+            $('#info-perso-form').show();
+            $('#photo-form').hide();
+        };
+
+        var showInfoPerso = function()
+        {
+            $('#info-perso-text').show();
+            $('#info-perso-form').hide();
+            $('#photo-form').hide();
+        };
+
+        var sendInfo = function()
+        {
+            var form = $('#form-info').formToArray();
+            var data = new FormData();
+            $.each(form,
+                    function(index, value)
+                    {
+                        data.append(value.name, value.value);
+                    }
+            );
+            postDataPerso('{{ url_for("update_info_perso") }}', data);
+        };
+
+        var sendPhoto = function()
+        {
+            var data = new FormData();
+            var send = false;
+            $.each($('input[type="file"]')[0].files, function(i, file) {
+                data.append('file', file);
+                if(file!=null)
+                    send = true;
+            });
+
+            if(send){
+                data.append('_csrf_token', "{{ csrf_token() }}" );
+                postDataPerso('{{ url_for("update_photo") }}', data);
+            }
+
+        };
+
+        var supprPhoto = function()
+        {
+            var data = new FormData();
+            data.append('_csrf_token', "{{ csrf_token() }}" );
+            data.append('suppr', 'true' );
+            data.append('file', null );
+            postDataPerso('{{ url_for("update_photo") }}', data);
+        };
+
+
+
+        var postDataPerso = function(dest_url, data){
+            console.log("TEST");
+            $.ajax({
+                url: dest_url,
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                success: function(data){
+                    var linkedInContent = $("#linkedin-widget").html();
+                    var obj = eval("("+data+")");
+                    $("#info-perso").replaceWith(obj.content);
+                    $("linkedin-widget").replaceAll(linkedInContent);
+                    delete IN;
+                    $.getScript("http://platform.linkedin.com/in.js");
+
+                    $("#_csrf_token").val(obj.csrf_token);
+                }
+            });
+        };
+
+    </script>
+
+    <div class="col-sm-4 custom-text-center-big-screen" style="margin-bottom:15px;" id="photo-perso">
+    {% if ancien['photo'] != None and ancien['photo'] != '' %}
+        <img src="{{ url_for('static',filename='img/'+ancien['photo']) }}" class="custom-img" class="span4"/>
+    {% else %}
+        <img src="{{ url_for('static',filename='img/no_photo.jpg') }}" class="custom-img" class="span4"/>
+    {% endif %}
+    </div>
+    <div class="col-sm-8 text-left" id="info-perso-text">
+        <!-- Infos personnelles -->
+        {{ render_descriptor('Nom', ancien['prenom']|escape_none+' '+ancien['nom']) }}
+        {{ render_descriptor_mult('Promo', (ancien['ecole'], (ancien['promo']|int_to_str))) }}
+        {{ render_descriptor('Dipl&ocirc;me'|safe, ancien['diplome']) }}
+
+        {{ br_not_empty(ancien, ['mail_perso', 'mail_asso', 'site', 'url_linkedin']) }}
+        {{ render_descriptor('Mail perso', ancien['mail_perso']) }}
+        {{ render_descriptor('Mail &agrave; vie'|safe, ancien['mail_asso']) }}
+        {{ render_linkedin(ancien) }}
+        {{ render_link('Site', ancien['site']) }}
+
+        <!-- Adresse personnelle -->
+        {% if adresse != None %}
+            <br>
+            {{ render_adresse(adresse['adresse_adresse'], adresse['ville_nom'], adresse['adresse_code'], adresse['pays_nom']) }}
+        {% endif %}
+        {{ render_descriptor('T&eacute;l&eacute;phone'|safe, ancien['telephone']) }}
+        {{ render_descriptor('Mobile', ancien['mobile']) }}
+
+        <!-- Delegue, cotisant -->
+        {% if ancien['delegue'] %}
+            <br>
+            {{ render_descriptor('', 'D&eacute;l&eacute;gu&eacute; de promotion'|safe) }}
+        {% endif %}
+        <br>
+        <div class="row">
+            <div class="col-sm-3">
+                <a class="btn btn-xs btn-success" type="button" onclick="showPhotoForm()">
+                    <i class="glyphicon glyphicon-camera"></i> Changer la photo
+                </a>
+            </div>
+            <div class="col-sm-3">
+                <a class="btn btn-xs btn-success" type="button" onclick="showPersoForm()">
+                    <i class="glyphicon glyphicon-edit"></i> Mettre &agrave; jour
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-8" id="info-perso-form">
+        <form class="form" id="form-info">
+            {{ csrf_token()|hidden|safe }}
+
+            {{ render_uneditable(ancien_form.nom) }}
+            {{ render_uneditable(ancien_form.promo) }}
+            {{ render_uneditable(ancien_form.diplome) }}
+            <br>
+            {{ render_field_error(adresse_form.adresse, class="form-control") }}
+            {{ render_field_error(adresse_form.ville, class="form-control ui-autocomplete-input", id="ville") }}
+            {{ render_field_error(adresse_form.code, class="form-control") }}
+            {{ render_field_error(adresse_form.pays, class="form-control") }}
+            <br>
+            {{ render_field_error(ancien_form.telephone, class="form-control") }}
+            {{ render_field_error(ancien_form.mobile, class="form-control") }}
+            {{ render_field_error(ancien_form.mail_perso, class="form-control") }}
+            {{ render_uneditable(ancien_form.mail_asso) }}
+            {{ render_field_error(ancien_form.site, class="form-control") }}
+
+
+
+            <div class="control-group">
+                <div class="controls" style="margin-top:20px;">
+                    <a class="btn btn-success btn-sm" onClick="sendInfo()">Mettre &agrave; jour</a>
+                    <a class="btn btn-warning btn-sm pull-right" onClick="showInfoPerso()">Annuler</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-sm-8" id="photo-form">
+        <form class="form" id="form-photo" enctype="multipart/form-data">
+            {{ csrf_token()|hidden|safe }}
+
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <span class="btn btn-default btn-file">
+                            Choisir <input multiple="" type="file">
+                        </span>
+                    </span>
+                    <input class="form-control" readonly="" type="text">
+                </div>
+                <p><i>Taille max : 2 Mo ; Formats autoris&eacute;s : png, jpg, jpeg, gif</i></p>
+            </div>
+
+            <div class="form-group">
+                <div class="controls">
+                    <a class="btn btn-success btn-sm" onClick="sendPhoto()">Mettre &agrave; jour</a>
+                    <a class="btn btn-danger btn-sm" onclick="supprPhoto()">Supprimer</a>
+
+                    <a class="btn btn-warning btn-sm pull-right" onClick="showInfoPerso()">Annuler</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>

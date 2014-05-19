@@ -45,10 +45,10 @@ class update_ancien_form(Form):
     Form pour mettre un jour un ancien
     """
     nom = TextField('Nom')
-    promo = TextField('&Eacute;cole et promotion')
+    promo = TextField('Promo')
     diplome = TextField('Dipl&ocirc;me')
     telephone = TextField(
-        'T&eacute;l&eacute;phone fixe',
+        'Fixe',
         [
             validators.Length(
                 min=5,
@@ -60,7 +60,7 @@ class update_ancien_form(Form):
     )
 
     mobile = TextField(
-        'T&eacute;l&eacute;phone mobile',
+        'Mobile',
         [
             validators.Length(
                 min=5,
@@ -83,7 +83,7 @@ class update_ancien_form(Form):
         ]
     )
     mail_perso = TextField(
-        'Adresse mail personnelle',
+        'Mail perso',
         [
             validators.Length(
                 min=5,
@@ -93,7 +93,7 @@ class update_ancien_form(Form):
             validators.Optional()
         ]
     )
-    mail_asso = TextField('Adresse &agrave; vie')
+    mail_asso = TextField('Mail asso')
 
 
     def load_ancien(self, ancien):
@@ -145,7 +145,7 @@ class update_adresse_form(Form):
     )
 
     code = TextField(
-        'Code postal',
+        'C. postal',
         [
             validators.Length(
                 min=2,
@@ -247,7 +247,7 @@ class update_experience_form(Form):
     )
 
     code = TextField(
-        'Code postal',
+        'C. postal',
         [
             validators.Length(
                 min=2,

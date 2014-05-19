@@ -39,7 +39,7 @@ body {
 
 .navbar.nav-container,
 footer {
-    background-color: white;
+    background-color: #ecf0f1;
     color: #2c3e50;
 }
 
@@ -89,6 +89,7 @@ footer {
     background: #1abc9c;
 }
 
+
 h1, h2, h3, h4, h5 {
     font-weight: 200!important;
 }
@@ -99,7 +100,7 @@ h1, h2, h3, h4, h5 {
     padding-bottom: 10px;
 }
 
-.top-band.top-band-large {
+.top-band-large {
     padding-top: 20px;
     padding-bottom: 30px;
 }
@@ -192,6 +193,26 @@ h1, h2, h3, h4, h5 {
     border-bottom: 1px solid;
 }
 
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 999px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
 
 .footer-hack-container input.form-control {
     background: none;
@@ -231,6 +252,8 @@ h1, h2, h3, h4, h5 {
    color: #34495e;
 }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 /*****************
  *  SEARCH PAGE  *
  ****************/
@@ -248,10 +271,11 @@ h1, h2, h3, h4, h5 {
     font-size: 20px;
  }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/************
- *  FOOTER  *
- ************/
+/****************
+ *  FOOTER hack *
+ ****************/
 
 .footer-hack {
     height:60px;
@@ -291,8 +315,11 @@ footer .btn.btn-link:hover, footer a:hover {
 }
 
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+
 /***********************
- * AUTOCOMPLETE NAVBAR *
+ * AUTOCOMPLETE        *
  ***********************/
 /******************************************
 cosmétique pour l'autocomplete
@@ -308,6 +335,62 @@ cosmétique pour l'autocomplete
     border-color: #CCCCCC;
 }
 
+.ui-autocomplete > .ui-menu-item > a {
+    color:#666 !important;
+}
+
 .ui-autocomplete > .ui-menu-item:hover {
-    background-color: lightgrey;
+    background-color: #eeeeee;
+}
+
+.ui-autocomplete > .ui-menu-item > a:hover {
+    font-weight: bold;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/****************
+ * PROFILE PAGE *
+ ***************/
+
+
+.custom-img {
+    max-width: 250px;
+    max-height: 250px;
+}
+
+.cutsom-descriptor {
+    font-style: italic;
+    color: #bbb;
+}
+
+.custom-ancien-container {
+    margin-top:20px;
+    padding: 20px 0 20px 0;
+    background-color: #34495E;
+}
+
+.custom-header-experience {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+@media (min-width: 768px) {
+    .custom-text-right-big-screen {
+        text-align: right;
+    }
+
+    .custom-text-center-big-screen {
+        text-align: center;
+    }
+
+    .custom-label {
+        margin-top: 6px;
+    }
+
+}
+
+.custom-label {
+    font-weight: 400;
 }

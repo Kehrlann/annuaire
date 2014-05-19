@@ -2,13 +2,15 @@
 {% from "helper/_ancienhelper.html" import
     render_descriptor,
     render_descriptor_mult,
-    render_descriptor_no_label,
-    render_linkedin_box,
-    render_link %}
+    render_descriptor,
+    render_linkedin,
+    render_link,
+    render_adresse,
+    br_not_empty %}
 
-{% block header %}
+{% block top_band %}
     {% if ancien != None%}
-        <h1>{{ ancien['prenom']|escape_none+' '+ancien['nom'] }}</h1>
+        <h1 style="font-weight: bold !important;">{{ ancien['prenom']|escape_none+' '+ancien['nom'] }}</h1>
         {% if ancien['date_update'] != None %}
         <p class="lead">Derni&egrave;re mise &agrave; jour : {{ ancien['date_update'].strftime('%d/%m/%Y') }}</p>
         {% else %}
@@ -17,75 +19,28 @@
     {% endif %}
 {% endblock %}
 
+{% block additional_scripts %}
+{% endblock %}
+
 
 {% block title %}Anciens Intermines{% endblock %}
 {% block content %}
 
+        {% include "helper/_flashes.html" %}
         {% if ancien != None%}
-            <div class="row custom-ancien-container">
-                <div class="span6">
-                {% if ancien['photo'] != None and ancien['photo'] != '' %}
-                    <img src="{{ url_for('static',filename='img/'+ancien['photo']) }}" class="custom-img" class="span4"/>
-                {% else %}
-                    <img src="{{ url_for('static',filename='img/no_photo.png') }}" class="custom-img" class="span4"/>
-                {% endif %}
-                </div>
-                <div class="span6">
-                    {{  render_linkedin_box(ancien) }}
-                    <div class="custom-cadre-header">Infos personnelles :</div>
-                    <div class="custom-cadre">
-                        <dl class="dl-horizontal">
-                            <!-- Infos personnelles -->
-                            {{ render_descriptor('Nom', ancien['prenom']|escape_none+' '+ancien['nom']) }}
-                            {{ render_descriptor_mult('&Eacute;cole'|safe, (ancien['ecole'], (ancien['promo']|int_to_str))) }}
-                            {{ render_descriptor('Dipl&ocirc;me'|safe, ancien['diplome']) }}
-                            {{ render_descriptor('T&eacute;l&eacute;phone'|safe, ancien['telephone']) }}
-                            {{ render_descriptor('Mobile', ancien['mobile']) }}
-                            {{ render_link('Site', ancien['site']) }}
-                            {{ render_descriptor('Mail perso', ancien['mail_perso']) }}
-                            {{ render_descriptor('Mail &agrave; vie'|safe, ancien['mail_asso']) }}
-                            {% if ancien['cotisant'] %}
-                                {{ render_descriptor_no_label('Membre cotisant') }}
-                            {% endif %}
-                            {% if ancien['delegue'] %}
-                                {{ render_descriptor_no_label('D&eacute;l&eacute;gu&eacute; de promotion'|safe) }}
-                            {% endif %}
-                            <!-- Adresses personnelles -->
-                            <br />
-                            {% if adresse != None %}
-                                {{ render_descriptor('Adresse', adresse['adresse_adresse']) }}
-                                {{ render_descriptor_mult('Ville', (adresse['ville_nom'], '-', adresse['adresse_code']))}}
-                                {{ render_descriptor('Pays', adresse['pays_nom']) }}
-                            {% endif %}
+        <div class="row">
 
-                        </dl>
-                    </div>
-                </div>
-            </div>
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+                {% include "annuaire/profile/_infos_perso.html" %}
+
 
             <!-- Experiences Pro -->
             {% for exp in experiences %}
-            <div class="custom-cadre-header">
-                <span style="margin-top:0;margin-bottom:0;margin-left: 100px;">
-                    {{ exp['entreprise_nom'] }}&nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
-                </span>
-            </div>
-            <div class="custom-cadre">
-                <dl class="dl-horizontal">
-                    {{ render_descriptor('Poste', exp['experience_poste']) }}
-                    {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
-                </dl>
-                <dl class="dl-horizontal">
-                    {{ render_descriptor('Adresse', exp['adresse_adresse']) }}
-                    {{ render_descriptor_mult('Ville', ( exp['adresse_code'], exp['ville_nom'])) }}
-                    {{ render_descriptor('Pays', exp['pays_nom']) }}
-                    {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
-                    {{ render_descriptor('Mobile', exp['experience_mobile']) }}
-                    {{ render_link('Site', exp['experience_site']) }}
-                    {{ render_descriptor('Mail', exp['experience_mail']) }}
-                </dl>
-            </div>
+            {% include "annuaire/profile/_experience.html" %}
             {% endfor %}
+            </div>
+        </div>
 
 
         {% else %}
