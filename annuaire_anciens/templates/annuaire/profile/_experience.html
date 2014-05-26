@@ -7,31 +7,91 @@
     render_adresse,
     br_not_empty %}
 
+{% from "helper/_formhelper.html" import
+    render_field,
+    render_field_error,
+    render_uneditable,
+    render_date_field
+%}
 
-<div class="row custom-ancien-container">
-    <div class="custom-header-experience col-sm-10 col-sm-offset-2" >
-        {% with url = exp['experience_site'] %}
-            {% if url != None and url != '' and url != ' ' %}
-                <a href="{{ url|to_http }}" target="_blank">{{ exp['entreprise_nom'] }}</a>
-            {% else %}
-                    {{ exp['entreprise_nom'] }}
+
+
+<div class="row custom-ancien-container experience-container" id="{{ exp['experience_id_experience'] }}">
+    <div class="row col-sm-12 experience">
+        <div class="custom-header-experience col-sm-10 col-sm-offset-2" >
+            {% with url = exp['experience_site'] %}
+                {% if url != None and url != '' and url != ' ' %}
+                    <a href="{{ url|to_http }}" target="_blank">{{ exp['entreprise_nom'] }}</a>
+                {% else %}
+                        {{ exp['entreprise_nom'] }}
+                {% endif %}
+
+                {% if exp['experience_debut'] != None or exp['experience_fin'] != None %}
+                    &nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="col-sm-12">
+            {{ render_descriptor('Poste', exp['experience_poste']) }}
+            {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
+
+            {{ br_not_empty(exp, ['adresse_adresse', 'adresse_code', 'ville_nom', 'pays_nom']) }}
+            {{ render_adresse(exp['adresse_adresse'], exp['ville_nom'], exp['adresse_code'], exp['pays_nom']) }}
+
+            {{ br_not_empty(exp, ['experience_mail', 'experience_telephone', 'experience_mobile']) }}
+            {{ render_descriptor('Mail', exp['experience_mail']) }}
+            {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
+            {{ render_descriptor('Mobile', exp['experience_mobile']) }}
+
+            {% if editable %}
+            <div class="row" style="margin-top:20px;">
+                <div style="display:inline;" class="col-sm-10 col-sm-offset-2">
+                    <a class="btn btn-xs btn-success" type="button" onclick="showExperienceForm({{ exp['experience_id_experience'] }})">
+                        <i class="glyphicon glyphicon-edit"></i> Modifier
+                    </a>
+                    &nbsp;
+                    <a class="btn btn-xs btn-danger" type="button" onclick="">
+                        <i class="glyphicon glyphicon-remove"></i> Effacer
+                    </a>
+                </div>
+            </div>
             {% endif %}
+        </div>
 
-            {% if exp['experience_debut'] != None or exp['experience_fin'] != None %}
-                &nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
-            {% endif %}
-        {% endwith %}
     </div>
-    <div class="col-sm-12">
-        {{ render_descriptor('Poste', exp['experience_poste']) }}
-        {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
 
-        {{ br_not_empty(exp, ['adresse_adresse', 'adresse_code', 'ville_nom', 'pays_nom']) }}
-        {{ render_adresse(exp['adresse_adresse'], exp['ville_nom'], exp['adresse_code'], exp['pays_nom']) }}
+    {% if editable %}
+    <div class="col-sm-12 row experience-form">
+        <div class="col-sm-12" id="info-perso-form">
+            <form class="form" id="form-info">
+                {{ csrf_token()|hidden|safe }}
 
-        {{ br_not_empty(exp, ['experience_mail', 'experience_telephone', 'experience_mobile']) }}
-        {{ render_descriptor('Mail', exp['experience_mail']) }}
-        {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
-        {{ render_descriptor('Mobile', exp['experience_mobile']) }}
+                {{ render_field_error(form.entreprise, class="form-control entreprise") }}
+                {{ render_field_error(form.poste, class="form-control") }}
+                {{ render_field_error(form.description, class="form-control") }}
+                {{ render_date_field(form.date_debut) }}
+                {{ render_date_field(form.date_fin) }}
+                <br />
+                {{ render_field_error(form.adresse, class="form-control") }}
+                {{ render_field_error(form.ville, class="form-control ville") }}
+                {{ render_field_error(form.code, class="form-control") }}
+                {{ render_field_error(form.pays, class="form-control") }}
+                <br />
+                {{ render_field_error(form.mail, class="form-control") }}
+                {{ render_field_error(form.site, class="form-control") }}
+                {{ render_field_error(form.telephone, class="form-control") }}
+                {{ render_field_error(form.mobile, class="form-control") }}
+
+                <div class="control-group col-sm-offset-2">
+                    <div class="controls" style="margin-top:20px;">
+                        <a class="btn btn-success btn-sm" onClick="">Mettre &agrave; jour</a>
+                        <a class="btn btn-warning btn-sm pull-right" onClick="showExperience({{ exp['experience_id_experience'] }})">Annuler</a>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
+    {% endif %}
+
+
 </div>

@@ -20,6 +20,46 @@
 {% endblock %}
 
 {% block additional_scripts %}
+<script>
+    $(document).ready(
+        function()
+        {
+            $(".experience-form").hide();
+            $(".experience").show();
+            $('input.ville').autocomplete({
+                source : '{{ url_for("autocomplete_ville_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+            $('input.entreprise').autocomplete({
+                source : '{{ url_for("autocomplete_entreprise_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+        }
+
+    );
+
+    var showExperienceForm =
+        function(id)
+        {
+            $("#"+id).children(".experience").hide();
+            $("#"+id).children(".experience-form").show();
+        };
+
+    var showExperience =
+        function(id)
+        {
+            $("#"+id).children(".experience").show();
+            $("#"+id).children(".experience-form").hide();
+        };
+</script>
 {% endblock %}
 
 
@@ -37,7 +77,9 @@
 
             <!-- Experiences Pro -->
             {% for exp in experiences %}
-            {% include "annuaire/profile/_experience.html" %}
+            {% with form = experience_forms.get(exp['experience_id_experience']) %}
+                {% include "annuaire/profile/_experience.html" %}
+            {% endwith %}
             {% endfor %}
             </div>
         </div>

@@ -17,8 +17,6 @@ from annuaire_anciens.helper.security import generate_csrf_token
 @login_required
 def compte():
     """
-    Page de gestion du profil et des préférences utilisateur.
-
     Permet, entre autres, d'associer un utilisateur à un ancien :
     - Si l'utilisateur U n'a pas d'ancien associé
         - Trouver si il y a un ancien A tel que A.mail_asso == U.mail
@@ -27,6 +25,8 @@ def compte():
                 - Si U2 n'existe pas, alors UPDATE U tel que U.id_ancien = A.id_ancien
 
     """
+
+    #TODO : refaire les commentaires
     # chopper l'ancien associé à l'utilisateur
     utilisateur = user.find_user_by_id(current_user.id)
 
@@ -126,17 +126,23 @@ def compte():
 @login_required
 def ancien(id_ancien):
 
-
+    #TODO : commentaires
     is_this_me = False
     adresse_form = user.update_adresse_form()
     adresse_form.set_pays(PAYS)
-
+    experience_forms = {}
 
 
     # get data by id ancien
     ancien = annuaire.find_ancien_by_id(id_ancien)
     adresse = annuaire.find_adresse_by_id_ancien(id_ancien)
-    experiences = annuaire.find_experience_by_id_ancien(id_ancien)
+    experiences = annuaire.find_experience_by_id_ancien(id_ancien).fetchall()
+
+    for exp in experiences:
+        form = user.update_experience_form()
+        form.set_pays(PAYS)
+        form.load_experience(exp)
+        experience_forms[exp['experience_id_experience']] = form
 
     utilisateur = user.find_user_by_id(current_user.id)
 
@@ -167,7 +173,8 @@ def ancien(id_ancien):
         adresse_form=adresse_form,
         experiences=experiences,
         utilisateur=current_user,
-        editable=is_this_me
+        editable=is_this_me,
+        experience_forms=experience_forms
     )
 
 
@@ -212,26 +219,41 @@ def update_password():
 
     return render_template("user/password_form.html", form=form)
 
+
 @app.route('/compte/info/', methods=['POST'])
 @login_required
 def update_info_perso():
     """
-    Page pour mettre à jour les infos perso d'un ancien
+    Page pour mettre à jour les infos perso d'un ancien.
+        -> Infos perso
+        -> Adresse perso
 
-    GET  : afficher la page
-    POST : "commit" les données
+    Deux fois (adresse+infos) trois étapes :
+        1. Valider les données
+        2. Le cas échéant, les sauvegarder
+        3. Regénérer le template et le renvoyer avec un nouveau csrf token
     """
+
 
     res = {}
     res["content"] = None
     res["csrf_token"] = generate_csrf_token()
     res["success"] = False
 
+    form_ancien_to_render = None
 
     form = user.update_ancien_form()
 
+    info_ok = False
+
     utilisateur = user.find_user_by_id(current_user.id)
     if utilisateur is not None:
+
+
+
+        #~~~~~~~~~~~~~#
+        # INFOS PERSO #
+        #~~~~~~~~~~~~~#
         ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
 
         if ancien is not None:
@@ -253,41 +275,31 @@ def update_info_perso():
                 )
                 if success:
                     app.logger.info(
-                        "UPDATE INFO - successfully info for user with id %s, id ancien : %s, errors : %s",
+                        "UPDATE INFO - successfully update info for user with id %s, id ancien : %s, errors : %s",
                         current_user.id,
                         ancien['id_ancien'],
                         )
-                    flash("Informations personnelles correctement mises &agrave; jour", "success")
+                    info_ok = True
 
+                else:
+                    app.logger.info("UPDATE INFO - failed insert for user with id %s", current_user.id)
+
+            else:
+                form_ancien_to_render = form
                 app.logger.info("UPDATE INFO - failed insert for user with id %s", current_user.id)
-            app.logger.info("UPDATE INFO - failed insert for user with id %s", current_user.id)
-
-            res["content"] = _get_info_perso_template()
-            res["success"] = True
-
-    return json.dumps(res)
 
 
-@app.route('/compte/adresse/', methods=['GET', 'POST'])
-@login_required
-def update_adresse():
-    """
-    Page pour mettre à jour l'adresse
+        #~~~~~~~~~#
+        # ADRESSE #
+        #~~~~~~~~~#
+        adresse_form = user.update_adresse_form()
+        adresse_form.set_pays(PAYS)
 
-    GET  : afficher la page
-    POST : "commit" les données
-    """
-    adresse_form = user.update_adresse_form()
-    adresse_form.set_pays(PAYS)
+        if utilisateur.id_ancien is not None:
+            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            if adresse is not None:
+                adresse_form.load_adresse(adresse)
 
-    utilisateur = user.find_user_by_id(current_user.id)
-
-    if utilisateur.id_ancien is not None:
-        adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
-        if adresse is not None:
-            adresse_form.load_adresse(adresse)
-
-        if request.method == 'POST':
             # Confirmer
             adresse_form = user.update_adresse_form(request.form)
             adresse_form.set_pays(PAYS)
@@ -302,12 +314,14 @@ def update_adresse():
                     adresse_form.adresse.data,
                     adresse_form.code.data
                 )
-                flash("Adresse personnelle mise &agrave; jour", "success")
-                return redirect(url_for("compte"))
+                if info_ok:
+                    flash("Informations personnelles mises &agrave; jour", "success")
 
-        return render_template("user/adresse_form.html", adresse_form=adresse_form)
-    else:
-        return redirect(url_for("compte"))
+
+        res["content"] = _get_info_perso_template(ancien_form=form_ancien_to_render)
+        res["success"] = True
+
+    return json.dumps(res)
 
 @app.route('/compte/experience/', methods=['GET', 'POST'])
 @app.route('/compte/experience/<int:id_experience>', methods=['GET', 'POST'])
@@ -384,7 +398,11 @@ def update_photo():
     """
     Mettre à jour la photo d'un ancien.
 
-    POST : on récupère la photo, on la sauvegarde, on vire l'ancienne et on redirige vers compte
+    POST :  on récupère la photo, on la sauvegarde, on vire l'ancienne
+            et on re-render les infos persos (+ csrf token)
+
+            Le cas de suppression est géré par un flag ?suppr=true dans
+            l'url de la requête (bof bof ...)
     """
 
     utilisateur = user.find_user_by_id(current_user.id)
@@ -402,13 +420,36 @@ def update_photo():
             return res
         else:
 
-            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            # récupérer le file uploadé
             uploaded_file = None
             try:
                 uploaded_file = request.files['file']
             except:
                 pass
-            if uploaded_file and _allowed_file(uploaded_file.filename):
+
+            if request.form.get("suppr"):
+                 # supprimer la photo dans la fiche ancien
+                app.logger.info(
+                    "PHOTO - remove for : %s",
+                    ancien['id_ancien'])
+
+                annuaire.update_photo(ancien['id_ancien'], None)
+
+                # supression de l'ancienne photo
+                try:
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(ancien['photo'])))
+                    app.logger.info(
+                        "PHOTO - ancien : %s, removed file : %s",
+                        ancien['id_ancien'],
+                        ancien['photo']
+                    )
+                except:
+                    app.logger.info(
+                        "PHOTO - failed to remove for : %s",
+                        ancien['id_ancien'])
+                flash("Photo supprim&eacute;e", "warning")
+
+            elif uploaded_file and _allowed_file(uploaded_file.filename):
 
                 # upload de l'ancienne photo
                 id_photo = user.get_next_photo_id()
@@ -445,28 +486,6 @@ def update_photo():
                     ancien['id_ancien'],
                     uploaded_file.filename)
                 flash("Format de photo invalide", "danger")
-
-            elif not uploaded_file and request.form.get("suppr"):
-                 # supprimer la photo dans la fiche ancien
-                app.logger.info(
-                    "PHOTO - remove for : %s",
-                    ancien['id_ancien'])
-
-                annuaire.update_photo(ancien['id_ancien'], None)
-
-                # supression de l'ancienne photo
-                try:
-                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(ancien['photo'])))
-                    app.logger.info(
-                        "PHOTO - ancien : %s, removed file : %s",
-                        ancien['id_ancien'],
-                        ancien['photo']
-                    )
-                except:
-                    app.logger.info(
-                        "PHOTO - failed to remove for : %s",
-                        ancien['id_ancien'])
-                flash("Photo supprim&eacute;e", "warning")
 
 
             res["content"] = _get_info_perso_template()
@@ -886,32 +905,59 @@ def _allowed_file(filename):
 
 
 
-def _get_info_perso_template():
+def _get_info_perso_template(ancien_form=None, adresse_form=None):
     """
-    Fonction
+    Permet de render le template _info_perso pour l'ancien en cours.
+
+    @param adresse_form:    le formulaire d'adresse à inclure
+    @param ancien_form:     le formulaire d'infos persos à inclure
+
+    On prend des formulaires en entrée pour gérer les erreurs.
+
+
+    NB: la modificaiton in-line des infos perso (sans page reload) ne
+        permet plus de render des templates complets côté serveur. Plutôt
+        que de réécrire l'intégralité de l'appli côté client, on render des
+        templates partiels qu'on injecte dans la page sur des appels POST.
+
+        Ce n'est pas super propre, mais c'est la vie :3
     """
     utilisateur = user.find_user_by_id(current_user.id)
-    ancien_form = user.update_ancien_form()
-    adresse_form = user.update_adresse_form()
-    adresse_form.set_pays(PAYS)
+
+    ancien = None
     adresse = None
     is_this_me = False
 
     if utilisateur is not None and utilisateur.id_ancien is not None:
         is_this_me = True
 
+        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+
         #~~~~~~~~~~~~~#
         # INFOS PERSO #
         #~~~~~~~~~~~~~#
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
-        ancien_form.load_ancien(ancien)
+        if ancien_form is None:
+            ancien_form = user.update_ancien_form()
+            ancien_form.load_ancien(ancien)
 
         #~~~~~~~~~#
         # ADRESSE #
         #~~~~~~~~~#
-        adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
-        if adresse is not None:
-            adresse_form.load_adresse(adresse)
+        if adresse_form is None:
+            adresse_form = user.update_adresse_form()
+            adresse_form.set_pays(PAYS)
+            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            if adresse is not None:
+                adresse_form.load_adresse(adresse)
+
+    else:
+        if ancien_form is None:
+            ancien_form = user.update_ancien_form()
+
+        if adresse_form is None:
+            adresse_form = user.update_adresse_form()
+            adresse_form.set_pays(PAYS)
+
 
     return render_template(
         'annuaire/profile/_infos_perso.html',

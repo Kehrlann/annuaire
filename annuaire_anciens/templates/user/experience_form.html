@@ -15,21 +15,21 @@
     <div class="span6 offset3 custom-ancien-container">
         <form class="form form-horizontal" method=POST action='{{ url_for("update_experience", id_experience=id_experience) }}'>
             {{ csrf_token()|hidden|safe }}
-            {{ render_field_error(form.entreprise, class="custom-input-width ui-autocomplete-input", id="entreprise") }}
-            {{ render_field_error(form.poste, class="custom-input-width") }}
-            {{ render_field_error(form.description, class="custom-input-width custom-triple-height") }}
-            {{ render_date_field(form.date_debut) }}
-            {{ render_date_field(form.date_fin) }}
+            {{ render_field_error(experience_form.entreprise, class="custom-input-width ui-autocomplete-input", id="entreprise") }}
+            {{ render_field_error(experience_form.poste, class="custom-input-width") }}
+            {{ render_field_error(experience_form.description, class="custom-input-width custom-triple-height") }}
+            {{ render_date_field(experience_form.date_debut) }}
+            {{ render_date_field(experience_form.date_fin) }}
             <br />
-            {{ render_field_error(form.adresse, class="custom-input-width") }}
-            {{ render_field_error(form.ville, class="custom-input-width ui-autocomplete-input", id="ville") }}
-            {{ render_field_error(form.code, class="custom-input-width") }}
-            {{ render_field_error(form.pays, class="custom-input-width") }}
+            {{ render_field_error(experience_form.adresse, class="custom-input-width") }}
+            {{ render_field_error(experience_form.ville, class="custom-input-width ui-autocomplete-input", id="ville") }}
+            {{ render_field_error(experience_form.code, class="custom-input-width") }}
+            {{ render_field_error(experience_form.pays, class="custom-input-width") }}
             <br />
-            {{ render_field_error(form.mail, class="custom-input-width") }}
-            {{ render_field_error(form.site, class="custom-input-width") }}
-            {{ render_field_error(form.telephone, class="custom-input-width") }}
-            {{ render_field_error(form.mobile, class="custom-input-width") }}
+            {{ render_field_error(experience_form.mail, class="custom-input-width") }}
+            {{ render_field_error(experience_form.site, class="custom-input-width") }}
+            {{ render_field_error(experience_form.telephone, class="custom-input-width") }}
+            {{ render_field_error(experience_form.mobile, class="custom-input-width") }}
 
             <div class="control-group">
                 <div class="controls">

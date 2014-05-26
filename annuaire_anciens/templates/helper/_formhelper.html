@@ -23,11 +23,11 @@
 {% else %}
 <div class="row" style="margin-bottom:5px;">
     <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ field.label(class="custom-label") }}</div>
-    <div class="col-sm-10">
-        <div class="form-group has-error has-feedback">
-            {{ field(**kwargs)|safe }}
-            <span class="glyphicon glyphicon-remove form-control-feedback"></span>
-        </div>
+    <div class="col-sm-10 has-error">
+        {{ field(**kwargs)|safe }}
+        {% for error in field.errors %}
+            <span class="error-text">{{ error|safe }}</span>
+        {% endfor %}
     </div>
 </div>
 
@@ -50,10 +50,11 @@
 
 {% macro render_date_field(field) %}
 {% if not field.errors %}
-    <div class="control-group">
-        {{ field.label(class="control-label custom-bold") }}
-        <div class="controls">
-            <input id="{{ field.id }}" name="{{ field.name }}" class="custom-input-width" type="text" data-date-minviewmode="months" data-date-viewmode="months" data-date-format="mm/yyyy" data-date="{{ field.data|date_to_month }}" value="{{ field.data|date_to_month }}" autocomplete="off">
+
+    <div class="row" style="margin-bottom:5px;">
+        <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ field.label(class="custom-label") }}</div>
+        <div class="col-sm-10">
+            <input id="{{ field.id }}" name="{{ field.name }}" class="form-control {{ field.name }}" type="text" data-date-minviewmode="months" data-date-viewmode="months" data-date-format="mm/yyyy" data-date="{{ field.data|date_to_month }}" value="{{ field.data|date_to_month }}" autocomplete="off">
         </div>
     </div>
 {% else %}

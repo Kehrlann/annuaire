@@ -5,6 +5,7 @@
     render_linkedin,
     render_link,
     render_adresse,
+    render_uneditable,
     br_not_empty %}
 
 
@@ -16,12 +17,31 @@
     <div class="col-sm-12">
             {% include "helper/_flashes.html" %}
     </div>
+
+    {# Script block is necessary only when this page is editable #}
+    {% if editable %}
     <script>
         $(document).ready(
             function () {
-                $('#info-perso-form').hide();
-                $('#photo-form').hide();
-                $('#info-perso-text').show();
+
+
+                /*********************
+                 * Initial show-hide *
+                 *********************/
+                {# Solid tactic : show the form if there are errors... #}
+                {% if ancien_form.errors or adresse_form.errors %}
+                    $('#info-perso-form').show();
+                    $('#photo-form').hide();
+                    $('#info-perso-text').hide();
+                {% else %}
+                    $('#info-perso-form').hide();
+                    $('#photo-form').hide();
+                    $('#info-perso-text').show();
+                {% endif %}
+
+                /***************
+                 * File button *
+                 ***************/
                 $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
                     var input = $(this).parents('.input-group').find(':text'),
                         log = numFiles > 1 ? numFiles + ' files selected' : label;
@@ -34,11 +54,14 @@
 
 			    });
 
+                /*****************************
+                 * Autocomplete sur la ville *
+                 *****************************/
                 $('input#ville').autocomplete({
                     source : '{{ url_for("autocomplete_ville_simple") }}',
                     //width: 300,
                     max: 10,
-                    delay: 500,
+                    delay: 100,
                     cacheLength: 1,
                     scroll: false
                 });
@@ -138,6 +161,7 @@
         };
 
     </script>
+    {% endif %}
 
     <div class="col-sm-4 custom-text-center-big-screen" style="margin-bottom:15px;" id="photo-perso">
     {% if ancien['photo'] != None and ancien['photo'] != '' %}
@@ -171,28 +195,29 @@
             <br>
             {{ render_descriptor('', 'D&eacute;l&eacute;gu&eacute; de promotion'|safe) }}
         {% endif %}
+
+        {% if editable %}
         <br>
-        <div class="row">
-            <div class="col-sm-3">
-                <a class="btn btn-xs btn-success" type="button" onclick="showPhotoForm()">
-                    <i class="glyphicon glyphicon-camera"></i> Changer la photo
-                </a>
-            </div>
-            <div class="col-sm-3">
-                <a class="btn btn-xs btn-success" type="button" onclick="showPersoForm()">
-                    <i class="glyphicon glyphicon-edit"></i> Mettre &agrave; jour
-                </a>
-            </div>
+        <div style="display:inline;">
+            <a class="btn btn-xs btn-success" type="button" onclick="showPersoForm()">
+                <i class="glyphicon glyphicon-edit"></i> Mettre &agrave; jour mes infos
+            </a>
+            &nbsp;
+            <a class="btn btn-xs btn-success" type="button" onclick="showPhotoForm()">
+                <i class="glyphicon glyphicon-camera"></i> Changer ma photo
+            </a>
         </div>
+        {% endif %}
     </div>
 
+    {% if editable %}
     <div class="col-sm-8" id="info-perso-form">
         <form class="form" id="form-info">
             {{ csrf_token()|hidden|safe }}
 
-            {{ render_uneditable(ancien_form.nom) }}
-            {{ render_uneditable(ancien_form.promo) }}
-            {{ render_uneditable(ancien_form.diplome) }}
+            {{ render_descriptor('Nom', ancien['prenom']|escape_none+' '+ancien['nom']) }}
+            {{ render_descriptor_mult('Promo', (ancien['ecole'], (ancien['promo']|int_to_str))) }}
+            {{ render_descriptor('Dipl&ocirc;me'|safe, ancien['diplome']) }}
             <br>
             {{ render_field_error(adresse_form.adresse, class="form-control") }}
             {{ render_field_error(adresse_form.ville, class="form-control ui-autocomplete-input", id="ville") }}
@@ -202,8 +227,9 @@
             {{ render_field_error(ancien_form.telephone, class="form-control") }}
             {{ render_field_error(ancien_form.mobile, class="form-control") }}
             {{ render_field_error(ancien_form.mail_perso, class="form-control") }}
-            {{ render_uneditable(ancien_form.mail_asso) }}
             {{ render_field_error(ancien_form.site, class="form-control") }}
+            <br>
+            {{ render_descriptor('Mail &agrave; vie'|safe, ancien['mail_asso']) }}
 
 
 
@@ -242,5 +268,6 @@
             </div>
         </form>
     </div>
+    {% endif %}
 
 </div>

@@ -386,7 +386,8 @@ def find_experience_by_id_ancien(id_ancien):
              a.c.adresse,
              a.c.code,
              v.c.nom,
-             p.c.nom],
+             p.c.nom,
+             p.c.id_pays],
             ex.c.id_ancien == id_ancien,
             from_obj=ex.outerjoin(en).outerjoin(a).outerjoin(v).outerjoin(p),
             use_labels=True).order_by(desc(ex.c.debut).nullslast()).order_by(desc(ex.c.actif)).distinct()
