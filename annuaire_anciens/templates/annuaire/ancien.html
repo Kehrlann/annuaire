@@ -232,7 +232,7 @@
                     <div class="experience container">
 
                         <div class="row">
-                            <div class="col-sm-1 text-center">
+                            <div class="col-sm-1 custom-text-center-big-screen">
                                 <a class="btn btn-success" type="button" onclick="showPasswordForm()">
                                     <i class="glyphicon glyphicon-lock"></i>
                                 </a>
@@ -243,7 +243,7 @@
                         </div>
 
                         <div class="row" style="margin-top: 10px;">
-                            <div class="col-sm-1 text-center">
+                            <div class="col-sm-1 custom-text-center-big-screen">
                                 <a class="btn btn-success" type="button" onclick="showExperienceForm('management')">
                                     <i class="glyphicon glyphicon-plus"></i>
                                 </a>
@@ -255,7 +255,7 @@
 
                         {% if linkedin_url != None %}
                         <div class="row" style="margin-top: 10px;">
-                            <div class="col-sm-1 text-center">
+                            <div class="col-sm-1 custom-text-center-big-screen">
                                 <a class="btn btn-primary" type="button" style="height:100%;" href="{{ linkedin_url }}">
                                     <i class="glyphicon glyphicon-pushpin"></i>
                                 </a>
@@ -266,7 +266,7 @@
                         </div>
                         {% else %}
                         <div class="row" style="margin-top: 10px;">
-                            <div class="col-sm-1 text-center">
+                            <div class="col-sm-1 custom-text-center-big-screen">
                                 <a class="btn btn-danger" type="button" style="height:100%;" href="{{ url_for('linkedin_dissocier') }}">
                                     <i class="glyphicon glyphicon-remove"></i>
                                 </a>
@@ -279,7 +279,7 @@
 
                         {% if import_linkedin_url != None %}
                         <div class="row" style="margin-top: 10px;">
-                            <div class="col-sm-1 text-center">
+                            <div class="col-sm-1 custom-text-center-big-screen">
                                 <a class="btn btn-primary" type="button" style="height:100%;" href="{{ import_linkedin_url }}">
                                     <i class="glyphicon glyphicon-cloud-download"></i>
                                 </a>
