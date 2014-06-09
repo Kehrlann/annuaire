@@ -987,7 +987,7 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
         ancien_form=ancien_form,
         adresse_form=adresse_form,
         utilisateur=current_user,
-        editable=is_this_me
+        editable=True
     )
 
 
@@ -1036,7 +1036,7 @@ def _get_experience_template(id_experience, form = None):
         exp=experience,
         form=form,
         utilisateur=current_user,
-        editable=is_this_me
+        editable=True
     )
 
 
