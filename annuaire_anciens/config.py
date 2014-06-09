@@ -10,6 +10,7 @@ APP_NAME = "PA's app"  # Nom de l'appli, pour être sûr de bien avoir chargé l
 SERVER_NAME = "localhost:5000"   # Host. Les callbacks LinkedIn sont faits sur cette adresse
 DEFAULT_SUBDOMAIN = ""   # Subdomain principal de l'appli, pour le routing Flask. Peut être www.default
 SECRET_KEY = "%830q1>d?qw:" # Clef secrete pour signer les cookies de session
+SESSION_COOKIE_PATH = "/"
 
 LOGIN_DISABLED = False      # Forcer flask.ext.login à utiliser le login. Par défaut, en TESTING, est = True
 
