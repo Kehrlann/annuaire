@@ -287,9 +287,9 @@ def update_info_perso():
                 )
                 if success:
                     app.logger.info(
-                        "UPDATE INFO - successfully update info for user with id %s, id ancien : %s, errors : %s",
+                        "UPDATE INFO - successfully update info for user with id %s, id ancien : %s",
                         current_user.id,
-                        ancien['id_ancien'],
+                        ancien['id_ancien']
                         )
                     info_ok = True
 
