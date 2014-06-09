@@ -35,8 +35,10 @@ def csrf_protect():
     exempt = destination_view in _exempt_views
     if request.method == "POST" and not exempt:
         token = session.pop('_csrf_token', None)
+        print ""
+        print "token still present ?", session.has_key('_csrf_token')
+        print ""
         if not token or token != request.form.get('_csrf_token'):
-            print "token should be", token, "but is", request.form.get('_csrf_token')
             abort(403)
 
 
