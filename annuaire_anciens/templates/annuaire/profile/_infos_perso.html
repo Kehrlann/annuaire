@@ -15,7 +15,7 @@
 
 <div class="row custom-ancien-container" id="info-perso">
     <div class="col-sm-12">
-            {% include "helper/_flashes.html" %}
+        {% include "helper/_flashes.html" %}
     </div>
 
     {# Script block is necessary only when this page is editable #}
@@ -23,7 +23,6 @@
     <script>
         $(document).ready(
             function () {
-
 
                 /*********************
                  * Initial show-hide *
@@ -139,7 +138,6 @@
 
 
         var postDataPerso = function(dest_url, data){
-            console.log("TEST");
             $.ajax({
                 url: dest_url,
                 data: data,
@@ -148,14 +146,23 @@
                 processData: false,
                 type: 'POST',
                 success: function(data){
+
+                    // Step 1 : choper le contenu du widget linkedin
                     var linkedInContent = $("#linkedin-widget").html();
+
+                    // Step 2 : "eval" la réponse. Ça permet de rejouer tous les scripts, dont le $(document).ready()
                     var obj = eval("("+data+")");
+
+                    // Step 3 : injecter le contenu de la réponse dans la page
                     $("#info-perso").replaceWith(obj.content);
+
+                    // Step 4 : Replacer le widget linkedin, et re-chopper le script linkedin associé.
                     $("linkedin-widget").replaceAll(linkedInContent);
                     delete IN;
                     $.getScript("http://platform.linkedin.com/in.js");
 
-                    $("#_csrf_token").val(obj.csrf_token);
+                    // Step 5 : mettre à jour tous les csrf tokens.
+                    $("[name='_csrf_token']").val(obj.csrf_token);
                 }
             });
         };
@@ -212,7 +219,7 @@
 
     {% if editable %}
     <div class="col-sm-8" id="info-perso-form">
-        <form class="form" id="form-info">
+        <form class="form container" id="form-info">
             {{ csrf_token()|hidden|safe }}
 
             {{ render_descriptor('Nom', ancien['prenom']|escape_none+' '+ancien['nom']) }}

@@ -636,10 +636,10 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
     @param site:
     @param telephone:
     @param mobile:
-    @return: success, boolean True si l'insert / update fonctionne
+    @return: inserted_id, l'id de l'expérience insérée / mise à jour
     """
     success = False
-
+    inserted_id = None
 
     if id_ancien is not None:
 
@@ -686,8 +686,9 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 fin = date_fin
             )
             engine.execute(up)
+            inserted_id = id_experience
         else:
-            ins = __experience.insert().values(
+            ins = __experience.insert().returning(__experience.c.id_experience).values(
                 id_ancien = id_ancien,
                 id_entreprise = id_entreprise,
                 id_adresse = id_adresse,
@@ -701,10 +702,10 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 fin = date_fin,
                 id_experience_linkedin = id_experience_linkedin
             )
-            engine.execute(ins)
+            inserted_id = engine.execute(ins)
 
         success = update_ancien_date(id_ancien)
-    return success
+    return inserted_id
 
 def remove_experience(id_ancien, id_experience):
     """

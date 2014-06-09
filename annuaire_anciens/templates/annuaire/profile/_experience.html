@@ -14,10 +14,48 @@
     render_date_field
 %}
 
+{# Script block is necessary only when this page is editable #}
+{% if editable %}
+<script>
+    $(document).ready(
+        function ()
+        {
+            {# Solid tactic : show the form if there are errors... #}
+            {% if form.errors %}
+            showExperienceForm({{ exp['experience_id_experience'] }});
+            {% else %}
+            showExperience({{ exp['experience_id_experience'] }});
+            {% endif %}
 
+            $('input.ville').autocomplete({
+                source : '{{ url_for("autocomplete_ville_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+            $('input.entreprise').autocomplete({
+                source : '{{ url_for("autocomplete_entreprise_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
 
-<div class="row custom-ancien-container experience-container" id="{{ exp['experience_id_experience'] }}">
-    <div class="row col-sm-12 experience">
+        }
+    );
+</script>
+{% endif %}
+
+<div class="row custom-ancien-container experience-container container" id="{{ exp['experience_id_experience'] }}">
+
+    <div class="col-sm-12">
+        {% include "helper/_flashes.html" %}
+    </div>
+
+    <div class="col-sm-12 experience">
         <div class="custom-header-experience col-sm-10 col-sm-offset-2" >
             {% with url = exp['experience_site'] %}
                 {% if url != None and url != '' and url != ' ' %}
@@ -31,7 +69,7 @@
                 {% endif %}
             {% endwith %}
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-12 container">
             {{ render_descriptor('Poste', exp['experience_poste']) }}
             {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
 
@@ -46,13 +84,17 @@
             {% if editable %}
             <div class="row" style="margin-top:20px;">
                 <div style="display:inline;" class="col-sm-10 col-sm-offset-2">
-                    <a class="btn btn-xs btn-success" type="button" onclick="showExperienceForm({{ exp['experience_id_experience'] }})">
-                        <i class="glyphicon glyphicon-edit"></i> Modifier
-                    </a>
-                    &nbsp;
-                    <a class="btn btn-xs btn-danger" type="button" onclick="">
-                        <i class="glyphicon glyphicon-remove"></i> Effacer
-                    </a>
+                        <form method="POST" action="{{ url_for('remove_experience', id_experience=exp['experience_id_experience']) }}">
+
+                        <a class="btn btn-xs btn-success" type="button" onclick="showExperienceForm({{ exp['experience_id_experience'] }})">
+                            <i class="glyphicon glyphicon-edit"></i> Modifier
+                        </a>
+                        &nbsp;
+                            {{ csrf_token()|hidden|safe }}
+                            <a class="btn btn-xs btn-danger" type="button" onclick="delete_experience({{ exp['experience_id_experience'] }})">
+                                <i class="glyphicon glyphicon-remove"></i> Effacer
+                            </a>
+                        </form>
                 </div>
             </div>
             {% endif %}
@@ -61,9 +103,9 @@
     </div>
 
     {% if editable %}
-    <div class="col-sm-12 row experience-form">
-        <div class="col-sm-12" id="info-perso-form">
-            <form class="form" id="form-info">
+    <div class="col-sm-12 experience-form">
+        <div class="col-sm-12">
+            <form class="form container">
                 {{ csrf_token()|hidden|safe }}
 
                 {{ render_field_error(form.entreprise, class="form-control entreprise") }}
@@ -84,7 +126,7 @@
 
                 <div class="control-group col-sm-offset-2">
                     <div class="controls" style="margin-top:20px;">
-                        <a class="btn btn-success btn-sm" onClick="">Mettre &agrave; jour</a>
+                        <a class="btn btn-success btn-sm" onClick="send_exp({{ exp['experience_id_experience'] }})">Mettre &agrave; jour</a>
                         <a class="btn btn-warning btn-sm pull-right" onClick="showExperience({{ exp['experience_id_experience'] }})">Annuler</a>
                     </div>
                 </div>
@@ -92,6 +134,4 @@
         </div>
     </div>
     {% endif %}
-
-
 </div>

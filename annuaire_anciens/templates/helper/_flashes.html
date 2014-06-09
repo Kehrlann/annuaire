@@ -9,6 +9,7 @@
     {{ message|safe }}
 </div>
 {% endif %}
+{% do messages.remove((category, message)) %}
 {% endfor %}
 {% endif %}
 {% endwith %}

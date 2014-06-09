@@ -381,6 +381,13 @@ cosmétique pour l'autocomplete
     background-color: #34495E;
 }
 
+
+.custom-ancien-container-light {
+    margin-top:20px;
+    padding: 20px 0 20px 0;
+    background-color: #3f5c73;
+}
+
 .custom-header-experience {
     font-weight: bold;
     font-size: 16px;
