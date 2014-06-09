@@ -36,6 +36,7 @@ def csrf_protect():
     if request.method == "POST" and not exempt:
         token = session.pop('_csrf_token', None)
         if not token or token != request.form.get('_csrf_token'):
+            print "token should be", token, "but is", request.form.get('_csrf_token')
             abort(403)
 
 
