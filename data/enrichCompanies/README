@@ -1,0 +1,5 @@
+1) fetchCompaniesFromDB.js
+Script nodejs pour aller chercher toutes les entreprises dans la base de données postgres (table entreprise)
+pour balancer le résultat dans un fichier:
+node fetchCompaniesFromDB.js > entreprises.txt
+
