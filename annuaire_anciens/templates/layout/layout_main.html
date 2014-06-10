@@ -12,7 +12,7 @@
         {% if jquery_cdn != None %}
             <script type="text/javascript" src="{{ jquery_cdn }}"></script>
         {% else %}
-            <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-1.8.3.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-1.10.1.min.js') }}"></script>
         {% endif %}
 
 
@@ -36,17 +36,14 @@
             {{ google_analytics }}
         {% endif %}
 
-        <!-- Le jQuery-ui, for sexy serach-bars. -->
-        <link href="{{ url_for('static',filename='css/jquery-ui-1.10.0.custom.min.css') }}" rel="stylesheet">
-        <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-ui-1.10.0.custom.min.js') }}"></script>
+        <!-- Le jQuery-ui, for sexy search-bars and datepickers. -->
+        <link href="{{ url_for('static',filename='css/jquery-ui-1.10.4.custom.min.css') }}" rel="stylesheet">
+        <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-ui-1.10.4.custom.min.js') }}"></script>
 
         <!-- Le custom stuff. -->
         <script type="text/javascript" src="{{ url_for('static',filename='js/annuaire.js') }}"></script>
         <link href="{{ url_for('static',filename='css/custom.css') }}" rel="stylesheet">
 
-        <!-- Le datepicker (why not, first load will be slow, f*ck it. -->
-        <link href="{{ url_for('static',filename='css/datepicker.css') }}" rel="stylesheet">
-        <script type="text/javascript" src="{{ url_for('static',filename='js/bootstrap-datepicker.js') }}"></script>
 
         <!-- Le user scripts. -->
         {% block additional_scripts %}{% endblock %}

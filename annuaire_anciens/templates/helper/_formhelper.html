@@ -54,7 +54,7 @@
     <div class="row" style="margin-bottom:5px;">
         <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ field.label(class="custom-label") }}</div>
         <div class="col-sm-10">
-            <input id="{{ field.id }}" name="{{ field.name }}" class="form-control {{ field.name }}" type="text" data-date-minviewmode="months" data-date-viewmode="months" data-date-format="mm/yyyy" data-date="{{ field.data|date_to_month }}" value="{{ field.data|date_to_month }}" autocomplete="off">
+            <input name="{{ field.name }}" class="form-control {{ field.name }} datepicker" type="text" value="{{ field.data|date_to_month }}" autocomplete="off">
         </div>
     </div>
 {% else %}
@@ -62,7 +62,7 @@
     <div class="row" style="margin-bottom:5px;">
         <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ field.label(class="custom-label") }}</div>
             <div class="col-sm-10 has-error">
-                <input id="{{ field.id }}" name="{{ field.name }}" class="form-control {{ field.name }}" type="text" data-date-minviewmode="months" data-date-viewmode="months" data-date-format="mm/yyyy" data-date="{{ field.data|date_to_month }}" value="{{ field.data|date_to_month }}" autocomplete="off">
+                <input name="{{ field.name }}" class="form-control {{ field.name }} datepicker" type="text" value="{{ field.data|date_to_month }}" autocomplete="off">
                 {% for error in field.errors %}
                     <span class="error-text">{{ error|safe }}</span>
                 {% endfor %}

@@ -44,6 +44,27 @@
                 scroll: false
             });
 
+
+            $(".datepicker").each(
+                    function (index, value){
+                        var date = $(this).val();
+                        var dDate = new Date();
+                        if(date!=""){
+                            var dateArray = date.split("/");
+
+                            dDate = new Date(dateArray[1], dateArray[0]-1, 1);
+                            console.log(dateArray);
+                            console.log(dDate);
+                        }
+                        console.log(date);
+                        $(this).datepicker(
+                            {
+                                dateFormat:'mm/yy',
+                                defaultDate:dDate
+                            });
+                    }
+            );
+
         }
     );
 </script>
