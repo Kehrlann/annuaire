@@ -56,7 +56,6 @@
                             console.log(dateArray);
                             console.log(dDate);
                         }
-                        console.log(date);
                         $(this).datepicker(
                             {
                                 dateFormat:'mm/yy',
@@ -76,49 +75,51 @@
         {% include "helper/_flashes.html" %}
     </div>
 
-    <div class="col-sm-12 experience">
-        <div class="custom-header-experience col-sm-10 col-sm-offset-2" >
-            {% with url = exp['experience_site'] %}
-                {% if url != None and url != '' and url != ' ' %}
-                    <a href="{{ url|to_http }}" target="_blank">{{ exp['entreprise_nom'] }}</a>
-                {% else %}
-                        {{ exp['entreprise_nom'] }}
-                {% endif %}
+    <div class="col-sm-12 experience container">
+        <div class="row">
+            <div class="custom-header-experience col-sm-10 col-sm-offset-2" >
+                {% with url = exp['experience_site'] %}
+                    {% if url != None and url != '' and url != ' ' %}
+                        <a href="{{ url|to_http }}" target="_blank">{{ exp['entreprise_nom'] }}</a>
+                    {% else %}
+                            {{ exp['entreprise_nom'] }}
+                    {% endif %}
 
-                {% if exp['experience_debut'] != None or exp['experience_fin'] != None %}
-                    &nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
-                {% endif %}
-            {% endwith %}
-        </div>
-        <div class="col-sm-12 container">
-            {{ render_descriptor('Poste', exp['experience_poste']) }}
-            {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
-
-            {{ br_not_empty(exp, ['adresse_adresse', 'adresse_code', 'ville_nom', 'pays_nom']) }}
-            {{ render_adresse(exp['adresse_adresse'], exp['ville_nom'], exp['adresse_code'], exp['pays_nom']) }}
-
-            {{ br_not_empty(exp, ['experience_mail', 'experience_telephone', 'experience_mobile']) }}
-            {{ render_descriptor('Mail', exp['experience_mail']) }}
-            {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
-            {{ render_descriptor('Mobile', exp['experience_mobile']) }}
-
-            {% if editable %}
-            <div class="row" style="margin-top:20px;">
-                <div style="display:inline;" class="col-sm-10 col-sm-offset-2">
-                        <form method="POST" action="{{ url_for('remove_experience', id_experience=exp['experience_id_experience']) }}">
-
-                        <a class="btn btn-xs btn-success" type="button" onclick="showExperienceForm({{ exp['experience_id_experience'] }})">
-                            <i class="glyphicon glyphicon-edit"></i> Modifier
-                        </a>
-                        &nbsp;
-                            {{ csrf_token()|hidden|safe }}
-                            <a class="btn btn-xs btn-danger" type="button" onclick="delete_experience({{ exp['experience_id_experience'] }})">
-                                <i class="glyphicon glyphicon-remove"></i> Effacer
-                            </a>
-                        </form>
-                </div>
+                    {% if exp['experience_debut'] != None or exp['experience_fin'] != None %}
+                        &nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
+                    {% endif %}
+                {% endwith %}
             </div>
-            {% endif %}
+            <div class="container">
+                {{ render_descriptor('Poste', exp['experience_poste']) }}
+                {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
+
+                {{ br_not_empty(exp, ['adresse_adresse', 'adresse_code', 'ville_nom', 'pays_nom']) }}
+                {{ render_adresse(exp['adresse_adresse'], exp['ville_nom'], exp['adresse_code'], exp['pays_nom']) }}
+
+                {{ br_not_empty(exp, ['experience_mail', 'experience_telephone', 'experience_mobile']) }}
+                {{ render_descriptor('Mail', exp['experience_mail']) }}
+                {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
+                {{ render_descriptor('Mobile', exp['experience_mobile']) }}
+
+                {% if editable %}
+                <div class="row" style="margin-top:20px;">
+                    <div style="display:inline;" class="col-sm-10 col-sm-offset-2">
+                            <form method="POST" action="{{ url_for('remove_experience', id_experience=exp['experience_id_experience']) }}">
+
+                            <a class="btn btn-xs btn-success" type="button" onclick="showExperienceForm({{ exp['experience_id_experience'] }})">
+                                <i class="glyphicon glyphicon-edit"></i> Modifier
+                            </a>
+                            &nbsp;
+                                {{ csrf_token()|hidden|safe }}
+                                <a class="btn btn-xs btn-danger" type="button" onclick="delete_experience({{ exp['experience_id_experience'] }})">
+                                    <i class="glyphicon glyphicon-remove"></i> Effacer
+                                </a>
+                            </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
 
     </div>
