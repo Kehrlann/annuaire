@@ -7,7 +7,6 @@ window.Backbone = require('backbone');
 window._ = require('underscore');
 window.$ = require('jquery');
 Backbone.$ = $;
-require('bootstrap-browserify');
 
 //
 // Dependencies
