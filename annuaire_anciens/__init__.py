@@ -4,7 +4,7 @@ import config
 import json
 
 # Création de l'app SANS static folder. On le crée à posteriori, pour le lier au subdomain
-app = Flask(__name__, static_folder=None)
+app = Flask(__name__, static_url_path="")
 
 # Chargement de la config par défaut
 app.config.from_object(config)

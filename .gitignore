@@ -6,3 +6,6 @@ dist
 Annuaire_des_anciens.egg-info
 test.py
 .idea
+node_modules
+app-bundle.js
+app-bundle.min.js

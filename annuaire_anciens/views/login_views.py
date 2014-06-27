@@ -13,9 +13,13 @@ def load_user(user_id):
     return user.find_user_by_id(user_id)
 
 
+# @app.route('/')
+# def home():
+#     return redirect(url_for('annuaire_view'))
+
 @app.route('/')
-def home():
-    return redirect(url_for('annuaire_view'))
+def root():
+    return app.send_static_file('index.html')
 
 @helper.csrf_exempt
 @app.route('/login', methods=['POST'])
