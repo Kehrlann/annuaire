@@ -49,6 +49,7 @@ AS $$
 		RAISE NOTICE 'Insertion des prenoms ... done';
 		
 		-- ancien.nom
+		-- on fait un second loop pour avoir le compte des noms séparé du compte des prénoms
 		RAISE NOTICE 'Insertion des noms';
 		FOR ancien_record IN
 			SELECT nom, slugify(nom) as s, COUNT(0) as c
@@ -59,6 +60,18 @@ AS $$
 			PERFORM insert_or_update_mot(ancien_record.nom, ancien_record.s, CAST(ancien_record.c AS INTEGER));
 		END LOOP;
 		RAISE NOTICE 'Insertion des noms ... done';
+		
+		-- troisieme loop pour inclure ancien.prenom || " " || ancien.nom
+		RAISE NOTICE 'Insertion des noms complets';
+		FOR ancien_record IN
+			SELECT prenom || ' ' || nom as pn, nom || ' ' || prenom as np
+				FROM ancien
+		LOOP
+			PERFORM insert_or_update_mot(ancien_record.pn, slugify(ancien_record.pn), 1);
+			PERFORM insert_or_update_mot(ancien_record.np, slugify(ancien_record.np), 1);
+		END LOOP;
+		RAISE NOTICE 'Insertion des noms complets ... done';
+
 
 		-- ecole
 		RAISE NOTICE 'Insertion des ecoles';

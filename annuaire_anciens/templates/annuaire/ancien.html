@@ -1,14 +1,18 @@
 {% extends "layout/layout_mono.html" %}
+
 {% from "helper/_ancienhelper.html" import
     render_descriptor,
     render_descriptor_mult,
-    render_descriptor_no_label,
-    render_linkedin_box,
-    render_link %}
+    render_descriptor,
+    render_linkedin,
+    render_link,
+    render_adresse,
+    br_not_empty %}
 
-{% block header %}
+
+{% block top_band %}
     {% if ancien != None%}
-        <h1>{{ ancien['prenom']|escape_none+' '+ancien['nom'] }}</h1>
+        <h1 style="font-weight: bold !important;">{{ ancien['prenom']|escape_none+' '+ancien['nom'] }}</h1>
         {% if ancien['date_update'] != None %}
         <p class="lead">Derni&egrave;re mise &agrave; jour : {{ ancien['date_update'].strftime('%d/%m/%Y') }}</p>
         {% else %}
@@ -17,75 +21,298 @@
     {% endif %}
 {% endblock %}
 
+{% block additional_scripts %}
+<script>
+    $(document).ready(
+        function()
+        {
+            $(".experience-form").hide();
+            $(".experience").show();
+            $('input.ville').autocomplete({
+                source : '{{ url_for("autocomplete_ville_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+            $('input.entreprise').autocomplete({
+                source : '{{ url_for("autocomplete_entreprise_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+            $('html,body').scrollTop(0);
+        }
+
+    );
+
+
+
+    var showPassword =
+        function()
+        {
+            $("#management").children(".experience").show();
+            $("#management").children(".password-form").hide();
+        };
+
+    var showPasswordForm =
+        function()
+        {
+            $("#management").children(".experience").hide();
+            $("#management").children(".password-form").show();
+        };
+
+    var updatePassword =
+            function()
+            {
+                var form = $("#management").find(".password-form-form").formToArray();
+                var data = new FormData();
+                $.each(form,
+                        function(index, value)
+                        {
+                            data.append(value.name, value.value);
+                        }
+                );
+                $.ajax(
+                        {
+                            url: '{{ url_for("update_password") }}',
+                            data: data,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            type: 'POST',
+                            success: function(data){
+
+                                // Step 1 : "eval" la réponse. Ça permet de rejouer tous les scripts, dont le $(document).ready()
+                                var obj = eval("("+data+")");
+                                if(obj.success)
+                                {
+                                    // Step 2 : reload
+                                    $("form").each( function(index, value) {this.reset();});
+                                    location.reload();
+                                }
+                                else
+                                {
+                                    // Step 2 : injecter le contenu de la réponse dans la page
+                                    $("#management").find(".password-form").replaceWith(obj.content);
+
+                                    // Step 53: mettre à jour tous les csrf tokens.
+                                    $("[name='_csrf_token']").val(obj.csrf_token);
+                                }
+                            }
+                        }
+                );
+            };
+
+    var showExperienceForm =
+        function(id)
+        {
+            $("#"+id).children(".experience").hide();
+            $("#"+id).children(".experience-form").show();
+        };
+
+    var showExperience =
+        function(id)
+        {
+            $("#"+id).children(".experience").show();
+            $("#"+id).children(".experience-form").hide();
+        };
+
+
+
+    var send_exp =
+        function (id)
+        {
+            var form = $("#"+id).find(".form").formToArray();
+            var data = new FormData();
+            $.each(form,
+                    function(index, value)
+                    {
+                        data.append(value.name, value.value);
+                    }
+            );
+            postExperience(id, data);
+        };
+
+
+    var create_exp =
+            function()
+            {
+                var form = $("#management").find(".form").formToArray();
+                var data = new FormData();
+                $.each(form,
+                        function(index, value)
+                        {
+                            data.append(value.name, value.value);
+                        }
+                );
+                $.ajax(
+                        {
+                            url: '{{ url_for("update_experience") }}',
+                            data: data,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            type: 'POST',
+                            success: function(data){
+
+                                // Step 1 : "eval" la réponse. Ça permet de rejouer tous les scripts, dont le $(document).ready()
+                                var obj = eval("("+data+")");
+                                if(obj.success)
+                                {
+                                    // Step 2 : reload
+                                    $("form").each( function(index, value) {this.reset();});
+                                    location.reload();
+                                }
+                                else
+                                {
+                                    // Step 2 : injecter le contenu de la réponse dans la page
+                                    $("#management").find(".experience-form").replaceWith(obj.content);
+
+                                    // Step 53: mettre à jour tous les csrf tokens.
+                                    $("[name='_csrf_token']").val(obj.csrf_token);
+                                }
+                            }
+                        }
+                );
+            };
+
+    var delete_experience = function(id)
+    {
+        $('#'+id).find('.experience').find('form').submit();
+    };
+
+    var postExperience = function(id, data){
+        $.ajax({
+            url: '{{ url_for("update_experience") }}'+id,
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            type: 'POST',
+            success: function(data){
+
+                // Step 1 : "eval" la réponse. Ça permet de rejouer tous les scripts, dont le $(document).ready()
+                var obj = eval("("+data+")");
+
+                // Step 2 : injecter le contenu de la réponse dans la page
+                $("#"+id).replaceWith(obj.content);
+
+                // Step 3 : mettre à jour tous les csrf tokens.
+                $("[name='_csrf_token']").val(obj.csrf_token);
+                console.log(obj.csrf_token);
+
+            }
+        });
+    };
+
+</script>
+{% endblock %}
+
 
 {% block title %}Anciens Intermines{% endblock %}
 {% block content %}
 
-        {% if ancien != None%}
-            <div class="row custom-ancien-container">
-                <div class="span6">
-                {% if ancien['photo'] != None and ancien['photo'] != '' %}
-                    <img src="{{ url_for('static',filename='img/'+ancien['photo']) }}" class="custom-img" class="span4"/>
-                {% else %}
-                    <img src="{{ url_for('static',filename='img/no_photo.png') }}" class="custom-img" class="span4"/>
-                {% endif %}
-                </div>
-                <div class="span6">
-                    {{  render_linkedin_box(ancien) }}
-                    <div class="custom-cadre-header">Infos personnelles :</div>
-                    <div class="custom-cadre">
-                        <dl class="dl-horizontal">
-                            <!-- Infos personnelles -->
-                            {{ render_descriptor('Nom', ancien['prenom']|escape_none+' '+ancien['nom']) }}
-                            {{ render_descriptor_mult('&Eacute;cole'|safe, (ancien['ecole'], (ancien['promo']|int_to_str))) }}
-                            {{ render_descriptor('Dipl&ocirc;me'|safe, ancien['diplome']) }}
-                            {{ render_descriptor('T&eacute;l&eacute;phone'|safe, ancien['telephone']) }}
-                            {{ render_descriptor('Mobile', ancien['mobile']) }}
-                            {{ render_link('Site', ancien['site']) }}
-                            {{ render_descriptor('Mail perso', ancien['mail_perso']) }}
-                            {{ render_descriptor('Mail &agrave; vie'|safe, ancien['mail_asso']) }}
-                            {% if ancien['cotisant'] %}
-                                {{ render_descriptor_no_label('Membre cotisant') }}
-                            {% endif %}
-                            {% if ancien['delegue'] %}
-                                {{ render_descriptor_no_label('D&eacute;l&eacute;gu&eacute; de promotion'|safe) }}
-                            {% endif %}
-                            <!-- Adresses personnelles -->
-                            <br />
-                            {% if adresse != None %}
-                                {{ render_descriptor('Adresse', adresse['adresse_adresse']) }}
-                                {{ render_descriptor_mult('Ville', (adresse['ville_nom'], '-', adresse['adresse_code']))}}
-                                {{ render_descriptor('Pays', adresse['pays_nom']) }}
-                            {% endif %}
+        <div class="row" style="margin-top:10px;">
+            {% include "helper/_flashes.html" %}
+        </div>
 
-                        </dl>
+        {% if ancien != None%}
+        <div class="row">
+
+            <div class="col-md-10 col-md-offset-1 container">
+
+
+                {% if editable %}
+                <!-- Edition du compte -->
+                <div class="row custom-ancien-container-light experience-container" id="management">
+                    <div class="experience container">
+
+                        <div class="row">
+                            <div class="col-sm-1 custom-text-center-big-screen">
+                                <a class="btn btn-success" type="button" onclick="showPasswordForm()">
+                                    <i class="glyphicon glyphicon-lock"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-11" style="padding-top: 7px;">
+                                Modifier mon mot de passe
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-sm-1 custom-text-center-big-screen">
+                                <a class="btn btn-success" type="button" onclick="showExperienceForm('management')">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-11" style="padding-top: 7px;">
+                                Ajouter une exp&eacute;rience professionnelle &agrave; ma fiche ancien
+                            </div>
+                        </div>
+
+                        {% if linkedin_url != None %}
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-sm-1 custom-text-center-big-screen">
+                                <a class="btn btn-primary" type="button" style="height:100%;" href="{{ linkedin_url }}">
+                                    <i class="glyphicon glyphicon-pushpin"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-11" style="padding-top: 6px; padding-bottom: 6px;">
+                                Associer mon compte LinkedIn (lien vers LinkedIn dans ma fiche ancien)
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-sm-1 custom-text-center-big-screen">
+                                <a class="btn btn-danger" type="button" style="height:100%;" href="{{ url_for('linkedin_dissocier') }}">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-11" style="padding-top: 6px; padding-bottom: 6px;">
+                                Dissocier mon compte LinkedIn (lien vers LinkedIn dans ma fiche ancien)
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if import_linkedin_url != None %}
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-sm-1 custom-text-center-big-screen">
+                                <a class="btn btn-primary" type="button" style="height:100%;" href="{{ import_linkedin_url }}">
+                                    <i class="glyphicon glyphicon-cloud-download"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-11" style="padding-top: 6px; padding-bottom: 6px;">
+                                Importer des exp&eacute;riences depuis LinkedIn
+                            </div>
+                        </div>
+                        {% endif %}
+
                     </div>
+
+
+                    {% include "annuaire/profile/_new_experience.html" %}
+                    {% include "annuaire/profile/_password.html" %}
+
                 </div>
-            </div>
+                {% endif %}
+
+
+                <!-- Infos perso -->
+                {% include "annuaire/profile/_infos_perso.html" %}
+
+
 
             <!-- Experiences Pro -->
             {% for exp in experiences %}
-            <div class="custom-cadre-header">
-                <span style="margin-top:0;margin-bottom:0;margin-left: 100px;">
-                    {{ exp['entreprise_nom'] }}&nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
-                </span>
-            </div>
-            <div class="custom-cadre">
-                <dl class="dl-horizontal">
-                    {{ render_descriptor('Poste', exp['experience_poste']) }}
-                    {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
-                </dl>
-                <dl class="dl-horizontal">
-                    {{ render_descriptor('Adresse', exp['adresse_adresse']) }}
-                    {{ render_descriptor_mult('Ville', ( exp['adresse_code'], exp['ville_nom'])) }}
-                    {{ render_descriptor('Pays', exp['pays_nom']) }}
-                    {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
-                    {{ render_descriptor('Mobile', exp['experience_mobile']) }}
-                    {{ render_link('Site', exp['experience_site']) }}
-                    {{ render_descriptor('Mail', exp['experience_mail']) }}
-                </dl>
-            </div>
+            {% with form = experience_forms.get(exp['experience_id_experience']) %}
+                {% include "annuaire/profile/_experience.html" %}
+            {% endwith %}
             {% endfor %}
+            </div>
+        </div>
 
 
         {% else %}

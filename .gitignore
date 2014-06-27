@@ -4,3 +4,5 @@ local
 build
 dist
 Annuaire_des_anciens.egg-info
+test.py
+.idea

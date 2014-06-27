@@ -12,20 +12,21 @@ if 'DEFAULT_SUBDOMAIN' in app.config and app.config['DEFAULT_SUBDOMAIN'] != '' a
     _SERVER_NAME = app.config['DEFAULT_SUBDOMAIN'] + "." + _SERVER_NAME
 
 
-def send_activation_mail(to, id_ancien, activation_code):
+def send_activation_mail(to, activation_code):
     """
-    Envoyer le mail d'activation du compte d'ancien
+    Envoyer le mail d'activation du compte
+
     @param to: destinataire
     @param activation_code: code d'activation, à insérer dans le mail.
     @return: None
     """
     message = \
         u'Bonjour !\n\n' \
-        u'Vous avez demandé l\'ouverture d\'un compte sur http://mines-alumni.com. Afin de l\'activer, ' \
+        u'Vous avez demandé l\'ouverture d\'un compte sur https://mines-alumni.com. Afin de l\'activer, ' \
         u'veuillez cliquer sur le lien ci-dessous :\n' \
-        u'http://%s/activation/%s/%s\n\n' \
+        u'https://%s/activation/%s\n\n' \
         u'Cordialement,\n' \
-        u'L\'équipe mines-alumni' % (_SERVER_NAME,id_ancien,activation_code)
+        u'L\'équipe mines-alumni' % (_SERVER_NAME, activation_code)
     _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Activation de votre compte", message)
 
 

@@ -1,0 +1,69 @@
+{% from "helper/_formhelper.html" import
+    render_field,
+    render_field_error,
+    render_uneditable,
+    render_date_field
+%}
+
+
+<div class="col-sm-12 row experience-form">
+    <script>
+    $(document).ready(
+        function ()
+        {
+            {# Solid tactic : show the form if there are errors... #}
+            {% if new_experience_form.errors %}
+            showExperienceForm('management');
+            {% else %}
+            showExperience('management');
+            {% endif %}
+
+            $('input.ville').autocomplete({
+                source : '{{ url_for("autocomplete_ville_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+            $('input.entreprise').autocomplete({
+                source : '{{ url_for("autocomplete_entreprise_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+
+        }
+    );
+    </script>
+    <div class="col-sm-12">
+        <form class="form container">
+            {{ csrf_token()|hidden|safe }}
+
+            {{ render_field_error(new_experience_form.entreprise, class="form-control entreprise") }}
+            {{ render_field_error(new_experience_form.poste, class="form-control") }}
+            {{ render_field_error(new_experience_form.description, class="form-control") }}
+            {{ render_date_field(new_experience_form.date_debut) }}
+            {{ render_date_field(new_experience_form.date_fin) }}
+            <br />
+            {{ render_field_error(new_experience_form.adresse, class="form-control") }}
+            {{ render_field_error(new_experience_form.ville, class="form-control ville") }}
+            {{ render_field_error(new_experience_form.code, class="form-control") }}
+            {{ render_field_error(new_experience_form.pays, class="form-control") }}
+            <br />
+            {{ render_field_error(new_experience_form.mail, class="form-control") }}
+            {{ render_field_error(new_experience_form.site, class="form-control") }}
+            {{ render_field_error(new_experience_form.telephone, class="form-control") }}
+            {{ render_field_error(new_experience_form.mobile, class="form-control") }}
+
+            <div class="control-group col-sm-offset-2">
+                <div class="controls" style="">
+                    <a class="btn btn-success btn-sm" onClick="create_exp()">Ajouter</a>
+                    <a class="btn btn-warning btn-sm pull-right" onClick="showExperience('management')">Annuler</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>

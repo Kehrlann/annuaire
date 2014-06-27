@@ -3,130 +3,274 @@ from datetime import datetime
 import os
 
 from werkzeug.utils import secure_filename
-from flask import render_template, request, url_for, redirect, session, flash
+from flask import render_template, request, url_for, redirect, session, flash, abort
 from flask.ext.login import current_user, login_required, login_user
 import requests
+import json
 from lxml import etree
 
 from annuaire_anciens import app, annuaire, user, PAYS
 from annuaire_anciens.helper.security import generate_csrf_token
 
 
-@app.route('/compte/', methods=['GET'])
+@app.route('/me', methods=['GET'])
 @login_required
 def compte():
     """
-    Page de gestion du profil et des préférences utilisateur.
-    """
-    adresse_label =  ""
-    ancien_form = user.update_ancien_form()
+    Permet, entre autres, d'associer un utilisateur à un ancien :
+    - Si l'utilisateur U n'a pas d'ancien associé
+        - Trouver si il y a un ancien A tel que A.mail_asso == U.mail
+            - Si oui, vérifier qu'il n'y a pas d'utilisateur U2
+            tel que U2.id_ancien == A.id_ancien
+                - Si U2 n'existe pas, alors UPDATE U tel que U.id_ancien = A.id_ancien
 
+    """
+
+    #TODO : refaire les commentaires
     # chopper l'ancien associé à l'utilisateur
     utilisateur = user.find_user_by_id(current_user.id)
 
-    # get data by id ancien
+    # Trouver si l'utilisateur a un ancien associé
     ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
-    if ancien is not None:
-        ancien_form.load_ancien(ancien)
 
-    adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
-    if adresse is not None:
-        if adresse['adresse_adresse'] is not None:
-            adresse_label += adresse['adresse_adresse']+', '
-        if adresse['ville_nom'] is not None:
-            adresse_label += adresse['ville_nom'] + ' '
+    # Si l'utilisateur n'a pas d'ancien, on va vérifier
+    # Via le mail asso, s'il existe un ancien dans la base pour lui
+    if ancien is None:
+        ancien_temp = annuaire.find_ancien_by_mail_asso(utilisateur.mail)
 
-    experiences = annuaire.find_experience_by_id_ancien(utilisateur.id_ancien)
+        # si il y a effectivement un ancien, vérifier
+        # qu'il n'est pas déjà associé à un utilisateur
+        if ancien_temp is not None:
+            app.logger.info(
+                "USER ASSOCIATION - trying to associate user %s with ancien %s",
+                current_user.id,
+                ancien_temp['id_ancien']
+            )
+            user_temp = user.find_user_by_id_ancien(ancien_temp['id_ancien'])
 
-    # préparer l'url pour connecter l'utilisateur à LinkedIn si ce n'est pas déjà fait
-    linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
-                        "response_type=code&"
-                        "client_id=%s&"
-                        "scope=%s"
-                        "&state=%s"
-                        "&redirect_uri=%s" %
-                        (app.config['LINKEDIN_KEY'],
-                         app.config['LINKEDIN_SCOPE'],
-                         generate_csrf_token(),
-                         url_for('linkedin_associer', _external=True)))
+            # Si ça n'existe pas, alors faire l'association
+            if user_temp is None:
+                # On récupère le nouvel utilisateur
+                sql_res = user.update_id_ancien(utilisateur.id, ancien_temp['id_ancien'])
 
-    # préparer l'url pour connecter l'utilisateur à LinkedIn si ce n'est pas déjà fait
-    import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
-                        "response_type=code&"
-                        "client_id=%s&"
-                        "scope=%s"
-                        "&state=%s"
-                        "&redirect_uri=%s" %
-                        (app.config['LINKEDIN_KEY'],
-                         app.config['LINKEDIN_SCOPE'],
-                         generate_csrf_token(),
-                         url_for('linkedin_importer', _external=True)))
+                # Si l'association réussit
+                # réucpérer l'ancien
+                if sql_res :
+                    utilisateur = user.find_user_by_id(utilisateur.id)
+                    app.logger.info(
+                        "USER ASSOCIATION - Success, associated user %s with ancien %s",
+                        utilisateur.id,
+                        ancien_temp['id_ancien']
+                    )
+                    return redirect(url_for("ancien", id_ancien=utilisateur.id_ancien))
 
-    return render_template('user/compte.html',
-                           adresse = adresse_label,
-                           ancien = ancien,
-                           experiences = experiences,
-                           utilisateur = current_user,
-                           linkedin_url = linkedin_url,
-                           import_linkedin_url = import_linkedin_url)
+                else:
+                    app.logger.error(
+                        "USER ASSOCIATION - Oops ... update went wrong."
+                    )
+
+            else:
+                app.logger.warning(
+                    "USER ASSOCIATION - user %s already associated with ancien %s",
+                    user_temp.id,
+                    ancien_temp['id_ancien']
+                )
+
+    else:
+        return redirect(url_for("ancien", id_ancien=utilisateur.id_ancien))
 
 
-@app.route('/compte/password/', methods=['GET', 'POST'])
+@app.route('/ancien/<int:id_ancien>')
+@login_required
+def ancien(id_ancien):
+
+    #TODO : commentaires
+    is_this_me = False
+    adresse_form = user.update_adresse_form()
+    adresse_form.set_pays(PAYS)
+    experience_forms = {}
+    new_experience_form = None
+    linkedin_url = None
+    import_linkedin_url = None
+    password_form = user.change_password_form()
+
+
+    # get data by id ancien
+    ancien = annuaire.find_ancien_by_id(id_ancien)
+    adresse = annuaire.find_adresse_by_id_ancien(id_ancien)
+    experiences = annuaire.find_experience_by_id_ancien(id_ancien).fetchall()
+
+    for exp in experiences:
+        form = user.update_experience_form()
+        form.set_pays(PAYS)
+        form.load_experience(exp)
+        experience_forms[exp['experience_id_experience']] = form
+
+    utilisateur = user.find_user_by_id(current_user.id)
+
+    #~~~~~~~~~#
+    # ADRESSE #
+    #~~~~~~~~~#
+    if utilisateur is not None and utilisateur.id_ancien == id_ancien:
+        is_this_me = True
+
+        adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+        if adresse is not None:
+            adresse_form.load_adresse(adresse)
+
+    #~~~~~~~~~~~~~#
+    # INFOS PERSO #
+    #~~~~~~~~~~~~~#
+    ancien_form = user.update_ancien_form()
+    ancien_form.load_ancien(ancien)
+
+    #~~~~~~~~~~~~~~~~~~#
+    # AJOUT EXPERIENCE #
+    #~~~~~~~~~~~~~~~~~~#
+    if is_this_me:
+        new_experience_form = user.update_experience_form()
+        new_experience_form.set_pays(PAYS)
+
+
+    #~~~~~~~~~~~~~~~~~~#
+    # Gestion LinkedIn #
+    #~~~~~~~~~~~~~~~~~~#
+    if is_this_me:
+
+        # Connexion à LinkedIn
+        if ancien['url_linkedin'] is None:
+            linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+                                "response_type=code&"
+                                "client_id=%s&"
+                                "scope=%s"
+                                "&state=%s"
+                                "&redirect_uri=%s" %
+                                (app.config['LINKEDIN_KEY'],
+                                 app.config['LINKEDIN_SCOPE'],
+                                 generate_csrf_token(),
+                                 url_for('linkedin_associer', _external=True)))
+
+        # import des expériences pro linkeding
+        import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+                            "response_type=code&"
+                            "client_id=%s&"
+                            "scope=%s"
+                            "&state=%s"
+                            "&redirect_uri=%s" %
+                            (app.config['LINKEDIN_KEY'],
+                             app.config['LINKEDIN_SCOPE'],
+                             generate_csrf_token(),
+                             url_for('linkedin_importer', _external=True)))
+
+
+
+    # load page
+    return render_template(
+        'annuaire/ancien.html',
+        ancien=ancien,
+        adresse=adresse,
+        ancien_form=ancien_form,
+        adresse_form=adresse_form,
+        experiences=experiences,
+        utilisateur=current_user,
+        editable=is_this_me,
+        experience_forms=experience_forms,
+        new_experience_form = new_experience_form,
+        linkedin_url = linkedin_url,
+        import_linkedin_url= import_linkedin_url,
+        password_form = password_form
+    )
+
+
+
+
+
+@app.route('/compte/password/', methods=['POST'])
 @login_required
 def update_password():
     """
-    Page pour mettre à jour son mot de passe.
+    Mettre à jour son mot de passe.
 
     Lors de la mise à jour, on vérifie que l'utilisateur connait bien le mot de passe actuel,
     afin d'éviter les reset par des tierces personnes sur des sessions ouvertes.
 
-    GET  : afficher la page
     POST : "commit" les données
     """
-    form = user.change_password_form()
+    res = {}
+    res["content"] = None
+    res["csrf_token"] = generate_csrf_token()
+    res["success"] = False
 
-    if request.method == 'POST':
-        # Confirmer
-        form = user.change_password_form(request.form)
-        form_confirmed = form.validate()
 
-        # verifier que l'ancien mot de passe est le bon
-        password_confirmed = user.confirm_password(current_user.id, form.old_password.data)
-        if not password_confirmed:
-            app.logger.warning("UPDATE PASS - wrong password for user with id %s", current_user.id)
-            form.old_password.errors = ['Ancien mot de passe incorrect']
+    # Confirmer
+    form = user.change_password_form(request.form)
+    form_confirmed = form.validate()
 
-        # si tout va bien, mettre a jour.
-        if form_confirmed and password_confirmed:
-            result = user.update_password_by_id(current_user.id, form.old_password.data, form.new_password.data)
-            if result:
-                app.logger.info("UPDATE PASS - successfully changed password  for user with id %s", current_user.id)
-                flash("Mot de passe correctement mis &agrave; jour", "success")
-            else:
-                app.logger.error("UPDATE PASS - error changing password  for user with id %s", current_user.id)
-                flash("Probl&egrave;me &agrave; la mise &agrave; jour, contacter l'administrateur", "error")
-            return redirect(url_for("compte"))
+    # verifier que l'ancien mot de passe est le bon
+    password_confirmed = user.confirm_password(current_user.id, form.old_password.data)
+    if not password_confirmed:
+        app.logger.warning("UPDATE PASS - wrong password for user with id %s", current_user.id)
+        form.old_password.errors = ['Ancien mot de passe incorrect']
 
-    return render_template("user/password_form.html", form=form)
+    # si tout va bien, mettre a jour.
+    if form_confirmed and password_confirmed:
+        result = user.update_password_by_id(current_user.id, form.old_password.data, form.new_password.data)
+        if result:
+            app.logger.info("UPDATE PASS - successfully changed password  for user with id %s", current_user.id)
+            flash("Mot de passe correctement mis &agrave; jour", "success")
 
-@app.route('/compte/info/', methods=['GET', 'POST'])
+            res["success"] = True
+            return json.dumps(res)
+
+        else:
+            app.logger.error("UPDATE PASS - error changing password  for user with id %s", current_user.id)
+            flash("Probl&egrave;me &agrave; la mise &agrave; jour, contacter l'administrateur", "danger")
+
+    res["content"] = render_template('annuaire/profile/_password.html', password_form = form)
+
+
+    return json.dumps(res)
+
+
+@app.route('/compte/info/', methods=['POST'])
 @login_required
 def update_info_perso():
     """
-    Page pour mettre à jour les infos perso d'un ancien
+    Page pour mettre à jour les infos perso d'un ancien.
+        -> Infos perso
+        -> Adresse perso
 
-    GET  : afficher la page
-    POST : "commit" les données
+    Deux fois (adresse+infos) trois étapes :
+        1. Valider les données
+        2. Le cas échéant, les sauvegarder
+        3. Regénérer le template et le renvoyer avec un nouveau csrf token
     """
+
+
+    res = {}
+    res["content"] = None
+    res["csrf_token"] = generate_csrf_token()
+    res["success"] = False
+
+    form_ancien_to_render = None
+
     form = user.update_ancien_form()
 
+    info_ok = False
+
     utilisateur = user.find_user_by_id(current_user.id)
-    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    if utilisateur is not None:
 
-    if ancien is not None:
-        form.load_ancien(ancien)
 
-        if request.method == 'POST':
+
+        #~~~~~~~~~~~~~#
+        # INFOS PERSO #
+        #~~~~~~~~~~~~~#
+        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+
+        if ancien is not None:
+            form.load_ancien(ancien)
+
             # Confirmer
             form = user.update_ancien_form(request.form)
             form_confirmed = form.validate()
@@ -143,39 +287,31 @@ def update_info_perso():
                 )
                 if success:
                     app.logger.info(
-                        "UPDATE INFO - successfully info for user with id %s, id ancien : %s, errors : %s",
+                        "UPDATE INFO - successfully update info for user with id %s, id ancien : %s",
                         current_user.id,
-                        ancien['id_ancien'],
+                        ancien['id_ancien']
                         )
-                    flash("Informations personnelles correctement mises &agrave; jour", "success")
-                    return redirect(url_for("compte"))
+                    info_ok = True
 
+                else:
+                    app.logger.info("UPDATE INFO - failed insert for user with id %s", current_user.id)
+
+            else:
+                form_ancien_to_render = form
                 app.logger.info("UPDATE INFO - failed insert for user with id %s", current_user.id)
-            app.logger.info("UPDATE INFO - failed insert for user with id %s", current_user.id)
-
-    return render_template("user/info_perso_form.html", ancien_form=form)
 
 
-@app.route('/compte/adresse/', methods=['GET', 'POST'])
-@login_required
-def update_adresse():
-    """
-    Page pour mettre à jour l'adresse
+        #~~~~~~~~~#
+        # ADRESSE #
+        #~~~~~~~~~#
+        adresse_form = user.update_adresse_form()
+        adresse_form.set_pays(PAYS)
 
-    GET  : afficher la page
-    POST : "commit" les données
-    """
-    adresse_form = user.update_adresse_form()
-    adresse_form.set_pays(PAYS)
+        if utilisateur.id_ancien is not None:
+            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            if adresse is not None:
+                adresse_form.load_adresse(adresse)
 
-    utilisateur = user.find_user_by_id(current_user.id)
-
-    if utilisateur.id_ancien is not None:
-        adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
-        if adresse is not None:
-            adresse_form.load_adresse(adresse)
-
-        if request.method == 'POST':
             # Confirmer
             adresse_form = user.update_adresse_form(request.form)
             adresse_form.set_pays(PAYS)
@@ -190,23 +326,34 @@ def update_adresse():
                     adresse_form.adresse.data,
                     adresse_form.code.data
                 )
-                flash("Adresse personnelle mise &agrave; jour", "success")
-                return redirect(url_for("compte"))
+                if info_ok:
+                    flash("Informations personnelles mises &agrave; jour", "success")
 
-        return render_template("user/adresse_form.html", adresse_form=adresse_form)
-    else:
-        return redirect(url_for("compte"))
 
-@app.route('/compte/experience/', methods=['GET', 'POST'])
-@app.route('/compte/experience/<int:id_experience>', methods=['GET', 'POST'])
+        res["content"] = _get_info_perso_template(ancien_form=form_ancien_to_render)
+        res["success"] = True
+
+    return json.dumps(res)
+
+@app.route('/compte/experience/', methods=['POST'])
+@app.route('/compte/experience/<int:id_experience>', methods=['POST'])
 @login_required
 def update_experience(id_experience = None):
     """
-    Page pour mettre à jour les expériences utilisateur d'un ancien
+    Page pour mettre à jour / ajouter des expériences pro d'un ancien
 
-    GET  : afficher la page
     POST : "commit" les données
     """
+
+    id = id_experience
+
+    res = {}
+    res["content"] = None
+    res["csrf_token"] = generate_csrf_token()
+    res["success"] = False
+
+    experience_form_to_render = None
+
     experience_form = user.update_experience_form()
     experience_form.set_pays(PAYS)
 
@@ -214,79 +361,116 @@ def update_experience(id_experience = None):
 
     if utilisateur.id_ancien is not None:
 
-        if request.method == 'POST':
-            experience_form = user.update_experience_form(request.form)
-            experience_form.set_pays(PAYS)
-            form_confirmed = experience_form.validate()
+        experience_form = user.update_experience_form(request.form)
+        experience_form.set_pays(PAYS)
+        form_confirmed = experience_form.validate()
 
-            if form_confirmed:
-                try:
-                    date_debut = datetime.strptime(experience_form.date_debut.data, '%m/%Y')
-                except ValueError:
-                    date_debut = None
-                try:
-                    date_fin = datetime.strptime(experience_form.date_fin.data, '%m/%Y')
-                except ValueError:
-                    date_fin = None
+        if form_confirmed:
+            try:
+                date_debut = datetime.strptime(experience_form.date_debut.data, '%m/%Y')
+            except ValueError:
+                date_debut = None
+            try:
+                date_fin = datetime.strptime(experience_form.date_fin.data, '%m/%Y')
+            except ValueError:
+                date_fin = None
 
-                annuaire.update_experience(
-                    utilisateur.id_ancien,
-                    id_experience,
-                    experience_form.ville.data,
-                    experience_form.pays.data,
-                    experience_form.adresse.data,
-                    experience_form.code.data,
-                    experience_form.entreprise.data,
-                    experience_form.poste.data,
-                    experience_form.description.data,
-                    experience_form.mail.data,
-                    experience_form.site.data,
-                    experience_form.telephone.data,
-                    experience_form.mobile.data,
-                    date_debut,
-                    date_fin
-                )
-                if id_experience is not None:
-                    flash("Exp&eacute;rience professionnelle modifi&eacute;e", "success")
-                else:
-                    flash("Exp&eacute;rience professionnelle ajout&eacute;e", "success")
+            id = annuaire.update_experience(
+                utilisateur.id_ancien,
+                id_experience,
+                experience_form.ville.data,
+                experience_form.pays.data,
+                experience_form.adresse.data,
+                experience_form.code.data,
+                experience_form.entreprise.data,
+                experience_form.poste.data,
+                experience_form.description.data,
+                experience_form.mail.data,
+                experience_form.site.data,
+                experience_form.telephone.data,
+                experience_form.mobile.data,
+                date_debut,
+                date_fin
+            )
+            if id_experience is not None:
+                flash("Exp&eacute;rience professionnelle modifi&eacute;e", "success")
+            else:
+                flash("Exp&eacute;rience professionnelle ajout&eacute;e", "success")
 
-                return redirect(url_for('compte'))
+            res["success"] = True
 
         else:
-            experience = annuaire.find_experience_by_id_ancien_id_experience(utilisateur.id_ancien, id_experience)
-            if experience is not None:
-                experience = experience.first()
-            if experience is not None:
-                experience_form.load_experience(experience)
+            experience_form_to_render = experience_form
 
-        return render_template("user/experience_form.html", form=experience_form, id_experience=id_experience)
-
-    else:
-        return redirect(url_for('compte'))
+        if id_experience is not None:
+            res["content"] = _get_experience_template(id, form=experience_form_to_render)
+        else:
+            res["content"] = _get_new_experience_template(experience_form_to_render)
 
 
 
-@app.route('/compte/photo/', methods=['GET', 'POST'])
+    return json.dumps(res)
+
+
+
+@app.route('/compte/photo/', methods=['POST'])
 @login_required
 def update_photo():
     """
     Mettre à jour la photo d'un ancien.
-    GET  : la page de mise à jour
-    POST : on récupère la photo, on la sauvegarde, on vire l'ancienne et on redirige vers compte
-    """
-    utilisateur = user.find_user_by_id(current_user.id)
-    if utilisateur.id_ancien is not None:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
-        if ancien is not None:
-            photo = ancien['photo']
-        else:
-            photo = None
 
-        # Si c'est une requete post (envoi) alors c'est une nouvelle photo  à traiter
-        if request.method == 'POST' and ancien is not None:
-            uploaded_file = request.files['file']
-            if uploaded_file and _allowed_file(uploaded_file.filename):
+    POST :  on récupère la photo, on la sauvegarde, on vire l'ancienne
+            et on re-render les infos persos (+ csrf token)
+
+            Le cas de suppression est géré par un flag ?suppr=true dans
+            l'url de la requête (bof bof ...)
+    """
+
+    utilisateur = user.find_user_by_id(current_user.id)
+
+    res = {}
+    res["content"] = None
+    res["csrf_token"] = generate_csrf_token()
+    res["success"] = False
+
+    if utilisateur.id_ancien is None:
+        return res
+    else:
+        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+        if ancien is None:
+            return res
+        else:
+
+            # récupérer le file uploadé
+            uploaded_file = None
+            try:
+                uploaded_file = request.files['file']
+            except:
+                pass
+
+            if request.form.get("suppr"):
+                 # supprimer la photo dans la fiche ancien
+                app.logger.info(
+                    "PHOTO - remove for : %s",
+                    ancien['id_ancien'])
+
+                annuaire.update_photo(ancien['id_ancien'], None)
+
+                # supression de l'ancienne photo
+                try:
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(ancien['photo'])))
+                    app.logger.info(
+                        "PHOTO - ancien : %s, removed file : %s",
+                        ancien['id_ancien'],
+                        ancien['photo']
+                    )
+                except:
+                    app.logger.info(
+                        "PHOTO - failed to remove for : %s",
+                        ancien['id_ancien'])
+                flash("Photo supprim&eacute;e", "warning")
+
+            elif uploaded_file and _allowed_file(uploaded_file.filename):
 
                 # upload de l'ancienne photo
                 id_photo = user.get_next_photo_id()
@@ -322,35 +506,12 @@ def update_photo():
                     "PHOTO - forbidden for ancien : %s, photo : %s",
                     ancien['id_ancien'],
                     uploaded_file.filename)
-                flash("Format de photo invalide", "error")
-
-            elif not uploaded_file:
-                 # supprimer la photo dans la fiche ancien
-                app.logger.info(
-                    "PHOTO - remove for : %s",
-                    ancien['id_ancien'])
-
-                annuaire.update_photo(ancien['id_ancien'], None)
-
-                # supression de l'ancienne photo
-                # supression de l'ancienne photo
-                try:
-                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(ancien['photo'])))
-                    app.logger.info(
-                        "PHOTO - ancien : %s, removed file : %s",
-                        ancien['id_ancien'],
-                        ancien['photo'])
-                except:
-                    app.logger.info(
-                        "PHOTO - failed to remove for : %s",
-                        ancien['id_ancien'])
-                flash("Photo supprim&eacute;e", "warning")
+                flash("Format de photo invalide", "danger")
 
 
-        elif ancien is not None:
-            return render_template('user/picture_form.html', photo=photo)
-
-    return redirect(url_for('compte'))
+            res["content"] = _get_info_perso_template()
+            res["success"] = True
+    return json.dumps(res)
 
 
 @app.route('/compte/experience/remove/<int:id_experience>', methods=['POST'])
@@ -426,11 +587,11 @@ def linkedin_associer():
     if success:
         flash("Profil linkedin correctement connect&eacute; !", "success")
     else:
-        flash("Oups ! Il y a eu un probl&egrave;me pendant la connexion. Merci de contacter l'administrateur.", "error")
+        flash("Oups ! Il y a eu un probl&egrave;me pendant la connexion. Merci de contacter l'administrateur.", "danger")
     return redirect(url_for("compte"))
 
 
-@app.route("/compte/linkedin/disconnect/", methods=['POST'])
+@app.route("/compte/linkedin/disconnect/", methods=['GET'])
 @login_required
 def linkedin_dissocier():
     """
@@ -547,7 +708,7 @@ def linkedin_importer():
     if import_success:
         flash("%s exp&eacute;riences import&eacute;es avec succ&egrave;s !" % saved_positions, "success")
     else:
-        flash("Oups ! Il y a eu un probl&egrave;me pendant la connexion. Merci de contacter l'administrateur.", "error")
+        flash("Oups ! Il y a eu un probl&egrave;me pendant la connexion. Merci de contacter l'administrateur.", "danger")
 
     return redirect(url_for("compte"))
 
@@ -587,15 +748,14 @@ def linkedin_login():
                 ancien = annuaire.find_ancien_by_id_linkedin(id_linkedin)
                 if ancien is not None:
                     app.logger.info("LINKEDIN - found ancien with ID : %s", ancien['id_ancien'])
-                    utilisateur = user.find_user_by_id_ancien(ancien['id_ancien'])
+                    utilisateur = user.find_user_by_id_ancien(ancien['id_ancien'], actif_only=True)
                     if utilisateur is not None :
                         app.logger.info("LOGIN - linkedin login successful, with id %s",  utilisateur.id)
-                        # TODO : remember me
-                        login_user(utilisateur)
+                        login_user(utilisateur, remember=True)
                         flash("Logged in successfully.")
                         return redirect(url_for('annuaire_view'))
                     else:
-                        flash("Erreur de connexion : mot de passe incorrect ou utilisateur inconnu", "error")
+                        flash("Erreur de connexion : mot de passe incorrect ou utilisateur inconnu", "danger")
                         app.logger.warning("LOGIN - linkedin login failed for id_linkedin %s", id_linkedin)
 
                 else:
@@ -763,3 +923,135 @@ def _allowed_file(filename):
     """
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
+
+
+
+def _get_info_perso_template(ancien_form=None, adresse_form=None):
+    """
+    Permet de render le template _info_perso pour l'ancien en cours.
+
+    @param adresse_form:    le formulaire d'adresse à inclure
+    @param ancien_form:     le formulaire d'infos persos à inclure
+
+    On prend des formulaires en entrée pour gérer les erreurs.
+
+
+    NB: la modificaiton in-line des infos perso (sans page reload) ne
+        permet plus de render des templates complets côté serveur. Plutôt
+        que de réécrire l'intégralité de l'appli côté client, on render des
+        templates partiels qu'on injecte dans la page sur des appels POST.
+
+        Ce n'est pas super propre, mais c'est la vie :3
+    """
+    utilisateur = user.find_user_by_id(current_user.id)
+
+    ancien = None
+    adresse = None
+    is_this_me = False
+
+    if utilisateur is not None and utilisateur.id_ancien is not None:
+        is_this_me = True
+
+        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+
+        #~~~~~~~~~~~~~#
+        # INFOS PERSO #
+        #~~~~~~~~~~~~~#
+        if ancien_form is None:
+            ancien_form = user.update_ancien_form()
+            ancien_form.load_ancien(ancien)
+
+        #~~~~~~~~~#
+        # ADRESSE #
+        #~~~~~~~~~#
+        if adresse_form is None:
+            adresse_form = user.update_adresse_form()
+            adresse_form.set_pays(PAYS)
+            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            if adresse is not None:
+                adresse_form.load_adresse(adresse)
+
+    else:
+        if ancien_form is None:
+            ancien_form = user.update_ancien_form()
+
+        if adresse_form is None:
+            adresse_form = user.update_adresse_form()
+            adresse_form.set_pays(PAYS)
+
+
+    return render_template(
+        'annuaire/profile/_infos_perso.html',
+        ancien=ancien,
+        adresse=adresse,
+        ancien_form=ancien_form,
+        adresse_form=adresse_form,
+        utilisateur=current_user,
+        editable=True
+    )
+
+
+def _get_experience_template(id_experience, form = None):
+    """
+    Permet de render le template _experience_pro pour l'ancien en cours.
+
+    :param id_experience:   l'id de l'expérience considérée
+    :param form:            le formulaire d'expérience pro à inclure
+
+    On prend des formulaires en entrée pour gérer les erreurs.
+
+
+    NB: la modificaiton in-line des expériences pro (sans page reload) ne
+        permet plus de render des templates complets côté serveur. Plutôt
+        que de réécrire l'intégralité de l'appli côté client, on render des
+        templates partiels qu'on injecte dans la page sur des appels POST.
+
+        Ce n'est pas super propre, mais c'est la vie :3
+
+        cf : _get_info_perso_template
+    """
+    utilisateur = user.find_user_by_id(current_user.id)
+
+    experience = None
+    is_this_me = False
+
+    if utilisateur is not None and utilisateur.id_ancien is not None:
+        is_this_me = True
+
+        experience = annuaire.find_experience_by_id_ancien_id_experience(utilisateur.id_ancien, id_experience).first()
+
+        if form is None:
+            form = user.update_experience_form()
+            form.load_experience(experience)
+
+    else:
+        # attention, on ne devrait jamais arriver ici
+        if form is None:
+            form = user.update_experience_form()
+
+    form.set_pays(PAYS)
+
+    return render_template(
+        'annuaire/profile/_experience.html',
+        exp=experience,
+        form=form,
+        utilisateur=current_user,
+        editable=True
+    )
+
+
+def _get_new_experience_template(form):
+    """
+    Permet de render le template _new_experience_pro avec un formulaire donné
+
+    :param form:
+    :return:
+    """
+    if form is not None:
+        return render_template(
+            'annuaire/profile/_new_experience.html',
+            new_experience_form = form,
+            editable = True
+        )
+    else:
+        return ""

@@ -1,44 +1,87 @@
 {% macro render_descriptor(label, value) %}
     {% if value != None and value != '' and value != ' ' %}
-        <dt>{{ label }}</dt>
-        <dd>{{ value }}</dd>
+        <div class="row">
+            <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ label }}</div>
+            <div class="col-sm-9">{{ value }}</div>
+        </div>
+
     {% endif %}
 {% endmacro %}
 
 {% macro render_descriptor_mult(label, values) %}
     {% if values != None and values|count_not_null > 0 %}
-        <dt>{{ label }}</dt>
-        <dd>
-        {% for value in values %}
-            {% if value != None %}{{ value }}{% endif %}
-        {% endfor %}
-        </dd>
-    {% endif %}
-{% endmacro %}
-
-{% macro render_descriptor_no_label(value) %}
-    {% if value != None and value != '' and value != ' ' %}
-        <dt></dt>
-        <dd class="text-info"><strong>{{ value }}</strong></dd>
+        <div class="row">
+            <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ label }}</div>
+            <div class="col-sm-9">
+                {% for value in values %}
+                    {% if value != None %}{{ value }}{% endif %}
+                {% endfor %}
+            </div>
+        </div>
     {% endif %}
 {% endmacro %}
 
 {% macro render_link(label, value) %}
     {% if value != None and value != '' and value != ' ' %}
-        <dt>{{ label }}</dt>
-        <dd><a href="{{ value|to_http }}" target="_blank">{{ value }}</a></dd>
+        <div class="row">
+            <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ label }}</div>
+            <div class="col-sm-9"><a href="{{ value|to_http }}" target="_blank">{{ value }}</a></div>
+        </div>
     {% endif %}
 {% endmacro %}
 
-{% macro render_linkedin_box(ancien) %}
+{% macro render_linkedin(ancien) %}
     {% if ancien != None and ancien['url_linkedin'] != None %}
-        <div class="custom-cadre-header">Profil LinkedIn :</div>
-        <div class="custom-cadre custom-center">
-        <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
-        <script type="IN/MemberProfile" data-id="{{ ancien['url_linkedin'] }}"
-                data-format="inline"
-                data-related="false"
-                data-width="400"></script>
+        <div class="row">
+            <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">LinkedIn</div>
+            <div class="col-sm-9" id="linkedin-widget">
+                <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
+                <script type="IN/MemberProfile" data-id="{{ ancien['url_linkedin'] }}"
+                    data-format="click"
+                    data-related="false"
+                    data-text="{{ ancien['prenom']|escape_none+' '+ancien['nom'] }}">
+                </script>
+            </div>
         </div>
     {% endif %}
+{% endmacro %}
+
+
+{% macro render_uneditable(label, content) %}
+    <div class="row" style="margin-bottom:5px;">
+        <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ label|safe }}</div>
+        <div class="col-sm-10">
+            <input class="form-control" id="disabledInput" type="text" placeholder="{{ content|escape_none }}" disabled>
+        </div>
+    </div>
+{% endmacro %}
+
+
+{% macro render_adresse(adresse, ville_nom, code, pays_nom) %}
+    {{ render_descriptor('Adresse', adresse) }}
+    {% if adresse == None or adresse == "" %}
+        {{ render_descriptor_mult('Adresse', (ville_nom, '-', code)) }}
+    {% else %}
+        {{ render_descriptor_mult('', (ville_nom, '-', code)) }}
+    {% endif %}
+
+    {% if (adresse == None or adresse == "") and (code == None or code == "") and (ville_nom == None or ville_nom == "") %}
+        {{ render_descriptor('Adresse', pays_nom) }}
+    {% else %}
+        {{ render_descriptor('', pays_nom) }}
+    {% endif %}
+{% endmacro %}
+
+{% macro br_not_empty(source_dict, keys) %}
+    {% with %}
+        {% set exists = [] %}
+        {% for k in keys %}
+            {% if source_dict[k] != None and source_dict[k] != "" %}
+                {% do exists.append(1) %}
+            {% endif %}
+        {% endfor %}
+        {% if exists %}
+            <br>
+        {% endif %}
+    {% endwith %}
 {% endmacro %}

@@ -1,0 +1,159 @@
+{% from "helper/_ancienhelper.html" import
+    render_descriptor,
+    render_descriptor_mult,
+    render_descriptor,
+    render_linkedin,
+    render_link,
+    render_adresse,
+    br_not_empty %}
+
+{% from "helper/_formhelper.html" import
+    render_field,
+    render_field_error,
+    render_uneditable,
+    render_date_field
+%}
+
+{# Script block is necessary only when this page is editable #}
+{% if editable %}
+<script>
+    $(document).ready(
+        function ()
+        {
+            {# Solid tactic : show the form if there are errors... #}
+            {% if form.errors %}
+            showExperienceForm({{ exp['experience_id_experience'] }});
+            {% else %}
+            showExperience({{ exp['experience_id_experience'] }});
+            {% endif %}
+
+            $('input.ville').autocomplete({
+                source : '{{ url_for("autocomplete_ville_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+            $('input.entreprise').autocomplete({
+                source : '{{ url_for("autocomplete_entreprise_simple") }}',
+                //width: 300,
+                max: 10,
+                delay: 100,
+                cacheLength: 1,
+                scroll: false
+            });
+
+
+            $(".datepicker").each(
+                    function (index, value){
+                        var date = $(this).val();
+                        var dDate = new Date();
+                        if(date!=""){
+                            var dateArray = date.split("/");
+
+                            dDate = new Date(dateArray[1], dateArray[0]-1, 1);
+                            console.log(dateArray);
+                            console.log(dDate);
+                        }
+                        $(this).datepicker(
+                            {
+                                dateFormat:'mm/yy',
+                                defaultDate:dDate
+                            });
+                    }
+            );
+
+        }
+    );
+</script>
+{% endif %}
+
+<div class="row custom-ancien-container experience-container container" id="{{ exp['experience_id_experience'] }}">
+
+    <div class="col-sm-12">
+        {% include "helper/_flashes.html" %}
+    </div>
+
+    <div class="col-sm-12 experience container">
+        <div class="row">
+            <div class="custom-header-experience col-sm-10 col-sm-offset-2" >
+                {% with url = exp['experience_site'] %}
+                    {% if url != None and url != '' and url != ' ' %}
+                        <a href="{{ url|to_http }}" target="_blank">{{ exp['entreprise_nom'] }}</a>
+                    {% else %}
+                            {{ exp['entreprise_nom'] }}
+                    {% endif %}
+
+                    {% if exp['experience_debut'] != None or exp['experience_fin'] != None %}
+                        &nbsp;( {{ exp['experience_debut']|date_to_month }} - {{ exp['experience_fin']|date_to_month }} )
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="container">
+                {{ render_descriptor('Poste', exp['experience_poste']) }}
+                {{ render_descriptor('Description', exp['experience_description']|nl2br) }}
+
+                {{ br_not_empty(exp, ['adresse_adresse', 'adresse_code', 'ville_nom', 'pays_nom']) }}
+                {{ render_adresse(exp['adresse_adresse'], exp['ville_nom'], exp['adresse_code'], exp['pays_nom']) }}
+
+                {{ br_not_empty(exp, ['experience_mail', 'experience_telephone', 'experience_mobile']) }}
+                {{ render_descriptor('Mail', exp['experience_mail']) }}
+                {{ render_descriptor('T&eacute;l&eacute;phone'|safe, exp['experience_telephone']) }}
+                {{ render_descriptor('Mobile', exp['experience_mobile']) }}
+
+                {% if editable %}
+                <div class="row" style="margin-top:20px;">
+                    <div style="display:inline;" class="col-sm-10 col-sm-offset-2">
+                            <form method="POST" action="{{ url_for('remove_experience', id_experience=exp['experience_id_experience']) }}">
+
+                            <a class="btn btn-xs btn-success" type="button" onclick="showExperienceForm({{ exp['experience_id_experience'] }})">
+                                <i class="glyphicon glyphicon-edit"></i> Modifier
+                            </a>
+                            &nbsp;
+                                {{ csrf_token()|hidden|safe }}
+                                <a class="btn btn-xs btn-danger" type="button" onclick="delete_experience({{ exp['experience_id_experience'] }})">
+                                    <i class="glyphicon glyphicon-remove"></i> Effacer
+                                </a>
+                            </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    {% if editable %}
+    <div class="col-sm-12 experience-form">
+        <div class="col-sm-12">
+            <form class="form container">
+                {{ csrf_token()|hidden|safe }}
+
+                {{ render_field_error(form.entreprise, class="form-control entreprise") }}
+                {{ render_field_error(form.poste, class="form-control") }}
+                {{ render_field_error(form.description, class="form-control") }}
+                {{ render_date_field(form.date_debut) }}
+                {{ render_date_field(form.date_fin) }}
+                <br />
+                {{ render_field_error(form.adresse, class="form-control") }}
+                {{ render_field_error(form.ville, class="form-control ville") }}
+                {{ render_field_error(form.code, class="form-control") }}
+                {{ render_field_error(form.pays, class="form-control") }}
+                <br />
+                {{ render_field_error(form.mail, class="form-control") }}
+                {{ render_field_error(form.site, class="form-control") }}
+                {{ render_field_error(form.telephone, class="form-control") }}
+                {{ render_field_error(form.mobile, class="form-control") }}
+
+                <div class="control-group col-sm-offset-2">
+                    <div class="controls" style="margin-top:20px;">
+                        <a class="btn btn-success btn-sm" onClick="send_exp({{ exp['experience_id_experience'] }})">Mettre &agrave; jour</a>
+                        <a class="btn btn-warning btn-sm pull-right" onClick="showExperience({{ exp['experience_id_experience'] }})">Annuler</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>

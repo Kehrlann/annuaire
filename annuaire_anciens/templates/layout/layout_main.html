@@ -12,7 +12,7 @@
         {% if jquery_cdn != None %}
             <script type="text/javascript" src="{{ jquery_cdn }}"></script>
         {% else %}
-            <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-1.8.3.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-1.10.1.min.js') }}"></script>
         {% endif %}
 
 
@@ -36,13 +36,14 @@
             {{ google_analytics }}
         {% endif %}
 
-        <!-- Le jQuery-ui, for sexy serach-bars. -->
-        <link href="{{ url_for('static',filename='css/jquery-ui-1.10.0.custom.min.css') }}" rel="stylesheet">
-        <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-ui-1.10.0.custom.min.js') }}"></script>
+        <!-- Le jQuery-ui, for sexy search-bars and datepickers. -->
+        <link href="{{ url_for('static',filename='css/jquery-ui-1.10.4.custom.min.css') }}" rel="stylesheet">
+        <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-ui-1.10.4.custom.min.js') }}"></script>
 
         <!-- Le custom stuff. -->
         <script type="text/javascript" src="{{ url_for('static',filename='js/annuaire.js') }}"></script>
         <link href="{{ url_for('static',filename='css/custom.css') }}" rel="stylesheet">
+
 
         <!-- Le user scripts. -->
         {% block additional_scripts %}{% endblock %}
@@ -56,14 +57,10 @@
             <div class="container">
                 <div class="row">
                   <div class="col-lg-10 col-lg-offset-1">
-                    <a class="navbar-brand" href="/">Mines-Alumni.com</a>
+                    <a class="navbar-brand" href="{{ url_for('home') }}">Mines-Alumni.com</a>
                     <div class="navbar-right">
                         {% block navbar %}
-                            {% if not utilisateur %}
-                                {% include "layout/_navbar_with_login.html" %}
-                            {% else %}
-                                {% include "layout/_navbar_with_search.html" %}
-                            {% endif %}
+                                {% include "layout/_navbar.html" %}
                         {% endblock %}
                     </div>
                   </div>
@@ -74,19 +71,21 @@
 
         <div class="footer-hack-container">
             <!-- Le page-defined layout. -->
-            {% block top_band %}
+
             <div class="top-band">
               <div class="container">
                 <div class="row">
                   <div class="col-lg-10 col-lg-offset-1">
+                    {% block top_band %}
                     <div>
                       <h3>Le moteur de recherche de Mineurs</h3>
                     </div>
+                    {% endblock %}
                   </div>
                 </div>
               </div>
             </div>
-            {% endblock %}
+
             <!-- Le page-defined layout. -->
             {% block layout %}{% endblock %}
             <div class="footer-hack"></div>

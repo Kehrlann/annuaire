@@ -1,6 +1,7 @@
 # coding=utf-8
 from flask import Flask
 import config
+import json
 
 # Création de l'app SANS static folder. On le crée à posteriori, pour le lier au subdomain
 app = Flask(__name__, static_folder=None)
@@ -51,11 +52,15 @@ os.chdir(os.path.dirname(__file__))
 import json
 # Get ecoles
 with open('var/ecoles.json','r') as f:
-    ECOLES = json.loads(f.read())
+    ECOLES = json.load(f)
 
-# get pays
+# Get pays
 with open('var/pays.json', 'r') as f:
-    PAYS = json.loads(f.read())
+    PAYS = json.load(f)
+
+# Get adresses écoles
+with open('var/mails.json', 'r') as f:
+    MAILS = json.load(f)
 
 # attacher les filtres et les vues à l'application
 import helper.filters
@@ -69,12 +74,11 @@ app.jinja_env.globals['bootstrap_css_cdn'] = app.config['BOOTSTRAP_CSS_CDN']
 app.jinja_env.globals['bootstrap_js_cdn'] = app.config['BOOTSTRAP_JS_CDN']
 app.jinja_env.globals['app_name'] = app.config['APP_NAME']
 
-def disconnect():
-    if(app.testing):
-        connection.close()
-    else:
-        app.logger.error("Tried to disconnect while not testing !!")
 
+# Jinja plugin
+app.jinja_env.add_extension("jinja2.ext.do")
+
+connection.close()
 
 print ""
 print "=> 3..."

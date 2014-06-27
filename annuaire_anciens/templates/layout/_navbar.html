@@ -1,6 +1,58 @@
+{% if user_is_auth %}
+{# user authentifié : afficher le menu mon compte + la search bar #}
 <div class="nav navbar-nav navbar-right">
     <a class='btn btn-default navbar-btn hidden-xs' href="{{ url_for('compte') }}">Mon compte</a>
     <a class='btn btn-link navbar-btn hidden-xs' href="{{ url_for('logout') }}">D&eacute;connexion</a>
     <a class='btn btn-default navbar-btn visible-xs' href="{{ url_for('compte') }}"><span class="glyphicon glyphicon-user"></span></a>
     <a class='btn btn-danger navbar-btn visible-xs' href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span></a>
 </div>
+
+{% if request.path.strip("/") != "annuaire" %}
+<form class="navbar-form navbar-right nav-search-zone" role="search" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
+<span class="glyphicon glyphicon-search"></span>
+<input type="text" autocomplete="off" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" class="form-control">
+</form>
+
+<script>
+$('input#fulltext_top').autocomplete({
+    source : '{{ url_for("autocomplete_fulltext") }}',
+    width: 300,
+    max: 10,
+    delay: 50,
+    cacheLength: 1,
+    scroll: false,
+   select: function(event, ui) {
+         $(this).val(ui.item.value);
+         $(this).parents("form").submit();
+   }
+});
+$("input#fulltext_top").focus(function(){
+    this.select();
+});
+</script>
+{% endif %}
+{% else %}
+{# User non identifé, afficher le bouton de connexion. #}
+<button id="js-login-popover" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span> Se connecter</button>
+<div id="js-login-form-content" style="display: none">
+    <form role="form" id="js-login-form" action="{{ url_for('login_ajax') }}">
+      <div class="form-group">
+        <label for="mail">Adresse email</label>
+        <input type="email" class="form-control" id="mail" name="mail" placeholder="Enter email">
+      </div>
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" id="rememberme" name="rememberme" checked="checked"> Se souvenir de moi
+        </label>
+      </div>
+      <div class="error"></div>
+      <button type="submit" class="btn btn-default">Valider</button>
+      <a href="{{ linkedin_url }}" style="margin-left:10px;" ><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
+      <a class="btn btn-link" onclick="$('#js-login-popover').popover('hide')">Annuler</a>
+    </form>
+</div>
+{% endif %}
