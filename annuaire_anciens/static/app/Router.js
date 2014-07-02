@@ -12,9 +12,7 @@ Backbone.$ = $;
 // Dependencies
 //
 
-var HelloView = require('./views/HelloView.jsx'),
-    PeopleListView = require('./views/people/PeopleListView.jsx'),
-    People = require('./models/people');
+var RegisterView = require('./views/register.jsx');
 
 var Router = Backbone.Router.extend({
 
@@ -34,19 +32,13 @@ var Router = Backbone.Router.extend({
     defaultRoute: function(path) {
         // Default route
 
-        // Render the hello world view
+        console.log("defaultRoute, rendering RegisterView", document.getElementById('js-main'));
+        // Render the register view
         React.renderComponent(
-          HelloView({}),
-          document.getElementById('js-hello')
+          RegisterView({}),
+          document.getElementById('js-main')
         );
 
-        this.people = this.people || new People();
-
-        // Render the people list
-        React.renderComponent(
-          PeopleListView({ model: this.people }),
-          document.getElementById('js-people')
-        );
     }
 });
 
