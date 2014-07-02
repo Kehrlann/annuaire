@@ -28,6 +28,11 @@ module.exports = React.createClass({
   handlePasswordKeyUp: function(e){
     if(e.target.value.length > 5){
       this.setState({ isPasswordSet: true });
+
+      if(e.keyCode === 13){
+        this.handleSubmit();
+      }
+
     }
   },
 
@@ -38,7 +43,7 @@ module.exports = React.createClass({
   },
 
   handleSubmit: function(){
-
+    console.log("Submit");
   },
 
   render : function() {
@@ -50,7 +55,7 @@ module.exports = React.createClass({
               <h4 style={{paddingBottom: "10px"}}>1. Je prouve que je suis bien un ancien des Mines</h4>
               <div className="row">
                 <div className="col-md-12 auth-option">
-                  <form className="form form-inline">
+                  <div className="form form-inline">
                     <div className="row">
                         <div className="col-sm-6">
                             <div className="row">
@@ -80,7 +85,7 @@ module.exports = React.createClass({
                         <button type="submit" className="btn btn-default" onClick={this.handleSubmit}>Je Valide</button>
                       </div>
                     </div>
-                  </form>
+                  </div>
                 </div>
               </div>
             </div>

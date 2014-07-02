@@ -13,6 +13,10 @@ body {
     letter-spacing: 0.5pt;
 }
 
+.main-container {
+    padding-bottom: 40px;
+}
+
 /* make sure the error form displays error */
 .has-error .form-control {
     border-color: #A94442 !important;
