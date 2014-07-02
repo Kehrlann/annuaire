@@ -12,9 +12,7 @@ module.exports = React.createClass({
   },
 
   handleEmailKeyUp: function(e){
-    console.log("handleEmailKeyUp");
     if(e.target.value.length > 4){
-      console.log("email is set");
       this.setState({ isEmailSet: true });
     }
   },
