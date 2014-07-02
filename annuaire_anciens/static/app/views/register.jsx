@@ -46,7 +46,7 @@ module.exports = React.createClass({
       <div className="container">
         <div className="row" style={{paddingTop: "40px"}}>
           <div className="col-lg-10 col-lg-offset-1">
-            <div>
+            <div className="fadein">
               <h4 style={{paddingBottom: "10px"}}>1. Je prouve que je suis bien un ancien des Mines</h4>
               <div className="row">
                 <div className="col-md-12 auth-option">
@@ -68,7 +68,7 @@ module.exports = React.createClass({
                       </div>
                     </div>
                     <span className="help-block">Un email sera envoyé à cette adresse pour vérification. </span>
-                    <div style={this.state.isEmailSet?{}:{display: "none"}}>
+                    <div className={this.state.isEmailSet?"fadein":"invisible"}>
                       <h4 style={{paddingTop: "40px", paddingBottom: "10px"}}>2. Je choisis un mot de passe pour les fois prochaines</h4>
                       <div className="row">
                         <div className="col-sm-6">
@@ -76,7 +76,7 @@ module.exports = React.createClass({
                         </div>
                       </div>
                       <span className="help-block">Ce mot de passe servira pour me connecter à Mines-Alumni.com</span>
-                      <div style={{paddingTop: "40px", display: this.state.isPasswordSet?"":"none"}}>
+                      <div style={{paddingTop: "40px"}} className={this.state.isPasswordSet?"fadein":"invisible"}>
                         <button type="submit" className="btn btn-default" onClick={this.handleSubmit}>Je Valide</button>
                       </div>
                     </div>
