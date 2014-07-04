@@ -17,10 +17,12 @@ def load_user(user_id):
 # def home():
 #     return redirect(url_for('annuaire_view'))
 
+# API READY
 @app.route('/')
 def root():
     return app.send_static_file('index.html')
 
+# NOT YET API READY
 @helper.csrf_exempt
 @app.route('/login', methods=['POST'])
 def login_ajax():
@@ -46,6 +48,7 @@ def login_ajax():
             app.logger.warning("LOGIN - fail %s", form.mail.data)
     abort(401)
 
+# LEGACY - TO BE REMOVED
 @app.route('/login', methods=['GET'])
 def login():
     """
@@ -58,7 +61,16 @@ def login():
     else:
         return redirect(url_for('inscription'))
 
+# API READY
+@app.route('/register', methods=['POST'])
+def register():
+    """
+    Méthode pour enregistrer un nouvel utilisateur via ajax
+    POST
 
+    """
+
+# LEGACY - TO BE REMOVED
 @app.route('/inscription', methods=['GET', 'POST'])
 def inscription():
     """
