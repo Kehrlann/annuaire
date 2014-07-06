@@ -2,15 +2,15 @@
 from annuaire_anciens import app, helper
 from annuaire_anciens.helper.security import csrf_exempt
 from search import search_fulltext
-from flask import request
+from flask import request, session
 from flask.ext.login import login_required
 import json
-
+from urllib2 import unquote
 
 @app.route('/api/v1/ancien', methods=['GET'])
 @csrf_exempt
 @login_required
-def get_anciens_fulltext():
+def fulltext_api():
     """
     API pour chopper les anciens sur une recherche fulltext
 
@@ -32,13 +32,27 @@ def get_anciens_fulltext():
     }
     """
 
+    # 1. Obtenir les paramètres
     fulltext = request.args.get('q', None)
+    if fulltext is not None:
+        fulltext = unquote(fulltext)
     page = request.args.get('p', 1)
+
+
+    # 2. Stocker la recherche pour l'afficher dans d'autres pages.
+    if 'previous_search' in session:
+        session.pop('previous_search')
+
+    session['previous_fulltext'] = fulltext
+
+    # 3. Effectuer la recherche
     s = search_fulltext(fulltext, int(page))
+
+    # 4. Mettre en forme les résultats
     results = []
     for ancien in s[1]:
         results.append(helper.row_to_json(ancien))
         print helper.row_to_json(ancien)
 
+    # 5. Return
     return json.dumps(results)
-
