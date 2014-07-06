@@ -6,7 +6,8 @@ import htmlentitydefs as entity
 def result_proxy_to_json(array=None, guillemets=False):
     """
     Parcourir un result proxy, prendre le premier élément,
-    puis mettre chaque élément dans un tableau JSON avec des guillemets propres.
+    puis mettre chaque élément dans un tableau JSON. Différencie le cas "recherche
+    large" et "recherche exacte" en injectant des guillemets si nécessaire.
 
     TODO : vérifier s'il ne faudrait pas plutôt utiliser json.dumps
 
