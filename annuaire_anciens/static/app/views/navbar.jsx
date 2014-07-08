@@ -11,7 +11,8 @@ module.exports = React.createClass({
       isUserConnected: false,
       isSearchPage: false,
       showLoginBox: false,
-      hasError: false
+      hasError: false,
+      isLoading: false
     }
   },
 
@@ -21,17 +22,19 @@ module.exports = React.createClass({
     form = $(e.target);
     var _this = this;
 
+    this.setState({isLoading: true});
     $.ajax({
       type: "POST",
       url: "/login",
       data: form.serialize(),
       success: function(data, response, qsq){
         console.log("Success", data, response, qsq);
+        _this.setState({isLoading: false})
         // window.location.replace(data);
       },
       error: function(){
         console.log("Failure");
-        _this.setState({hasError: true});
+        _this.setState({hasError: true, isLoading: false});
       }
     });
   },
@@ -59,13 +62,12 @@ module.exports = React.createClass({
             <input type="checkbox" name="rememberme" defaultChecked /> Se souvenir de moi
           </label>
         </div>
+        <div className="loading hidden">
+          Chargement...
+        </div>
         <div className="error">
-
-
-        TODO : make the error work
-
-          <div className={'alert alert-danger'+this.state.hasError?"":" hidden"}>
-            <button type='button' className='close' data-dismiss='alert'>&times;</button>Merci de bien vouloir réessayer.
+          <div className="alert alert-danger hidden">
+            Merci de bien vouloir réessayer.
           </div>
         </div>
         <button type="submit" className="btn btn-default">Valider</button>
@@ -78,7 +80,9 @@ module.exports = React.createClass({
       <Popover
               content={popoverContent}
               placement="bottom"
-              visible={this.state.showLoginBox}>
+              visible={this.state.showLoginBox}
+              hasError={this.state.hasError}
+              isLoading={this.state.isLoading}>
           <button className="btn btn-default navbar-btn" onClick={this.handleOpenLogin}>
             <span className="glyphicon glyphicon-log-out"></span> Se connecter
           </button>

@@ -17,10 +17,27 @@ module.exports = React.createClass({
         if (this.props.visible) {
             $el.popover('show');
         }
+
+        // window.popover = $el;
+        window.popover = this;
     },
 
     componentDidUpdate: function(prevProps, prevState) {
         var $el = $(this.getDOMNode());
+
+        console.log("Popover componentDidUpdate");
+
+        var popoverId = $el.attr('aria-describedby');
+        if(popoverId){
+            if (prevProps.isLoading !== this.props.isLoading) {
+                $('#'+popoverId+" .popover-content .loading").toggleClass('hidden', !this.props.isLoading);
+            }
+
+            if (prevProps.hasError !== this.props.hasError) {
+                $('#'+popoverId+" .popover-content .alert").toggleClass('hidden', !this.props.hasError);
+            }
+        }
+
         if (prevProps.visible !== this.props.visible) {
             $el.popover(this.props.visible ? 'show' : 'hide');
         }
