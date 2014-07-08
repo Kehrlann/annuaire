@@ -27,12 +27,12 @@ $(function(){
       type: "POST",
       url: loginUrl,
       data: form.serialize(),
-      success: function(data){
-        console.log("Success : "+data);
+      success: function(data, response){
+        console.log("Success : "+data, response);
         window.location.replace(data);
       },
       error: function(){
-        var message = "<div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'>&times;</button>Erreur de login !</div>";
+        var message = "<div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'>&times;</button>Merci de bien vouloir réessayer.</div>";
         $this.find('.error').html(message);
       }
     });

@@ -33,8 +33,8 @@ def login_ajax():
     """
     form = user.login_form(request.form)
 
-    if current_user.is_authenticated():
-        return url_for('annuaire_view')
+    # if current_user.is_authenticated():
+    #     return url_for('annuaire_view')
 
     if form.validate():
         utilisateur = user.find_user_by_mail_and_password(form.mail.data, form.password.data, actif_only=True)
