@@ -8,27 +8,43 @@
 </div>
 
 {% if request.path.strip("/") != "annuaire" %}
-<form class="navbar-form navbar-right nav-search-zone" role="search" action="{{ url_for('annuaire_view', type='fulltext') }}" method="POST">
+<form onsubmit="search()    " class="navbar-form navbar-right nav-search-zone" method="get">
 <span class="glyphicon glyphicon-search"></span>
-<input type="text" autocomplete="off" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" class="form-control">
+<input type="text" autocomplete="off" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" class="form-control" />
 </form>
-
 <script>
-$('input#fulltext_top').autocomplete({
-    source : '{{ url_for("autocomplete_fulltext") }}',
-    width: 300,
-    max: 10,
-    delay: 50,
-    cacheLength: 1,
-    scroll: false,
-   select: function(event, ui) {
-         $(this).val(ui.item.value);
-         $(this).parents("form").submit();
-   }
-});
-$("input#fulltext_top").focus(function(){
-    this.select();
-});
+    $(document).ready(
+            function(){
+                $('input#fulltext_top').autocomplete({
+                    source : '{{ url_for("autocomplete_fulltext") }}',
+                    width: 300,
+                    max: 10,
+                    delay: 50,
+                    cacheLength: 1,
+                    scroll: false,
+                    select: function(event, ui) {
+                        $(this).val(ui.item.value);
+                        $(this).parents("form").submit();
+                    }
+                });
+                $("input#fulltext_top").focus(function(){
+                    this.select();
+                });
+            }
+    );
+
+    var search = function(e) {
+
+        var query = $('input#fulltext_top').val();
+        if(query != null && query != ""){
+            query = "?q=" + query;
+        } else if (query == null){
+            query = "";
+        }
+        location.pathname = "/annuaire";
+        location.search = query;
+    }
+
 </script>
 {% endif %}
 {% else %}

@@ -4,20 +4,25 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-10 col-lg-offset-1">
-            <div class="main-search-field" style="position: relative">
-                <form>
-                    <input type="text" class="form-control input-lg" id="fulltext_main">
-                    <span class="glyphicon glyphicon-search"></span>
-                </form>
+            <div class="main-search-field" >
+                <input type="text" class="form-control input-lg" id="fulltext_main">
+                <span class="glyphicon glyphicon-search"></span>
             </div>
-            <a href="" class="pull-right btn btn-link">Recherche avancée</a>
+            <div class="text-right">
+                <a href="" class="btn btn-link">Recherche avancée</a>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div id="annuaire-results" style="margin-top:10px;" class="col-md-12">
         </div>
     </div>
 </div>
 
 
 <script>
-$(document).ready(
+    $(document).ready(
         function() {
             $('input#fulltext_main').autocomplete({
                 source : '{{ url_for("autocomplete_fulltext") }}',
@@ -27,14 +32,192 @@ $(document).ready(
                 scroll: false,
                 select: function(event, ui) {
                     $(this).val(ui.item.value);
-                    $(this).parents("form").submit();
+                    var query = ui.item.value;
+                    search_anciens(query);
                 }
             });
             $("input#fulltext_main").focus(function(){
                 this.select();
             });
+
+            var match = location.search.match("q=[^&.]+");
+            if(match != null){
+                var query = match[0].replace("q=", "");
+                $("input#fulltext_main").val(query);
+                search_anciens(query);
+            }
         }
-);
+    );
+
+    var search_anciens =
+            function(query, page) {
+                if(page == null){
+                    page = 1;
+                }
+                $.ajax(
+                        {
+                            method: "GET",
+                            url: "{{ url_for('fulltext_api') }}?q=" + query + "&p=" + page,
+                            success: function (data) {
+                                var results = eval("(" + data + ")");
+                                var pagination = render_pagination(results["current_page"], results["max_pages"], query);
+                                $("#annuaire-results").empty();
+                                $("#annuaire-results").append(pagination);
+                                $.each(
+                                        results["data"],
+                                        function (index, value) {
+                                            var row = create_ancien_row(value);
+                                            $("#annuaire-results").append(row);
+                                        }
+                                );
+                                $("#annuaire-results").append(pagination);
+                            }
+                        }
+                );
+            };
+
+    var create_ancien_row =
+            function(data){
+                var row = "<a href='" + get_url_ancien(data['id']) + "' target='_blank'><div class='row annuaire-row'>";
+                row += "<div class='col-sm-3'>" + format_nom(data['prenom'], data['nom']) + "</div>";
+                row += "<div class='col-sm-4'>" + format_entreprise(data['entreprise']) + "</div>";
+                row += "<div class='col-sm-3'>" + format_address(data["ville"], data["pays"]) + "</div>";
+                row += "<div class='col-sm-2 custom-text-right-big-screen'>" + data['ecole'] + " " + data['promo'] + "</div>";
+                row += "</div></a>";
+                return row;
+            };
+
+    var format_address =
+            function(ville, pays) {
+                var result = "";
+                if (ville!=null && ville != ""){
+                    result += ville;
+                    result += " ";
+                }
+                if(pays != null && pays != ""){
+                    result += "(";
+                    result += pays;
+                    result += ")";
+                }
+                return result;
+            };
+
+    var format_nom =
+            function(prenom, nom) {
+                var result = "";
+                if (prenom != null && prenom != ""){
+                    result += prenom;
+                    result += " ";
+                }
+                if(nom != null && nom != ""){
+                    result += nom;
+                }
+                return result;
+            };
+
+    var format_entreprise =
+            function(nom) {
+                var result = "";
+                if (nom != null && nom != ""){
+                    result = nom;
+                }
+                return result;
+            };
+
+    var get_url_ancien =
+            function(id){
+                var base = "{{ url_for('ancien', id_ancien=0) }}";
+                return base.replace("0", id);
+            };
+
+    var render_pagination =
+            function(current_page, max_pages, text_search) {
+                var result = "";
+                if (max_pages > 1){
+                    var delta = 2;      // nombre de pages à afficher autour de la page en cours
+
+                    // Ouverture de la liste
+                    result = '<div class="text-center">';
+                    result += '<ul class="pagination">';
+
+                    // Previous / first
+                    var disabled = "";
+                    var first = "<span>&lt;&lt;</span>";
+                    var prev = "<span>&lt;</span>";
+                    if (current_page == 1){
+                        disabled = 'class="disabled"';
+                    } else{
+                        var previous_page = current_page - 1;
+                        first = "<a href='#' onclick='search_anciens(\""+ text_search +"\", 1)'>&lt;&lt;</a>";
+                        prev = "<a href='#' onclick='search_anciens(\"" + text_search + "\", " + previous_page + ")'>&lt;</a>";
+                    }
+                    result += '<li ' + disabled + '>' + first + '</li>';
+                    result += '<li ' + disabled + '>' + prev + '</li>';
+
+                    // Liste des pages
+
+                    // Afficher les pages précédentes
+                    // Si il y a "trop" de pages précédentes (plus que delta), alors on
+                    // affiche des points de suspensions
+                    var first_page_displayed = current_page - delta;
+                    if(first_page_displayed > 1) {
+                        result += '<li class="disabled"><span>...</span></li>';
+                    }
+
+                    // Précédentes > 0
+                    var i = delta;
+                    while (i > 0) {
+                        var temppage = current_page - i;
+                        if(temppage > 0){
+                            result += '<li><a href="#" onclick="search_anciens(\'' + text_search + '\', ' + temppage + ')">' + temppage + '</a></li>';
+                        }
+                        i--;
+                    }
+
+                    // Page en cours
+                    result += '<li class="active"><span>' + current_page + '</span></li>';
+
+                    // Précédentes > 0
+                    var j = 1;
+                    while(j <= delta) {
+                        var pagetemp = current_page + j;
+                        if(pagetemp <= max_pages){
+                            result += '<li><a href="#" onclick="search_anciens(\'' + text_search + '\', ' + pagetemp + ')">' + pagetemp + '</a></li>';
+                        }
+                        j++;
+                    }
+
+                    // Si il y a "trop" de pages précédentes (plus que delta), alors on
+                    // affiche des points de suspensions
+                    var last_page_displayed = current_page + delta;
+                    if(last_page_displayed < max_pages) {
+                        result += '<li class="disabled"><span>...</span></li>';
+                    }
+
+
+
+                    // Next / last
+                    disabled = "";
+                    var last = "<span>&gt;&gt;</span>";
+                    var next = "<span>&gt;</span>";
+                    if (current_page == max_pages){
+                        disabled = 'class="disabled"';
+                    } else{
+                        var next_page = current_page + 1;
+                        next = "<a href='#' onclick='search_anciens(\"" + text_search + "\", " + next_page + ")'>&gt;</a></li>";
+                        last = "<a href='#' onclick='search_anciens(\""+ text_search +"\", " + max_pages + ")'>&gt;&gt;</a></li>";
+                    }
+                    result += '<li ' + disabled + '>' + next + '</li>';
+                    result += '<li ' + disabled + '>' + last + '</li>';
+
+                    
+                    
+                    // Fermeture de la liste
+                    result += "</ul>";
+                    result += "</div>";
+                }
+                return result;
+            };
 
 </script>
 {% endblock %}

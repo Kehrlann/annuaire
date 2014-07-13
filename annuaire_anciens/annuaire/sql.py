@@ -73,15 +73,15 @@ def fulltext_search(search_terms, offset = 0, limit =0):
 
     sel = select(
     [
-        __ancien.c.id_ancien,
-        __ancien.c.prenom,
-        __ancien.c.nom,
-        __ancien.c.ecole,
-        __ancien.c.promo,
-        __ville.c.nom,
-        __adresse.c.code,
-        __entreprise.c.nom,
-        __pays.c.nom
+        __ancien.c.id_ancien.label('id'),
+        __ancien.c.prenom.label('prenom'),
+        __ancien.c.nom.label('nom'),
+        __ancien.c.ecole.label('ecole'),
+        __ancien.c.promo.label('promo'),
+        __ville.c.nom.label('ville'),
+        __adresse.c.code.label('code_postal'),
+        __entreprise.c.nom.label('entreprise'),
+        __pays.c.nom.label('pays')
     ],
         from_obj=from_obj,
         use_labels=True

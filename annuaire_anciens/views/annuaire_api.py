@@ -18,18 +18,20 @@ def fulltext_api():
     - q : le texte à recherche (default : None)
     - p : la page (default : 1)
 
-    :return: Une liste d'objets JSON html-encodé de la forme
-    {
-        'ancien_ecole':        'P',
-        'ancien_promo':        2008,
-        'entreprise_nom':      'SNCF',
-        'ancien_id_ancien':     23154,
-        'adresse_code':        '92700',
-        'pays_nom':            'FRANCE',
-        'ancien_nom':          'Toto',
-        'ville_nom':           'COLOMBES',
-        'ancien_prenom':       'J&eacute;r&ocirc;me'
-    }
+    :return:    Un objet contenant :
+                    - max_pages : le nombre de pages maximum
+                    - data : la liste des résultats sous forme d'objets JSON html-encodé de la forme
+                        {
+                            'id':           23154,
+                            'prenom':       'J&eacute;r&ocirc;me',
+                            'nom':          'Toto',
+                            'ecole':        'P',
+                            'promo':        2008,
+                            'ville':        'COLOMBES',
+                            'pays':         'FRANCE',
+                            'code_postal':  '92700',
+                            'entreprise':   'SNCF'
+                        }
     """
 
     # 1. Obtenir les paramètres
@@ -52,7 +54,8 @@ def fulltext_api():
     results = []
     for ancien in s[1]:
         results.append(helper.row_to_json(ancien))
-        print helper.row_to_json(ancien)
+
+    to_send = { "current_page" : s[0].current, "max_pages" : s[0].last , "data" : results }
 
     # 5. Return
-    return json.dumps(results)
+    return json.dumps(to_send)
