@@ -8,9 +8,9 @@
 </div>
 
 {% if request.path.strip("/") != "annuaire" %}
-<form onsubmit="search()    " class="navbar-form navbar-right nav-search-zone" method="get">
+<form class="navbar-form navbar-right nav-search-zone" method="get" action="{{ url_for('annuaire_view') }}">
 <span class="glyphicon glyphicon-search"></span>
-<input type="text" autocomplete="off" id="fulltext_top" name="fulltext" value="{{ previous_fulltext() }}" class="form-control" />
+<input type="text" autocomplete="off" id="fulltext_top" name="q" value="{{ previous_fulltext() }}" class="form-control" />
 </form>
 <script>
     $(document).ready(
@@ -32,18 +32,6 @@
                 });
             }
     );
-
-    var search = function(e) {
-
-        var query = $('input#fulltext_top').val();
-        if(query != null && query != ""){
-            query = "?q=" + query;
-        } else if (query == null){
-            query = "";
-        }
-        location.pathname = "/annuaire";
-        location.search = query;
-    }
 
 </script>
 {% endif %}

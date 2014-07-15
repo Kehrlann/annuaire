@@ -24,6 +24,8 @@
 <script>
     $(document).ready(
         function() {
+
+            // Setup the autocomplete
             $('input#fulltext_main').autocomplete({
                 source : '{{ url_for("autocomplete_fulltext") }}',
                 max: 10,
@@ -36,10 +38,27 @@
                     search_anciens(query);
                 }
             });
+
+            // Focus on the input
             $("input#fulltext_main").focus(function(){
                 this.select();
             });
 
+            // Détection de la touche entrée sur la textbox
+            $('input#fulltext_main').keyup(
+                    function (e) {
+                        if (e.keyCode == 13) {
+                            console.log("toto");
+                            e.preventDefault();
+                            $(this).autocomplete('close');
+                            console.log(this.value);
+                            search_anciens(this.value, 1);
+                        }
+                    }
+            );
+
+
+            // Si l'url est de type q=... ; lancer une recherche
             var match = location.search.match("q=[^&.]+");
             if(match != null){
                 var query = match[0].replace("q=", "");
@@ -165,26 +184,22 @@
                     }
 
                     // Précédentes > 0
-                    var i = delta;
-                    while (i > 0) {
+                    for (var i = delta; i > 0; i--) {
                         var temppage = current_page - i;
                         if(temppage > 0){
                             result += '<li><a href="#" onclick="search_anciens(\'' + text_search + '\', ' + temppage + ')">' + temppage + '</a></li>';
                         }
-                        i--;
                     }
 
                     // Page en cours
                     result += '<li class="active"><span>' + current_page + '</span></li>';
 
                     // Précédentes > 0
-                    var j = 1;
-                    while(j <= delta) {
+                    for (var j = 1; j <= delta; j++) {
                         var pagetemp = current_page + j;
                         if(pagetemp <= max_pages){
                             result += '<li><a href="#" onclick="search_anciens(\'' + text_search + '\', ' + pagetemp + ')">' + pagetemp + '</a></li>';
                         }
-                        j++;
                     }
 
                     // Si il y a "trop" de pages précédentes (plus que delta), alors on
