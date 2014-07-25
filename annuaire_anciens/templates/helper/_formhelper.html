@@ -7,13 +7,18 @@
     - render_uneditable :       field non éditable
     #}
 
+
+{#----------------------------------------------------------------------------------------------------------------#}
 {% macro render_field(field) %}
-<div class="control-group">
-		{{ field.label(class="control-label") }}
-		<div class="controls">{{ field(**kwargs)|safe }}</div>
+<div class="row" style="margin-bottom:5px;">
+    <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ field.label(class="custom-label") }}</div>
+    <div class="col-sm-10">{{ field(**kwargs)|safe }}</div>
 </div>
 {% endmacro %}
 
+
+
+{#----------------------------------------------------------------------------------------------------------------#}
 {% macro render_field_error(field) %}
 {% if not field.errors %}
 <div class="row" style="margin-bottom:5px;">
@@ -30,24 +35,29 @@
         {% endfor %}
     </div>
 </div>
-
 {% endif %}
 {% endmacro %}
 
 
+
+{#----------------------------------------------------------------------------------------------------------------#}
 {% macro render_radio(field) %}
-<div class="control-group">
-    <label class="control-label">{{ field.label }}</label>
-    <div class="controls">
-        {% for subfield in field %}
-            {{ subfield }}{{ subfield.label(class="radio inline custom-padding-right") }}
-        {% endfor %}
+<div class="row" style="margin-bottom:5px;">
+    <div class="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{{ field.label(class="custom-label") }}</div>
+    <div class="col-sm-10">
+    {% for subfield in field %}
+        <label class="radio-inline">
+                {{ subfield(class="radio") }}{{ subfield.label(style="margin:4px 15px 0 0; font-weight:normal;") }}
+        </label>
+    {% endfor %}
     </div>
+
+
 </div>
 {% endmacro %}
 
 
-
+{#----------------------------------------------------------------------------------------------------------------#}
 {% macro render_date_field(field) %}
 {% if not field.errors %}
 
@@ -72,6 +82,8 @@
 {% endmacro %}
 
 
+
+{#----------------------------------------------------------------------------------------------------------------#}
 {% macro hidden_field(field) %}
 <input type="hidden" name="{{ field.name }}" value="">
 {% endmacro %}

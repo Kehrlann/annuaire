@@ -22,7 +22,7 @@ class SearchForm(Form):
     ville = TextField('Ville')
     pays = SelectField('Pays')
     entreprise = TextField('Entreprise')
-    adresse = RadioField('Adresses', choices=[('perso','perso'),('pro','pro'),('deux','les deux')], default='deux')
+    adresse = RadioField('Adresses', choices=[('perso','perso uniquement'),('pro','pro uniquement'),('deux','les deux')], default='deux')
 
 
     def setEcole(self, ecole_dict):
