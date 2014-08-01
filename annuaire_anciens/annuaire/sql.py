@@ -66,7 +66,7 @@ def fulltext_search(search_terms, offset = 0, limit =0):
     ).outerjoin(
         __pays, __ville.c.id_pays == __pays.c.id_pays
     ).outerjoin(
-        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien, __experience.c.actif == True)
+        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien)
     ).outerjoin(
         __entreprise, __experience.c.id_entreprise == __entreprise.c.id_entreprise
     )
@@ -89,10 +89,17 @@ def fulltext_search(search_terms, offset = 0, limit =0):
         __ancien.c.ecole,
         __ancien.c.promo,
         __ancien.c.nom,
-        __ancien.c.prenom
+        __ancien.c.prenom,
+        desc(__experience.c.debut).nullslast(),
+        desc(__experience.c.actif)
     )
     sel = sel.where("fulltext @@ to_tsquery('french', :input_str)")
-    sel = sel.distinct()
+    sel = sel.distinct(
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ancien.c.nom,
+        __ancien.c.prenom
+    )
     sel = sel.offset(offset).limit(limit)
 
     res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).fetchall()
@@ -120,7 +127,7 @@ def annuaire_search(form, offset = 0, limit =0):
     ).outerjoin(
         __pays, __ville.c.id_pays == __pays.c.id_pays
     ).outerjoin(
-        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien, __experience.c.actif == True)
+        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien)
     ).outerjoin(
         __entreprise, __experience.c.id_entreprise == __entreprise.c.id_entreprise
     )
@@ -143,10 +150,17 @@ def annuaire_search(form, offset = 0, limit =0):
         __ancien.c.ecole,
         __ancien.c.promo,
         __ancien.c.nom,
-        __ancien.c.prenom
+        __ancien.c.prenom,
+        desc(__experience.c.debut).nullslast(),
+        desc(__experience.c.actif)
     )
 
-    sel = sel.distinct()
+    sel = sel.distinct(
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ancien.c.nom,
+        __ancien.c.prenom
+    )
     sel = sel.offset(offset).limit(limit)
 
     return _filter_search(form, sel).fetchall()
