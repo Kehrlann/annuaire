@@ -26,7 +26,7 @@ def compte():
 
     """
 
-    #TODO : refaire les commentaires
+    #TODO : et si il n'y a pas d'ancien ?
     # chopper l'ancien associé à l'utilisateur
     utilisateur = user.find_user_by_id(current_user.id)
 
@@ -83,8 +83,23 @@ def compte():
 @app.route('/ancien/<int:id_ancien>')
 @login_required
 def ancien(id_ancien):
+    """
+    Afficher le profil d'un ancien.
 
-    #TODO : commentaires
+    Si l'ancien est l'ancien associé à l'utilisateur, alors on affiche des formulaires d'update pour :
+    - Les infos perso
+    - L'adresse perso
+    - Les expériences pros
+    - Le mot de passe
+
+    On affiche également les fonctionnalités linkedin :
+    - Associer / dissocier mon compte
+    - Importer des expériences
+
+    :param int id_ancien: L'id de l'ancien étudié
+    :return:
+    """
+
     is_this_me = False
     adresse_form = user.update_adresse_form()
     adresse_form.set_pays(PAYS)
@@ -196,6 +211,7 @@ def update_password():
 
     POST : "commit" les données
     """
+
     res = {}
     res["content"] = None
     res["csrf_token"] = generate_csrf_token()
@@ -245,7 +261,6 @@ def update_info_perso():
         2. Le cas échéant, les sauvegarder
         3. Regénérer le template et le renvoyer avec un nouveau csrf token
     """
-
 
     res = {}
     res["content"] = None
