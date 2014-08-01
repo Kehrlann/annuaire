@@ -14,7 +14,7 @@ Backbone.$ = $;
 
 var RegisterView = require('./views/register.jsx'),
     NavbarView = require('./views/navbar.jsx'),
-    MainView = require('./views/main.jsx');
+    SearchView = require('./views/search.jsx');
 
 var Router = Backbone.Router.extend({
 
@@ -55,7 +55,7 @@ var Router = Backbone.Router.extend({
         console.log("search route");
         // Render the search view
         React.renderComponent(
-          MainView({term: term}),
+          SearchView({term: term}),
           document.getElementById('js-main')
         );
     }
