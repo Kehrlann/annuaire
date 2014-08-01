@@ -27,8 +27,9 @@ module.exports = React.createClass({
       data: form.serialize(),
       success: function(data, response, qsq){
         console.log("Success", data, response, qsq);
-        _this.setState({isLoading: false})
-        // window.location.replace(data);
+        _this.setState({isLoading: false});
+        _this.props.onLogin(true);
+        Backbone.history.navigate("/search", {trigger: true});
       },
       error: function(){
         console.log("Failure");

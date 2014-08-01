@@ -13,12 +13,20 @@ module.exports = React.createClass({
     }
   },
 
+  handleSearch: function(e){
+    // TODO : add autocomplete
+  },
+
+  handleLogin: function(isLoggedIn){
+    console.log("Navbar caught login", isLoggedIn);
+    this.setState({ isUserConnected: isLoggedIn });
+  },
 
   render : function() {
 
     if(!this.state.isUserConnected){
       return (
-        <LoginView></LoginView>
+        <LoginView onLogin={this.handleLogin}></LoginView>
       );
     }
     else{
@@ -32,7 +40,7 @@ module.exports = React.createClass({
           </div>
           <form className="navbar-form navbar-left nav-search-zone" role="search">
             <span className="glyphicon glyphicon-search"></span>
-            <input type="text" autocomplete="off" ref="fulltext_top" name="fulltext" className="form-control" />
+            <input type="text" autocomplete="off" ref="fulltext_top" onKeyUp={this.handleSearch} name="fulltext" className="form-control" />
           </form>
         </div>
       )

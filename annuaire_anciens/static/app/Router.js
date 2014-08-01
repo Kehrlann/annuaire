@@ -13,11 +13,14 @@ Backbone.$ = $;
 //
 
 var RegisterView = require('./views/register.jsx'),
-    NavbarView = require('./views/navbar.jsx');
+    NavbarView = require('./views/navbar.jsx'),
+    MainView = require('./views/main.jsx');
 
 var Router = Backbone.Router.extend({
 
     routes: {
+        "search/:term": "search",
+        "search": "search",
         "*actions": "defaultRoute"
     },
 
@@ -38,13 +41,23 @@ var Router = Backbone.Router.extend({
     defaultRoute: function(path) {
         // Default route
 
-        console.log("defaultRoute, rendering RegisterView", document.getElementById('js-main'));
+        // console.log("defaultRoute, rendering RegisterView", document.getElementById('js-main'));
         // Render the register view
         React.renderComponent(
           RegisterView({}),
           document.getElementById('js-main')
         );
 
+    },
+
+    search: function(term){
+
+        console.log("search route");
+        // Render the search view
+        React.renderComponent(
+          MainView({term: term}),
+          document.getElementById('js-main')
+        );
     }
 });
 
