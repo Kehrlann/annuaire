@@ -23,7 +23,7 @@
                     cacheLength: 1,
                     scroll: false,
                     select: function(event, ui) {
-                        $(this).val(ui.item.value);
+                        $(this).val(encodeURIComponent(ui.item.value));
                         $(this).parents("form").submit();
                     }
                 });
