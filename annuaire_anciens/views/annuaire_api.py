@@ -1,6 +1,10 @@
 # coding=utf-8
+"""
+    Toutes les API relatives à l'utilisation de l'annuaire.
+"""
+
+
 from annuaire_anciens import app, helper
-from annuaire_anciens.helper.security import csrf_exempt
 from search import search_fulltext, search_anciens
 from flask import request, session
 from flask.ext.login import login_required
