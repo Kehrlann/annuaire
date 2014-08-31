@@ -100,8 +100,8 @@ class update_ancien_form(Form):
         """
         Charger un ancien dans un formulaire
 
-        @param ancien: dict ancien à charger
-        @return: None
+        :param ancien: dict ancien à charger
+        :return: None
         """
         if ancien is not None:
             if ancien['prenom'] is not None:
@@ -167,8 +167,8 @@ class update_adresse_form(Form):
         """
         Charger l'adresse d'un ancien spécifique
 
-        @param adresse: dict adresse à charger
-        @return: None
+        :param adresse: dict adresse à charger
+        :return: None
         """
         if adresse is not None:
             self.adresse.data = adresse['adresse_adresse']
@@ -180,8 +180,8 @@ class update_adresse_form(Form):
         """
         Charger la liste des pays dans la select box
 
-        @param pays_dict: dictionnaire json contenant la liste des pays
-        @return: None
+        :param pays_dict: dictionnaire json contenant la liste des pays
+        :return: None
         """
         pays_sort = sorted(pays_dict.iteritems(), key = operator.itemgetter(1))
         self.pays.choices = map(lambda x: (x[0], x[1]), pays_sort)
@@ -282,8 +282,8 @@ class update_experience_form(Form):
         """
         charger une experience
 
-        @param experience: dict experience à charger
-        @return: None
+        :param experience: dict experience à charger
+        :return: None
         """
         self.entreprise.data = experience['entreprise_nom']
         self.poste.data = experience['experience_poste']
@@ -306,9 +306,38 @@ class update_experience_form(Form):
         """
         Charger la liste des pays dans la select box
 
-        @param pays_dict: dictionnaire json contenant la liste des pays
-        @return: None
+        :param pays_dict: dictionnaire json contenant la liste des pays
+        :return: None
         """
         pays_sort = sorted(pays_dict.iteritems(), key = operator.itemgetter(1))
         self.pays.choices = map(lambda x: (x[0], x[1]), pays_sort)
         self.pays.choices.insert(0, ('', ''))   #blank choice
+
+
+
+class create_ancien_form(Form):
+    """
+    Form pour créer l'ancien associé à mon compte:
+    - Prénom
+    - Nom
+    - École
+    - Promo
+    - Diplôme
+    """
+    prenom = TextField('Pr&eacute;nom', [validators.Required(message="Veuillez saisir votre pr&eacute;nom")])
+    nom = TextField('Nom', [validators.Required(message="Veuillez saisir votre nom")])
+    ecole = SelectField(
+        '&Eacute;cole',
+        choices=[('N', 'Nancy'), ('P', 'Paris'), ('E', 'Saint-Etienne')],
+        validators=[validators.Required(message="Veuillez s&eacute;lectionner une &eacute;cole")]
+    )
+
+    promo = SelectField(
+        'Promo', choices=[(str(x), str(x)) for x in xrange(2013,2020)],
+        validators=[validators.Required(message="Veuillez s&eacute;lectionner une &eacute;cole")]
+    )
+    diplome = SelectField(
+        'Dipl&ocirc;me',
+        choices=[(x, x) for x in ["Ing&eacute;nieur Civil", "Ing&eacute;nieur du Corps", "Docteur", "Master sp&eacute;cialis&eacute;"]],
+        validators=[validators.Required(message="Veuillez s&eacute;lectionner un dipl&ocirc;me")]
+    )

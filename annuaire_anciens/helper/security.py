@@ -29,7 +29,7 @@ def csrf_protect():
     la session.
 
     @raise: abort(403) unauthorized si on détecte une csrf
-    @return: None if okay
+    :return: None if okay
     """
     destination_view = app.view_functions.get(request.endpoint)
     exempt = destination_view in _exempt_views
@@ -43,8 +43,8 @@ def generate_signed_string_from_mail(mail):
     """
     Générer une string signée par itsdangerous à partir d'un mail
 
-    @param mail: le mail à signer
-    @return une string signée à utiliser en URL
+    :param mail: le mail à signer
+    :return une string signée à utiliser en URL
     """
     signer_kwargs = { "digest_method" : sha256 }
     signer = URLSafeSerializer(app.secret_key, signer_kwargs=signer_kwargs)
@@ -57,8 +57,8 @@ def get_mail_from_signed_string(signed_string):
     """
     Récupérer le mail depuis une string signée
 
-    @param signed_string: la string signée
-    @returns: le mail caché dedans
+    :param signed_string: la string signée
+    :returns: le mail caché dedans
     """
     signer_kwargs = { "digest_method" : sha256 }
     signer = URLSafeSerializer(app.secret_key, signer_kwargs=signer_kwargs)
@@ -69,7 +69,7 @@ def get_mail_from_signed_string(signed_string):
 def generate_csrf_token():
     """
     Stocke un token dans la session, et renvoie ce même token
-    @return:__csrf_token = str(uuid4())
+    :return:__csrf_token = str(uuid4())
     """
     if '_csrf_token' not in session:
         # random uuid ... est-ce que c'est safe ??

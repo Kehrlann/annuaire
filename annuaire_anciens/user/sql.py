@@ -17,9 +17,9 @@ def find_user_by_mail(mail, actif_only=True):
     """
     Rechercher un utilisateur dans l'annuaire
 
-    @param mail: le mail de l'utilisateur
-    @rtype: Utilisateur
-    @return: un utilisateur
+    :param mail: le mail de l'utilisateur
+    :rtype: Utilisateur
+    :return: un utilisateur
     """
     if mail is not None:
         condition = __utilisateur.c.mail == mail.lower()
@@ -38,9 +38,9 @@ def find_user_by_mail_and_password(mail, password, actif_only=True):
     """
     Rechercher un utilisateur dans l'annuaire
 
-    @param form: request form
-    @rtype: Utilisateur
-    @return: un utilisateur
+    :param form: request form
+    :rtype: Utilisateur
+    :return: un utilisateur
     """
     res = None
     if password is None:
@@ -61,10 +61,10 @@ def find_user_by_id(id_user):
     """
     Rechercher un utilisateur
 
-    @param id_user: user id, no shit ...
+    :param id_user: user id, no shit ...
 
-    @rtype : Utilisateur
-    @return : Utilisateur (None if not exist)
+    :rtype : Utilisateur
+    :return : Utilisateur (None if not exist)
     """
 
     res = __select_user_by_id(id_user)
@@ -77,8 +77,8 @@ def find_user_by_id(id_user):
 def find_user_by_id_ancien(id_ancien, actif_only=False):
     """
     Rechercher un utilisateur par id ancien
-    @param id_ancien:  int, id_ancien
-    @return: Utilisateur (None if not exist)
+    :param id_ancien:  int, id_ancien
+    :return: Utilisateur (None if not exist)
     """
     if id_ancien is  not None:
         condition = __utilisateur.c.id_ancien == id_ancien
@@ -97,7 +97,7 @@ def activate_user(id_user):
     """
     Activer un utilisateur
 
-    @param id_user: L'utilisateur à activer
+    :param id_user: L'utilisateur à activer
     """
     res = False
     if id_user is not None:
@@ -111,13 +111,13 @@ def update_password_by_id(id_user, old_pass, new_pass):
     """
     Mettre a jour le mot de passe d'un utilisateur. Pour verification, on utilise son ancien mot de passe
 
-    @param id_user: user id_user
-    @param old_pass: ancien mot de passe, doit être vérifié pour voir si on a le droit d'update (mieux qu'un fresh login)
-    @param new_pass: nouveau mot de passe
+    :param id_user: user id_user
+    :param old_pass: ancien mot de passe, doit être vérifié pour voir si on a le droit d'update (mieux qu'un fresh login)
+    :param new_pass: nouveau mot de passe
 
-    @rtype : bool
+    :rtype : bool
 
-    @return : True si ok, False si nok
+    :return : True si ok, False si nok
     """
     result = False
     res = __select_user_by_id(id_user)
@@ -141,11 +141,11 @@ def confirm_password(id_user, password):
     """
     verifier que l'utilisateur a bien saisi le bon mot de passe
 
-    @params :
+    :params :
     id_user         -- user id
     password    -- pass
 
-    @return : True si c'est le bon pass, False si c'est le mauvais
+    :return : True si c'est le bon pass, False si c'est le mauvais
     """
     result = False
     if password is None:
@@ -162,11 +162,11 @@ def update_id_ancien(id_user, id_ancien):
     """
     Mettre à jour l'id_ancien pour un utilisateur donné
 
-    @params :
+    :params :
     id_user     -- user id
     id_ancien   -- id de l'ancien à associer à ce compte
 
-    @return : L'objet utilisateur
+    :return : L'objet utilisateur
     """
     res = False
     if id_ancien and id_user:
@@ -185,8 +185,8 @@ def update_id_ancien(id_user, id_ancien):
 def create_user(mail, password):
     """
     Créer un utilisateur dans la base de données.
-    @param mail: le mail de l'utilisateur, unique
-    @param password: le mot de passe
+    :param mail: le mail de l'utilisateur, unique
+    :param password: le mot de passe
     """
     res = False
     if mail is not None:
@@ -203,7 +203,7 @@ def create_user(mail, password):
 def get_next_photo_id():
     """
     récupérer un id pour la photo pour ne pas écraser une photo existante
-    @return: long, un id
+    :return: long, un id
     """
     # TODO : déplacer ça dans l'annuaire
     res = engine.execute(__s_id_photo)
@@ -214,9 +214,9 @@ def __select_user_by_id(id_user=None):
     """
     Recuperer un user par mail (unique)
 
-    @param id_user: id de l'utilisateur
-    @rtype : sqlalchemy.core.ResultProxy
-    @return : SELECT * FROM utilisateur WHERE id_utilisateur=id_user;
+    :param id_user: id de l'utilisateur
+    :rtype : sqlalchemy.core.ResultProxy
+    :return : SELECT * FROM utilisateur WHERE id_utilisateur=id_user;
     """
     result = None
     if id_user is  not None:

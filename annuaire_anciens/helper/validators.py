@@ -9,8 +9,8 @@ class RequiredIfOther(object):
     """
     Forcer le field à être non-null si "other-field" est non null (field SI ET SEULEMENT SI other_field)
 
-    @param other_field_name: str, required, le nom de l'autre field
-    @param message: Message d'erreur à mettre dans la ValidationError
+    :param other_field_name: str, required, le nom de l'autre field
+    :param message: Message d'erreur à mettre dans la ValidationError
     @raise: ValidationError si other_field_name n'est pas dans le formulaire
     @raise: ValidationError if (field XOR other_field)
     """
@@ -41,7 +41,7 @@ class ValidDateMonth(object):
     """
     Valide les dates au format : mm/yyyy (%m/%Y)
 
-    @param message: Message d'erreur à retourner si ValidationError
+    :param message: Message d'erreur à retourner si ValidationError
     @raise: ValidationError si la date est mal formattée
     """
     def __init__(self, message=None):

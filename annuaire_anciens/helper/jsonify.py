@@ -11,9 +11,9 @@ def result_proxy_to_json(array=None, guillemets=False):
 
     TODO : vérifier s'il ne faudrait pas plutôt utiliser json.dumps
 
-    @param array: tableau
-    @param guillemets: mettre des guillemets autour des termes pour une recherche exacte
-    @return: array
+    :param array: tableau
+    :param guillemets: mettre des guillemets autour des termes pour une recherche exacte
+    :return: array
     """
 
     result = "["

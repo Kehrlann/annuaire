@@ -23,7 +23,7 @@ def login_ajax():
     """
     Méthode pour logguer un utilisateur (no shit) à partir de son adresse mail et son mot de pass
     POST : valider les infos et logguer ou invalider les infos et retourner l'url sur lequel rediriger
-    @return: code 401 si échec de l'authentification, code 200 et url en cas de réussite
+    :return: code 401 si échec de l'authentification, code 200 et url en cas de réussite
     """
     form = user.login_form(request.form)
 
@@ -47,7 +47,7 @@ def login():
     """
     Méthode legacy pour supporter l'url /login
     GET  : afficher l'annuaire si l'utilisateur est loggué, la page d'inscription sinon
-    @return:
+    :return:
     """
     if current_user.is_authenticated():
         return redirect(url_for('annuaire_view'))
@@ -80,7 +80,7 @@ def inscription():
         c. On envoie le mail de confirmation
         d. On redirige vers la page de login
 
-    @return:
+    :return:
     """
     form = user.registration_form(request.form)
 
@@ -124,7 +124,7 @@ def inscription():
                 return redirect(url_for("login"))
 
             else:
-                flash("&Eacute;chec lors de l'inscription. Merci de contacter l'administrateur", "error")
+                flash("&Eacute;chec lors de l'inscription. Merci de contacter l'administrateur", "danger")
                 app.logger.error("REGISTER - problème à la création de l'utilisateur : %s", mail_ancien)
                 return redirect(url_for("login"))
 
@@ -149,7 +149,7 @@ def resend(id_user):
     """
     Méthode pour renvoyer l'email de confirmation d'une inscription
 
-    @param id_user: id_user de la préinscription à renvoyer par mail
+    :param id_user: id_user de la préinscription à renvoyer par mail
     """
     if helper.is_valid_integer(id_user) is not None:
         utilisateur = user.find_user_by_id(id_user)
@@ -163,11 +163,11 @@ def resend(id_user):
             app.logger.info("RESEND - resend mail for user with id %s", utilisateur.id)
         else:
             flash("Echec : aucune inscription trouv&eacute;e, "
-            "veuillez contacter l'adminsitrateur pour plus d'information", "error")
+            "veuillez contacter l'adminsitrateur pour plus d'information", "danger")
             app.logger.error("RESEND - try resend but no utilisateur found for id %s", id_user)
     else:
         flash("Echec : pas d'id utilisateur, "
-            "veuillez contacter l'adminsitrateur pour plus d'information", "error")
+            "veuillez contacter l'adminsitrateur pour plus d'information", "danger")
         app.logger.error("RESEND - no id user")
     return redirect(url_for("login"))
 
@@ -176,8 +176,8 @@ def activation(code_activation):
     """
     Valider la préinscription d'un utilisateur, puis rediriger vers la page de login
 
-    @param code_activation: le code d'activation
-    @return:
+    :param code_activation: le code d'activation
+    :return:
     """
     if code_activation is not None and code_activation != "":
         try:
@@ -193,7 +193,7 @@ def activation(code_activation):
 
         except Exception, e:
             flash("URL incorrecte, merci de relancer la proc&eacute;dure d'inscription ou de "
-                  "contacter un admnistrateur si le probl&egrave;me persiste", "error")
+                  "contacter un admnistrateur si le probl&egrave;me persiste", "danger")
             app.logger.error(
                 "ACTIVATION - critical error decoding activation_code. Exception : %s",
                 e.__class__.__name__

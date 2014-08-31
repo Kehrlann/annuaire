@@ -37,9 +37,10 @@ __villePro = __ville.alias()
 def count_fulltext(search_terms):
     """
     Compter les anciens trouvés par la recherche fulltext
-    @param form: formulaire de filtrage
-    @rtype: int
-    @return: le nombre d'anciens qui satisfont FORM
+    :param form: formulaire de filtrage
+
+    :rtype: int
+    :return: le nombre d'anciens qui satisfont FORM
     """
     sel = select([func.count(__ancien.c.id_ancien.distinct())]).where("fulltext @@ to_tsquery('french', :input_str)")
     res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).first()[0]
@@ -50,10 +51,10 @@ def fulltext_search(search_terms, offset = 0, limit =0):
     """
     Recerche un ancien dans l'annuaire par fulltext search
 
-    @param search_terms: str, les termes de recherche
-    @param offset: int, démarrer la requête au  rang X
-    @param limit: int, prendre Y résultats
-    @return:
+    :param search_terms: str, les termes de recherche
+    :param offset: int, démarrer la requête au  rang X
+    :param limit: int, prendre Y résultats
+    :return:
     """
     aaa = __asso_ancien_adresse
     from_obj = __ancien
@@ -110,10 +111,10 @@ def annuaire_search(form, offset = 0, limit =0):
     """
     Recerche un ancien dans l'annuaire selon les critères specifiés dans le form
 
-    @param form: annuaire.form.SearchForm
-    @param offset: int, démarrer la requête au  rang X
-    @param limit: int, prendre Y résultats
-    @return:
+    :param form: annuaire.form.SearchForm
+    :param offset: int, démarrer la requête au  rang X
+    :param limit: int, prendre Y résultats
+    :return:
     """
     aaa = __asso_ancien_adresse
 
@@ -169,9 +170,9 @@ def annuaire_search(form, offset = 0, limit =0):
 def count_annuaire_search(form):
     """
     Compter les anciens dans l'annuaire en fonction d'un formulaire
-    @param form: formulaire de filtrage
-    @rtype: int
-    @return: le nombre d'anciens qui satisfont FORM
+    :param form: formulaire de filtrage
+    :rtype: int
+    :return: le nombre d'anciens qui satisfont FORM
     """
     from_obj = _get_from_object(form)
     sel = select([func.count(__ancien.c.id_ancien.distinct())], from_obj=from_obj)
@@ -187,8 +188,8 @@ def _get_from_object(form):
     if !(form.estPerso.data or form.estPro.data):
         alors on ne join pas les tables d'adresses
 
-    @param form: annuaire.form.SearchForm
-    @return: sqlalchemy.core.from
+    :param form: annuaire.form.SearchForm
+    :return: sqlalchemy.core.from
     """
 
     from_obj = __ancien
@@ -233,9 +234,9 @@ def _get_from_object(form):
 def _filter_search(form, sel):
     """
     Filtrer une requête select en fonction d'un FORM
-    @param form: formulaire de filtrage
-    @param sel: select query, soit un count soit un requete classique
-    @return: sel.WHERE(form)
+    :param form: formulaire de filtrage
+    :param sel: select query, soit un count soit un requete classique
+    :return: sel.WHERE(form)
     """
     nom = form.nom.data
 
@@ -306,8 +307,8 @@ def find_ancien_by_id(id_ancien):
     """
     Rechercher un ancien par id
 
-    @param id_ancien: int
-    @return: SELECT DISTINCT * FROM ancien WHERE id_ancien = id_ancien;
+    :param id_ancien: int
+    :return: SELECT DISTINCT * FROM ancien WHERE id_ancien = id_ancien;
     """
     sel = select([__ancien], __ancien.c.id_ancien == id_ancien).distinct()
     res = engine.execute(sel).first()
@@ -318,8 +319,8 @@ def find_ancien_by_mail_asso(mail_asso):
     """
     Rechercher un ancien par son "mail à vie" de l'association
 
-    @param mail_asso: mail@mines-paris.org (ou mines-nancy.org ou mines-saint-etienne.org)
-    @return:
+    :param mail_asso: mail@mines-paris.org (ou mines-nancy.org ou mines-saint-etienne.org)
+    :return:
         - SELECT DISTINCT * FROM ancien WHERE mail_asso = mail_asso;
         - First result only
         - NONE if not found
@@ -333,8 +334,8 @@ def find_ancien_by_id_linkedin(id_linkedin):
     """
     Trouver un ancien par ID_linkedin.
 
-    @param id_linkedin: l'id renvoyé par LinkedIn pour identifier un compte.
-    @return :
+    :param id_linkedin: l'id renvoyé par LinkedIn pour identifier un compte.
+    :return :
         - SELECT DISTINCT * FROM ancien WHERE id_linkedin = id_linkedin;
         - First result only
         - NONE if not found
@@ -351,8 +352,8 @@ def find_adresse_by_id_ancien(id_ancien):
     """
     Rechercher une adresse par id_ancien
 
-    @param id_ancien:
-    @return: Select * from adresse join asso where asso.id_ancien=truc
+    :param id_ancien:
+    :return: Select * from adresse join asso where asso.id_ancien=truc
     """
     if id_ancien is not None and type(id_ancien) is int:
         aaa = __asso_ancien_adresse
@@ -374,7 +375,7 @@ def find_experience_by_id_ancien(id_ancien):
     """
     Rechercher une experience par id_ancien
     
-    @params :
+    :params :
     id_ancien    -- int
     qb           -- custom query builder, see sql.query
     """
@@ -414,7 +415,7 @@ def find_experience_by_id_ancien_id_experience(id_ancien, id_experience):
     Rechercher une experience par id_ancien et id_experience
     Ces doubles id assurent que l'experience esst bien associée à l'ancien étudié
 
-    @params :
+    :params :
     id_ancien    -- int
     qb           -- custom query builder, see sql.query
     """
@@ -452,8 +453,8 @@ def find_nom_autocomplete(term, limit=5):
     """
     Rechercher une liste de noms pour l'autocomplete
 
-    @param term: terme de recherche (un seul)
-    @return: SELECT nom FROM ancien WHERE ancien.nom_slug LIKE 'term%'
+    :param term: terme de recherche (un seul)
+    :return: SELECT nom FROM ancien WHERE ancien.nom_slug LIKE 'term%'
     """
     result = None
     if not (term is None or term == ""):
@@ -467,8 +468,8 @@ def find_ville_autocomplete(term, limit=5):
     """
     Rechercher une liste de villes pour l'autocomplete
 
-    @param term: terme de recherche (un seul)
-    @return: SELECT nom FROM ville WHERE ville.slug LIKE 'term%'
+    :param term: terme de recherche (un seul)
+    :return: SELECT nom FROM ville WHERE ville.slug LIKE 'term%'
     """
     result = None
     if not (term is None or term == ""):
@@ -482,8 +483,8 @@ def find_entreprise_autocomplete(term, limit=5):
     """
     Rechercher une liste d'entreprise pour l'autocomplete
 
-    @param term: terme de recherche (un seul)
-    @return: SELECT nom FROM entreprise WHERE entreprise.slug LIKE 'term%'
+    :param term: terme de recherche (un seul)
+    :return: SELECT nom FROM entreprise WHERE entreprise.slug LIKE 'term%'
     """
     result = None
     if not (term is None or term == ""):
@@ -500,8 +501,8 @@ def find_mot_autocomplete(term, limit=10):
     '''SNCF Services'''
     Puis on recherche le dernier mot, ici, '''Services'''
 
-    @param term: terme de recherche, une seule string
-    @return: SELECT mot FROM mot WHERE mot.slug LIKE 'slugify(term)%' OR mot.slug LIKE 'slugify(last_term%)'
+    :param term: terme de recherche, une seule string
+    :return: SELECT mot FROM mot WHERE mot.slug LIKE 'slugify(term)%' OR mot.slug LIKE 'slugify(last_term%)'
     """
     result = None
     if not (term is None or  term == ""):
@@ -518,11 +519,41 @@ def find_mot_autocomplete(term, limit=10):
     return result
 
 
+
+def create_ancien(prenom, nom, promo, ecole, mail_asso, diplome):
+    """
+    Créer un ancien à partir des données d'un formulaire
+
+    :param str prenom:
+    :param str nom:
+    :param int promo:
+    :param str ecole: In E, P, N
+    :param str mail_asso:
+    :param str diplome:
+    :return:
+    """
+    ins = __ancien.insert().returning(__ancien.c.id_ancien).values(
+        prenom=prenom,
+        prenom_slug=helper.slugify(prenom),
+        nom=nom,
+        nom_slug=helper.slugify(nom),
+        ecole=ecole,
+        promo=promo,
+        mail_asso=mail_asso,
+        diplome=diplome,
+        nouveau=True
+    )
+    inserted_id = engine.execute(ins).first()[0]
+    update_ancien_date(inserted_id)
+    return inserted_id
+
+
+
 def update_ancien_date(id_ancien):
     """
     Mettre à jour ancien.date_update pour marquer que la fiche ancien à été mise à jour à la date du jour
-    @param id_ancien: l'id de l'ancien
-    @return: boolean success = true si l'update fonctionne
+    :param id_ancien: l'id de l'ancien
+    :return: boolean success = true si l'update fonctionne
     """
     success = False
     if helper.is_valid_integer(id_ancien):
@@ -531,7 +562,6 @@ def update_ancien_date(id_ancien):
             ).values(
                 date_update=date.today()
             )
-        osef = date.today()
         result = engine.execute(up)
         if result is not None:
             success = True
@@ -540,12 +570,12 @@ def update_ancien_date(id_ancien):
 def update_fiche_ancien(id_ancien, telephone="", mobile="", site="", mail_perso=""):
     """
     Mettre à jour une fiche ancien par id_ancien
-    @param id_ancien: int, l'id_ancien
-    @param telephone: str < 20 char
-    @param mobile: str < 20 char
-    @param site: str < 200 char
-    @param mail_perso: str < 75 char
-    @return: boolean success = true si l'update fonctionne
+    :param id_ancien: int, l'id_ancien
+    :param telephone: str < 20 char
+    :param mobile: str < 20 char
+    :param site: str < 200 char
+    :param mail_perso: str < 75 char
+    :return: boolean success = true si l'update fonctionne
     """
     success = False
     if helper.is_valid_integer(id_ancien):
@@ -566,10 +596,10 @@ def update_linkedin_ancien(id_ancien, id_linkedin=None, url_linkedin=None):
     """
     Mettre à jour le compte linkedin d'un ancien
 
-    @param id_ancien: id de l'ancien en question
-    @param id_linkedin: id_linkedin à sauvegarder
-    @param url_linkedin:  profil public linkedin à sauvegarder
-    @return: True si success
+    :param id_ancien: id de l'ancien en question
+    :param id_linkedin: id_linkedin à sauvegarder
+    :param url_linkedin:  profil public linkedin à sauvegarder
+    :return: True si success
     """
     success = False
     if helper.is_valid_integer(id_ancien):
@@ -587,9 +617,9 @@ def update_linkedin_ancien(id_ancien, id_linkedin=None, url_linkedin=None):
 def update_photo(id_ancien, filename):
     """
     Mettre à jour la photo d'un ancien, par ID
-    @param id_ancien: int, id de l'ancien (ya rly)
-    @param filename: le nom de la photo
-    @return: boolean success = true si l'update fonctionne
+    :param id_ancien: int, id de l'ancien (ya rly)
+    :param filename: le nom de la photo
+    :return: boolean success = true si l'update fonctionne
     """
     success = False
     up = __ancien.update().where(__ancien.c.id_ancien == id_ancien).values(photo=filename)
@@ -603,12 +633,12 @@ def update_adresse_perso(id_ancien, ville, id_pays, adresse="", code=""):
     Mettre à jour l'adresse active d'un ancien, en updatant ou insérant.
     En updatant ou insérant la ville au passage
 
-    @param id_ancien: int, id_ancien
-    @param adresse: str, l'adresse en texte libre
-    @param ville: str, la ville en texte libre
-    @param code: int, le ocde postal en texte libre puis converti en int
-    @param id_pays: int
-    @return: boolean success = true si ça marche, false sinon
+    :param id_ancien: int, id_ancien
+    :param adresse: str, l'adresse en texte libre
+    :param ville: str, la ville en texte libre
+    :param code: int, le ocde postal en texte libre puis converti en int
+    :param id_pays: int
+    :return: boolean success = true si ça marche, false sinon
     """
     success = False
     id_adresse = None
@@ -637,20 +667,20 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
     """
     Mettre à jour / insérer une expérience pro ancien
 
-    @param id_ancien:
-    @param id_experience:
-    @param ville:
-    @param id_pays:
-    @param adresse:
-    @param code:
-    @param entreprise:
-    @param poste:
-    @param description:
-    @param mail:
-    @param site:
-    @param telephone:
-    @param mobile:
-    @return: inserted_id, l'id de l'expérience insérée / mise à jour
+    :param id_ancien:
+    :param id_experience:
+    :param ville:
+    :param id_pays:
+    :param adresse:
+    :param code:
+    :param entreprise:
+    :param poste:
+    :param description:
+    :param mail:
+    :param site:
+    :param telephone:
+    :param mobile:
+    :return: inserted_id, l'id de l'expérience insérée / mise à jour
     """
     success = False
     inserted_id = None
@@ -702,7 +732,7 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
             engine.execute(up)
             inserted_id = id_experience
         else:
-            ins = __experience.insert().returning(__experience.c.id_experience).values(
+            ins = __experience.insert().values(
                 id_ancien = id_ancien,
                 id_entreprise = id_entreprise,
                 id_adresse = id_adresse,
@@ -716,18 +746,18 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 fin = date_fin,
                 id_experience_linkedin = id_experience_linkedin
             )
-            inserted_id = engine.execute(ins)
+            engine.execute(ins)
 
         success = update_ancien_date(id_ancien)
-    return inserted_id
+    return success
 
 def remove_experience(id_ancien, id_experience):
     """
     Supprimer une experience, en vérifiant qu'elle est bien associée au bon ancien
 
-    @param id_ancien:
-    @param id_experience:
-    @return:
+    :param id_ancien:
+    :param id_experience:
+    :return:
     """
 
     suppr = __experience.delete().where(
@@ -745,12 +775,12 @@ def _insert_update_adresse(ville, id_pays, id_adresse, adresse="", code=""):
     Mettre à jour une adresse perso ou pro, en updatant ou insérant.
     En updatant ou insérant la ville au passage
 
-    @param id_ancien: int, id_ancien
-    @param adresse: str, l'adresse en texte libre
-    @param ville: str, la ville en texte libre
-    @param code: int, le ocde postal en texte libre puis converti en int
-    @param id_pays: int
-    @return: id_adresse: l'id de l'adresse insérée / updatéee
+    :param id_ancien: int, id_ancien
+    :param adresse: str, l'adresse en texte libre
+    :param ville: str, la ville en texte libre
+    :param code: int, le ocde postal en texte libre puis converti en int
+    :param id_pays: int
+    :return: id_adresse: l'id de l'adresse insérée / updatéee
     """
     # 2 : est-ce que la ville existe ? si non, insert !
     id_ville = None
@@ -800,9 +830,9 @@ def _slug_raw_input_by_column(col, raw_input=None):
     """
     Methode interne, pour comparer une str de requete au slug d'une colonne
 
-    @param col: sqlalchemy.Column
-    @param raw_input: str, raw input
-    @return: col.slug == slug(raw_input)
+    :param col: sqlalchemy.Column
+    :param raw_input: str, raw input
+    :return: col.slug == slug(raw_input)
     """
     result = None
     if col is not None:
@@ -834,10 +864,10 @@ def _slug_by_column(col, slug=None, exact=False):
     """
     Comparer le contenu d'une colonne avec un slug
 
-    @param col: sqlalchemy.Column
-    @param slug: str, slugged
-    @param exact: bool, True => comparer le mot exact ; False => comparer le mot aux mots composés du slug
-    @return:    col == slug [OR col LIKE 'slug-%' OR col LIKE '%-slug' OR col LIKE '%-slug-%']
+    :param col: sqlalchemy.Column
+    :param slug: str, slugged
+    :param exact: bool, True => comparer le mot exact ; False => comparer le mot aux mots composés du slug
+    :return:    col == slug [OR col LIKE 'slug-%' OR col LIKE '%-slug' OR col LIKE '%-slug-%']
     """
     result = None
 
@@ -857,10 +887,10 @@ def _where_ville(ville_raw=None, est_perso=True, est_pro=False):
     """
     Methode interne recuperer une condition de filtrage par ville, perso ou pro
 
-    @param ville_raw: str, input raw sur lequel rechercher
-    @param est_perso: recherche dans les villes perso
-    @param est_pro: recherche dans les villes pro
-    @return: condition SQL (ville.slug == ville_raw)
+    :param ville_raw: str, input raw sur lequel rechercher
+    :param est_perso: recherche dans les villes perso
+    :param est_pro: recherche dans les villes pro
+    :return: condition SQL (ville.slug == ville_raw)
     """
     pe = __villePerso
     pr = __villePro
@@ -888,10 +918,10 @@ def _where_pays(id_pays=None, est_perso=True, est_pro=False):
     """
     Methode interne recuperer une condition de filtrage par pays, perso ou pro
 
-    @param id_pays: id du pays
-    @param est_perso: recherche dans les villes perso
-    @param est_pro: recherche dans les villes pro
-    @return: condition SQL (pays.id_pays == id)_pays)
+    :param id_pays: id du pays
+    :param est_perso: recherche dans les villes perso
+    :param est_pro: recherche dans les villes pro
+    :return: condition SQL (pays.id_pays == id)_pays)
     """
 
     pe = __villePerso
@@ -923,9 +953,9 @@ def _refine_by_promo(select, promo_list=None):
     si on a 2008 on fait promo = 2008
     si on a 08   on fait promo = 1908 ou promo = 2008
 
-    @param select: le select à affiner
-    @param promo_list: la liste des promos à filtrer
-    @return: select WHERE promo IN promo_list
+    :param select: le select à affiner
+    :param promo_list: la liste des promos à filtrer
+    :return: select WHERE promo IN promo_list
     """
     if select is not None:
         statement = None
@@ -977,9 +1007,9 @@ def _or_annee(statement, promo):
     """
     Methode interne pour creer un OR sur une annee de promo
 
-    @param statement: le statement conditionnel
-    @param promo: int, la promo
-    @return:
+    :param statement: le statement conditionnel
+    :param promo: int, la promo
+    :return:
         Si promo est entre 0 et 99, alors
             statement | ancien.promo == promo + 1900 | ancien.promo == promo + 2000
         else

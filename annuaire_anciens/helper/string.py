@@ -10,8 +10,8 @@ import unicodedata
 def slugify(string):
     """
     Transforme une string en slug = replace tout caractère non alphanumérique par un dash (-)
-    @param string: la string à slugger
-    @return string: la string slugged
+    :param string: la string à slugger
+    :return string: la string slugged
     """
     if string is None:
         return None
@@ -29,8 +29,8 @@ def slugify(string):
 def clean_normal_search(raw_input):
     """
     Methode pour extraire tous les inputs de type normal (= sans guillemets), et les retourner slugged, dans une liste
-    @param raw_input: un input str quelconque
-    @return: une liste de toutes string non contenues entre guillemets, slugged
+    :param raw_input: un input str quelconque
+    :return: une liste de toutes string non contenues entre guillemets, slugged
     """
     result = []
     pattern_exact = r'(\'[^\']*\')|(\"[^\']*\")'
@@ -49,8 +49,8 @@ def clean_normal_search(raw_input):
 def clean_exact_search(raw_input):
     """
     Methode pour extraire tous les inputs de type exact (= entre guillemets), et les retourner slugged, dans une liste
-    @param raw_input: un input str quelconque
-    @return: une liste de toutes string contenues entre guillemets, slugged
+    :param raw_input: un input str quelconque
+    :return: une liste de toutes string contenues entre guillemets, slugged
     """
     result = []
     pattern_exact = r'\'[^\']*\''
@@ -74,8 +74,8 @@ def is_valid_integer(input):
     """
     Methode pour verifier qu'un input est bien un entier, que ce soit un int, une str ou un unicode
 
-    @param input: an input
-    @return: boolean, true if integer or string cast-able to int, false if not
+    :param input: an input
+    :return: boolean, true if integer or string cast-able to int, false if not
     """
     result = False
     pattern = r'^[0-9]+$'
@@ -91,8 +91,8 @@ def is_valid_integer(input):
 def prepare_for_fulltext(input):
     """
     Methode qui prend une str en entrée, et, si elle est non nulle, remplace les espaces par des &
-    @param input: str
-    @return : str
+    :param input: str
+    :return : str
     """
     result = ''
     if input is not None:

@@ -7,8 +7,8 @@ def search_anciens(request_values=None, page=1):
     """
     pour effectuer une recherche
 
-    @rtype: list
-    @return: [pagination, results, annuaire_form]
+    :rtype: list
+    :return: [pagination, results, annuaire_form]
     """
     results = []
     pagination = None
@@ -49,7 +49,7 @@ def search_anciens(request_values=None, page=1):
 def search_fulltext(search_terms=None, page=1):
     """
     Effectuer une recherche fullsearch
-    @return: [pagination, results]
+    :return: [pagination, results]
     """
     results = []
     pagination = None

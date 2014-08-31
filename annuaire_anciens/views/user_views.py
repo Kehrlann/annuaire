@@ -197,6 +197,82 @@ def ancien(id_ancien):
     )
 
 
+@app.route('/me/create', methods=['GET', 'POST'])
+@login_required
+def create_ancien():
+    """
+    Créer un ancien, associé à mon compte personnel. L'ancien est créé et son status
+    est "nouveau".
+
+    :return:
+    """
+    # TODO : commentaires
+    # TODO : app.logger
+
+    # chopper l'ancien associé à l'utilisateur
+    utilisateur = user.find_user_by_id(current_user.id)
+
+    # Trouver si l'utilisateur a un ancien associé
+    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+
+    form = user.create_ancien_form()
+
+    # Cas #1 : Créer l'ancien
+    if ancien is None:
+        if request.method == "POST":
+            form = user.create_ancien_form(request.form)
+
+            # Cas #1.1 : Si le form est valable, on insère l'ancien, on l'associe, et on envoie l'utilisateur
+            # sur la page de l'annuaire
+            if form.validate():
+                id_ancien = annuaire.create_ancien(
+                    prenom=form.prenom.data,
+                    nom=form.nom.data,
+                    promo=int(form.promo.data),
+                    ecole=form.ecole.data,
+                    mail_asso=utilisateur.mail,
+                    diplome=form.diplome.data
+                )
+
+                print "ID ANCIEN", id_ancien
+                user.update_id_ancien(utilisateur.id, id_ancien)
+
+                flash(
+                    "F&eacute;licitations ! Ta fiche ancien a &eacute;t&eacute; cr&eacute;e.<br>"
+                    "Elle est maintenant en attente de validation par un administrateur.<br>"
+                    "Une fois ta fiche valid&eacute;e, tu recevras un mail de confirmation.",
+                    "success"
+                )
+
+                return redirect(url_for("annuaire_view"))
+
+            # Cas #1.2 : Si le form n'est pas valide, on flashe une erreur
+            # Puis on tombe dans le cas #1.3
+            else:
+                flash(
+                    "Oops ! Probl&eacute;me &agrave; la cr&eacute;ation de la fiche."
+                    "danger"
+                )
+
+
+        # Cas #1.3 : render le formulaire (avec ou sans erreurs)
+        return render_template(
+            'user/creation/creation.html',
+            form=form
+        )
+
+    # Cas #2 : l'ancien a été créé mais pas activé
+    if ancien is not None and ancien["nouveau"]:
+        return render_template(
+            'user/creation/attente.html',
+            ancien=ancien
+        )
+
+    # Cas #3 : Il y a déjà un ancien ! redir
+    else:
+        return redirect(url_for("compte"))
+
+
 
 
 
@@ -390,7 +466,7 @@ def update_experience(id_experience = None):
             except ValueError:
                 date_fin = None
 
-            id = annuaire.update_experience(
+            success = annuaire.update_experience(
                 utilisateur.id_ancien,
                 id_experience,
                 experience_form.ville.data,
@@ -534,8 +610,8 @@ def update_photo():
 def remove_experience(id_experience):
     """
     Supprimer une expérience par id
-    @param id_experience: id_experience de l'experience à supprimer.
-    @return: redirect @compte
+    :param id_experience: id_experience de l'experience à supprimer.
+    :return: redirect @compte
     """
     utilisateur = user.find_user_by_id(current_user.id)
     if utilisateur.id_ancien is not None:
@@ -611,7 +687,7 @@ def linkedin_associer():
 def linkedin_dissocier():
     """
     Virer l'association au compte linkedin d'un ancien
-    @return:
+    :return:
     """
     utilisateur = user.find_user_by_id(current_user.id)
     if utilisateur.id_ancien is not None:
@@ -805,8 +881,8 @@ def __get_linkedin_token(url):
     - Dans la réponse, on obtient le token
 
     @note: pas sûr que redirection = authentification réussie ; il faudrait vérifier les codes ...
-    @param url: l'url pour laquelle va être utilisé le token
-    @return:
+    :param url: l'url pour laquelle va être utilisé le token
+    :return:
     """
     access_token = None
     user_id = "Anonymous"
@@ -873,8 +949,8 @@ def __get_positions(element):
         </position>
     </positions>
 
-    @param element: etree.element
-    @return:
+    :param element: etree.element
+    :return:
     """
     positions = []
     for e in element:
@@ -925,8 +1001,8 @@ def __get_positions(element):
 def _getNodeText(nodeElement):
     """
     Helper pour récupérer le texte d'un etree s'il n'est pas nul
-    @param nodeElement: etree.node
-    @return: node.text
+    :param nodeElement: etree.node
+    :return: node.text
     """
     if nodeElement is not None:
         return nodeElement.text
@@ -945,8 +1021,8 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
     """
     Permet de render le template _info_perso pour l'ancien en cours.
 
-    @param adresse_form:    le formulaire d'adresse à inclure
-    @param ancien_form:     le formulaire d'infos persos à inclure
+    :param adresse_form:    le formulaire d'adresse à inclure
+    :param ancien_form:     le formulaire d'infos persos à inclure
 
     On prend des formulaires en entrée pour gérer les erreurs.
 

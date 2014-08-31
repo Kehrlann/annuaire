@@ -16,9 +16,9 @@ def send_activation_mail(to, activation_code):
     """
     Envoyer le mail d'activation du compte
 
-    @param to: destinataire
-    @param activation_code: code d'activation, à insérer dans le mail.
-    @return: None
+    :param to: destinataire
+    :param activation_code: code d'activation, à insérer dans le mail.
+    :return: None
     """
     message = \
         u'Bonjour !\n\n' \
@@ -35,11 +35,11 @@ def _send_mail(sender, recipient, subject, message):
     Envoyer un mail.
     Crée un MIMEText avec le message, et met les autres champs dans les headers.
 
-    @param sender: adresse d'émission
-    @param recipient: destinataire
-    @param subject: sujet du mail
-    @param message:
-    @return: None
+    :param sender: adresse d'émission
+    :param recipient: destinataire
+    :param subject: sujet du mail
+    :param message:
+    :return: None
     """
     msg = MIMEText(message.encode('UTF-8'))
     msg['Subject'] = subject

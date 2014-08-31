@@ -4,6 +4,10 @@
 
 {% block layout %}
 <div class="container">
+    <div class="row" style="margin-top:10px;">
+        {% include "helper/_flashes.html" %}
+    </div>
+
     <div class="row">
         <div class="col-lg-10 col-lg-offset-1">
             <div id="fulltext-search">
@@ -139,7 +143,7 @@
      *                                                                              *
      * Décompile le formulaire, html-encode les valeurs et prépare la querystring.  *
      *                                                                              *
-     * @returns false                                                               *
+     * :returns false                                                               *
      ********************************************************************************/
     var search_advanced_from_form =
             function () {
@@ -168,10 +172,10 @@
      * Fonction interne pour effectuer une recherche en mode full text ; effectue   *
      * l'appel http et popule le tableau de résultats.                              *
      *                                                                              *
-     * @param querystring   str : La query string de recherche.                     *
-     * @param page          int : La page (dans le sens de pagination). Défaut = 1. *
+     * :param querystring   str : La query string de recherche.                     *
+     * :param page          int : La page (dans le sens de pagination). Défaut = 1. *
      *                                                                              *
-     * @returns null                                                                *
+     * :returns null                                                                *
      ********************************************************************************/
     var _search_advanced =
             function (querystring, page){
@@ -212,9 +216,9 @@
     /********************************************************************************
      * Fonction pour recherche des anciens en mode "fulltext" = avec un seul champ. *
     *                                                                               *
-     * @param query     str : Le text de la query à utiliser                        *
-     * @param page      int : La page (dans le sens de pagination). Défaut = 1.     *
-     * @returns null                                                                *
+     * :param query     str : Le text de la query à utiliser                        *
+     * :param page      int : La page (dans le sens de pagination). Défaut = 1.     *
+     * :returns null                                                                *
      ********************************************************************************/
     var search_fulltext =
             function(query, page) {
@@ -256,11 +260,11 @@
      * Fonction helper pour créer le petit encart de pagination, à placer avant et après les résultats de la recherche.*
      * Renvoie un élément HTML qui peut être directement injecté dans la page.                                         *
      *                                                                                                                 *
-     * @param current_page      int : page en cours                                                                    *
-     * @param max_pages         int : le nombre maximum de pages                                                       *
-     * @param search_function   int : la fonction à utiliser onclick                                                   *
-     * @param parameters        str : les paramètres à passer à la fonction de recherche                               *
-     * @returns {string}                                                                                               *
+     * :param current_page      int : page en cours                                                                    *
+     * :param max_pages         int : le nombre maximum de pages                                                       *
+     * :param search_function   int : la fonction à utiliser onclick                                                   *
+     * :param parameters        str : les paramètres à passer à la fonction de recherche                               *
+     * :returns {string}                                                                                               *
      *******************************************************************************************************************/
     var render_pagination =
             function(current_page, max_pages, search_function, parameters) {
@@ -349,8 +353,8 @@
 
     /************************************************************
      * Fonction pour préparer la ligne qui représente un ancien *
-     * @param data  object : un objet représentant un ancien    *
-     * @returns {string}                                        *
+     * :param data  object : un objet représentant un ancien    *
+     * :returns {string}                                        *
      ************************************************************/
     var create_ancien_row =
             function(data){
