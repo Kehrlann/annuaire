@@ -43,6 +43,7 @@ def count_fulltext(search_terms):
     :return: le nombre d'anciens qui satisfont FORM
     """
     sel = select([func.count(__ancien.c.id_ancien.distinct())]).where("fulltext @@ to_tsquery('french', :input_str)")
+    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
     res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).first()[0]
     return res
 
@@ -95,6 +96,7 @@ def fulltext_search(search_terms, offset = 0, limit =0):
         desc(__experience.c.actif)
     )
     sel = sel.where("fulltext @@ to_tsquery('french', :input_str)")
+    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
     sel = sel.distinct(
         __ancien.c.ecole,
         __ancien.c.promo,
@@ -156,6 +158,7 @@ def annuaire_search(form, offset = 0, limit =0):
         desc(__experience.c.actif)
     )
 
+    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
     sel = sel.distinct(
         __ancien.c.ecole,
         __ancien.c.promo,
@@ -176,6 +179,7 @@ def count_annuaire_search(form):
     """
     from_obj = _get_from_object(form)
     sel = select([func.count(__ancien.c.id_ancien.distinct())], from_obj=from_obj)
+    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
     return _filter_search(form, sel).first()[0]
 
 
@@ -303,21 +307,53 @@ def _filter_search(form, sel):
     return res
 
 
-def find_ancien_by_id(id_ancien):
+def find_ancien_by_id(id_ancien, actif = None, nouveau = False, bloque = False):
     """
     Rechercher un ancien par id
 
-    :param id_ancien: int
-    :return: SELECT DISTINCT * FROM ancien WHERE id_ancien = id_ancien;
+    :param int id_ancien: l'id ancien (sisi)
+
+    :param bool actif:      True            =   Chercher uniquement les actifs
+                            False           =   Chercher uniquement les inactifs
+                            None (default)  =   Chercher TOUS les anciens
+
+    :param bool nouveau:    True            =   Chercher uniquement les nouveaux
+                            False (default) =   Chercher uniquement les autres
+                            None            =   Chercher tous les anciens
+
+    :param bool bloque:     True            =   Chercher uniquement les bloqués
+                            False (default) =   Chercher uniquement les autres
+                            None            =   Chercher tous les anciens
+
+
+    :return:    SELECT DISTINCT *
+                    FROM ancien
+                    WHERE
+                        id_ancien = id_ancien
+                        (AND actif = actif)
+                        (AND nouveau = nouveau)
+                        (AND bloque = bloque);
     """
     sel = select([__ancien], __ancien.c.id_ancien == id_ancien).distinct()
+
+    if actif is not None:
+        sel = sel.where(__ancien.c.actif == actif)
+
+    if bloque is not None:
+        sel = sel.where(__ancien.c.bloque == bloque)
+
+    if nouveau is not None:
+        sel = sel.where(__ancien.c.nouveau == nouveau)
+
+
     res = engine.execute(sel).first()
     return res
 
 
 def find_ancien_by_mail_asso(mail_asso):
     """
-    Rechercher un ancien par son "mail à vie" de l'association
+    Rechercher un ancien par son "mail à vie" de l'association. Utilisé pour associer
+    un user et un ancien.
 
     :param mail_asso: mail@mines-paris.org (ou mines-nancy.org ou mines-saint-etienne.org)
     :return:
@@ -541,7 +577,6 @@ def create_ancien(prenom, nom, promo, ecole, mail_asso, diplome):
         promo=promo,
         mail_asso=mail_asso,
         diplome=diplome,
-        nouveau=True
     )
     inserted_id = engine.execute(ins).first()[0]
     update_ancien_date(inserted_id)
@@ -591,6 +626,27 @@ def update_fiche_ancien(id_ancien, telephone="", mobile="", site="", mail_perso=
         if result is not None:
             success = update_ancien_date(id_ancien)
     return success
+
+
+def update_actif(id_ancien, actif):
+    """
+    Mettre à jour une fiche ancien : la rendre active ou inactive
+
+    :param int id_ancien:   Id de l'ancien à modifier
+    :param bool actif:      Status à affecter à l'ancien
+    :return: bool succes = true si l'update fonctionne
+    """
+    success = False
+    up = __ancien.update().where(
+            __ancien.c.id_ancien == id_ancien
+        ).values(
+            actif=actif
+        )
+    result = engine.execute(up)
+    if result is not None:
+        success = update_ancien_date(id_ancien)
+    return success
+
 
 def update_linkedin_ancien(id_ancien, id_linkedin=None, url_linkedin=None):
     """

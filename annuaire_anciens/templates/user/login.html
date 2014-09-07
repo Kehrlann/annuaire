@@ -8,7 +8,7 @@
 
 {% block content %}
     <div class="row custom-login">
-        <div class="span6 offset3 custom-ancien-container">
+        <div class="col-sm-8 col-sm-offset-2 custom-ancien-container">
             {% include "helper/_flashes.html" %}
             {% from "helper/_formhelper.html" import render_field %}
             <form class="form form-horizontal" method=post action="{{ url_for("login") }}">

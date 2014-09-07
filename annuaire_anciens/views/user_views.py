@@ -26,12 +26,11 @@ def compte():
 
     """
 
-    #TODO : et si il n'y a pas d'ancien ?
     # chopper l'ancien associé à l'utilisateur
     utilisateur = user.find_user_by_id(current_user.id)
 
     # Trouver si l'utilisateur a un ancien associé
-    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien, actif=None, bloque=None, nouveau=None)
 
     # Si l'utilisateur n'a pas d'ancien, on va vérifier
     # Via le mail asso, s'il existe un ancien dans la base pour lui
@@ -76,6 +75,9 @@ def compte():
                     ancien_temp['id_ancien']
                 )
 
+    elif ancien['nouveau']:
+        return redirect(url_for("create_ancien")) # cas spécifique : ancien en cours de création
+
     else:
         return redirect(url_for("ancien", id_ancien=utilisateur.id_ancien))
 
@@ -100,61 +102,93 @@ def ancien(id_ancien):
     :return:
     """
 
-    is_this_me = False
-    adresse_form = user.update_adresse_form()
-    adresse_form.set_pays(PAYS)
-    experience_forms = {}
-    new_experience_form = None
-    linkedin_url = None
-    import_linkedin_url = None
-    password_form = user.change_password_form()
-
-
-    # get data by id ancien
-    ancien = annuaire.find_ancien_by_id(id_ancien)
-    adresse = annuaire.find_adresse_by_id_ancien(id_ancien)
-    experiences = annuaire.find_experience_by_id_ancien(id_ancien).fetchall()
-
-    for exp in experiences:
-        form = user.update_experience_form()
-        form.set_pays(PAYS)
-        form.load_experience(exp)
-        experience_forms[exp['experience_id_experience']] = form
-
     utilisateur = user.find_user_by_id(current_user.id)
+    is_this_me =  utilisateur is not None and utilisateur.id_ancien == id_ancien
 
-    #~~~~~~~~~#
-    # ADRESSE #
-    #~~~~~~~~~#
-    if utilisateur is not None and utilisateur.id_ancien == id_ancien:
-        is_this_me = True
-
-        adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
-        if adresse is not None:
-            adresse_form.load_adresse(adresse)
-
-    #~~~~~~~~~~~~~#
-    # INFOS PERSO #
-    #~~~~~~~~~~~~~#
-    ancien_form = user.update_ancien_form()
-    ancien_form.load_ancien(ancien)
-
-    #~~~~~~~~~~~~~~~~~~#
-    # AJOUT EXPERIENCE #
-    #~~~~~~~~~~~~~~~~~~#
+    # Chargement de l'ancien
     if is_this_me:
-        new_experience_form = user.update_experience_form()
-        new_experience_form.set_pays(PAYS)
+        ancien = annuaire.find_ancien_by_id(id_ancien, actif=None, bloque=None, nouveau=False)
+    else:
+        ancien = annuaire.find_ancien_by_id(id_ancien, actif=True)
 
 
-    #~~~~~~~~~~~~~~~~~~#
-    # Gestion LinkedIn #
-    #~~~~~~~~~~~~~~~~~~#
-    if is_this_me:
+    # Cas 1 : il n'existe pas
+    if ancien is None:
+        abort(404, "Il semblerait que la page n'existe pas ...")
 
-        # Connexion à LinkedIn
-        if ancien['url_linkedin'] is None:
-            linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+    # cas 2 : il est bloqué
+    # (donc normalement ici c'est l'utilisateur concerné qui consulte la fiche)
+    elif ancien['bloque']:
+        flash(
+            "Ton compte a &eacute;t&eacute; d&eacute;sactiv&eacute; par les administrateurs."
+            "Nous t'invitons &agrave; les contacter pour le d&eacute;bloquer.",
+            "danger"
+        )
+        return redirect(url_for("annuaire_view"))
+
+    # Cas 3 : cas nominal !
+    else:
+        ancien_form = user.update_ancien_form()
+        adresse_form = user.update_adresse_form()
+        adresse_form.set_pays(PAYS)
+        experience_forms = {}
+        new_experience_form = None
+        linkedin_url = None
+        import_linkedin_url = None
+        password_form = user.change_password_form()
+
+
+        # get data by id ancien
+        adresse = annuaire.find_adresse_by_id_ancien(id_ancien)
+        experiences = annuaire.find_experience_by_id_ancien(id_ancien).fetchall()
+
+        for exp in experiences:
+            form = user.update_experience_form()
+            form.set_pays(PAYS)
+            form.load_experience(exp)
+            experience_forms[exp['experience_id_experience']] = form
+
+        # Ici on regarde si il s'agit bien de l'utilisateur
+        if is_this_me:
+
+            #~~~~~~~~~#
+            # ADRESSE #
+            #~~~~~~~~~#
+            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            if adresse is not None:
+                adresse_form.load_adresse(adresse)
+
+            #~~~~~~~~~~~~~#
+            # INFOS PERSO #
+            #~~~~~~~~~~~~~#
+            ancien_form = user.update_ancien_form()
+            ancien_form.load_ancien(ancien)
+
+            #~~~~~~~~~~~~~~~~~~#
+            # AJOUT EXPERIENCE #
+            #~~~~~~~~~~~~~~~~~~#
+            new_experience_form = user.update_experience_form()
+            new_experience_form.set_pays(PAYS)
+
+
+            #~~~~~~~~~~~~~~~~~~#
+            # Gestion LinkedIn #
+            #~~~~~~~~~~~~~~~~~~#
+            # Connexion à LinkedIn
+            if ancien['url_linkedin'] is None:
+                linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+                                    "response_type=code&"
+                                    "client_id=%s&"
+                                    "scope=%s"
+                                    "&state=%s"
+                                    "&redirect_uri=%s" %
+                                    (app.config['LINKEDIN_KEY'],
+                                     app.config['LINKEDIN_SCOPE'],
+                                     generate_csrf_token(),
+                                     url_for('linkedin_associer', _external=True)))
+
+            # import des expériences pro linkeding
+            import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
                                 "response_type=code&"
                                 "client_id=%s&"
                                 "scope=%s"
@@ -163,38 +197,26 @@ def ancien(id_ancien):
                                 (app.config['LINKEDIN_KEY'],
                                  app.config['LINKEDIN_SCOPE'],
                                  generate_csrf_token(),
-                                 url_for('linkedin_associer', _external=True)))
-
-        # import des expériences pro linkeding
-        import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
-                            "response_type=code&"
-                            "client_id=%s&"
-                            "scope=%s"
-                            "&state=%s"
-                            "&redirect_uri=%s" %
-                            (app.config['LINKEDIN_KEY'],
-                             app.config['LINKEDIN_SCOPE'],
-                             generate_csrf_token(),
-                             url_for('linkedin_importer', _external=True)))
+                                 url_for('linkedin_importer', _external=True)))
 
 
 
-    # load page
-    return render_template(
-        'annuaire/ancien.html',
-        ancien=ancien,
-        adresse=adresse,
-        ancien_form=ancien_form,
-        adresse_form=adresse_form,
-        experiences=experiences,
-        utilisateur=current_user,
-        editable=is_this_me,
-        experience_forms=experience_forms,
-        new_experience_form = new_experience_form,
-        linkedin_url = linkedin_url,
-        import_linkedin_url= import_linkedin_url,
-        password_form = password_form
-    )
+        # load page
+        return render_template(
+            'annuaire/ancien.html',
+            ancien=ancien,
+            adresse=adresse,
+            ancien_form=ancien_form,
+            adresse_form=adresse_form,
+            experiences=experiences,
+            utilisateur=current_user,
+            editable=is_this_me,
+            experience_forms=experience_forms,
+            new_experience_form = new_experience_form,
+            linkedin_url = linkedin_url,
+            import_linkedin_url= import_linkedin_url,
+            password_form = password_form
+        )
 
 
 @app.route('/me/create', methods=['GET', 'POST'])
@@ -213,7 +235,7 @@ def create_ancien():
     utilisateur = user.find_user_by_id(current_user.id)
 
     # Trouver si l'utilisateur a un ancien associé
-    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien, actif=None, nouveau=None, bloque=None)
 
     form = user.create_ancien_form()
 
@@ -603,6 +625,36 @@ def update_photo():
             res["content"] = _get_info_perso_template()
             res["success"] = True
     return json.dumps(res)
+
+
+@app.route('/compte/actif/update', methods=['GET'])
+@login_required
+def update_actif():
+    """
+    Toggle l'état d'une fiche ancien : actif, inactif
+
+    :return:
+    """
+    utilisateur = user.find_user_by_id(current_user.id)
+
+    if utilisateur.id_ancien is not None:
+        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+
+        if ancien is not None:
+            annuaire.update_actif(ancien['id_ancien'], not ancien['actif'])
+            app.logger.info(
+                "ANCIEN - successfully updated ancien :%s, set actif : %s, user : %s",
+                ancien['id_ancien'],
+                not ancien['actif'],
+                utilisateur.id)
+
+            mot = "est &agrave; nouveau visible"
+            if ancien['actif']:
+                mot = "n'est plus visible"
+
+            flash("Votre fiche %s dans l'annuaire" % mot, "success")
+
+    return redirect(url_for('compte'))
 
 
 @app.route('/compte/experience/remove/<int:id_experience>', methods=['POST'])
@@ -1038,10 +1090,8 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
 
     ancien = None
     adresse = None
-    is_this_me = False
 
     if utilisateur is not None and utilisateur.id_ancien is not None:
-        is_this_me = True
 
         ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
 
