@@ -26,16 +26,14 @@ def compte():
 
     """
 
-    # chopper l'ancien associé à l'utilisateur
-    utilisateur = user.find_user_by_id(current_user.id)
 
     # Trouver si l'utilisateur a un ancien associé
-    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien, actif=None, bloque=None, nouveau=None)
+    ancien = annuaire.find_ancien_by_id(current_user.id_ancien, actif=None, bloque=None, nouveau=None)
 
     # Si l'utilisateur n'a pas d'ancien, on va vérifier
     # Via le mail asso, s'il existe un ancien dans la base pour lui
     if ancien is None:
-        ancien_temp = annuaire.find_ancien_by_mail_asso(utilisateur.mail)
+        ancien_temp = annuaire.find_ancien_by_mail_asso(current_user.mail)
 
         # si il y a effectivement un ancien, vérifier
         # qu'il n'est pas déjà associé à un utilisateur
@@ -50,18 +48,17 @@ def compte():
             # Si ça n'existe pas, alors faire l'association
             if user_temp is None:
                 # On récupère le nouvel utilisateur
-                sql_res = user.update_id_ancien(utilisateur.id, ancien_temp['id_ancien'])
+                sql_res = user.update_id_ancien(current_user.id, ancien_temp['id_ancien'])
 
                 # Si l'association réussit
                 # réucpérer l'ancien
                 if sql_res :
-                    utilisateur = user.find_user_by_id(utilisateur.id)
                     app.logger.info(
                         "USER ASSOCIATION - Success, associated user %s with ancien %s",
-                        utilisateur.id,
+                        current_user.id,
                         ancien_temp['id_ancien']
                     )
-                    return redirect(url_for("ancien", id_ancien=utilisateur.id_ancien))
+                    return redirect(url_for("ancien", id_ancien=current_user.id_ancien))
 
                 else:
                     app.logger.error(
@@ -79,7 +76,7 @@ def compte():
         return redirect(url_for("create_ancien")) # cas spécifique : ancien en cours de création
 
     else:
-        return redirect(url_for("ancien", id_ancien=utilisateur.id_ancien))
+        return redirect(url_for("ancien", id_ancien=current_user.id_ancien))
 
 
 @app.route('/ancien/<int:id_ancien>')
@@ -102,8 +99,7 @@ def ancien(id_ancien):
     :return:
     """
 
-    utilisateur = user.find_user_by_id(current_user.id)
-    is_this_me =  utilisateur is not None and utilisateur.id_ancien == id_ancien
+    is_this_me =  current_user is not None and current_user.id_ancien == id_ancien
 
     # Chargement de l'ancien
     if is_this_me:
@@ -154,7 +150,7 @@ def ancien(id_ancien):
             #~~~~~~~~~#
             # ADRESSE #
             #~~~~~~~~~#
-            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            adresse = annuaire.find_adresse_by_id_ancien(current_user.id_ancien)
             if adresse is not None:
                 adresse_form.load_adresse(adresse)
 
@@ -242,11 +238,8 @@ def create_ancien():
     :return: None.
     """
 
-    # chopper l'ancien associé à l'utilisateur
-    utilisateur = user.find_user_by_id(current_user.id)
-
     # Trouver si l'utilisateur a un ancien associé
-    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien, actif=None, nouveau=None, bloque=None)
+    ancien = annuaire.find_ancien_by_id(current_user.id_ancien, actif=None, nouveau=None, bloque=None)
 
     form = user.create_ancien_form()
 
@@ -269,11 +262,11 @@ def create_ancien():
                     nom=form.nom.data,
                     promo=int(form.promo.data),
                     ecole=form.ecole.data,
-                    mail_asso=utilisateur.mail,
+                    mail_asso=current_user.mail,
                     diplome=form.diplome.data
                 )
 
-                user.update_id_ancien(utilisateur.id, id_ancien)
+                user.update_id_ancien(current_user.id, id_ancien)
 
                 flash(
                     "F&eacute;licitations ! Ta fiche ancien a &eacute;t&eacute; cr&eacute;e.<br>"
@@ -403,15 +396,12 @@ def update_info_perso():
 
     info_ok = False
 
-    utilisateur = user.find_user_by_id(current_user.id)
-    if utilisateur is not None:
-
-
+    if current_user is not None:
 
         #~~~~~~~~~~~~~#
         # INFOS PERSO #
         #~~~~~~~~~~~~~#
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
 
         if ancien is not None:
             form.load_ancien(ancien)
@@ -452,8 +442,8 @@ def update_info_perso():
         adresse_form = user.update_adresse_form()
         adresse_form.set_pays(PAYS)
 
-        if utilisateur.id_ancien is not None:
-            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+        if current_user.id_ancien is not None:
+            adresse = annuaire.find_adresse_by_id_ancien(current_user.id_ancien)
             if adresse is not None:
                 adresse_form.load_adresse(adresse)
 
@@ -465,7 +455,7 @@ def update_info_perso():
             # si tout va bien, mettre a jour.
             if form_confirmed:
                 annuaire.update_adresse_perso(
-                    utilisateur.id_ancien,
+                    current_user.id_ancien,
                     adresse_form.ville.data,
                     adresse_form.pays.data,
                     adresse_form.adresse.data,
@@ -502,9 +492,8 @@ def update_experience(id_experience = None):
     experience_form = user.update_experience_form()
     experience_form.set_pays(PAYS)
 
-    utilisateur = user.find_user_by_id(current_user.id)
 
-    if utilisateur.id_ancien is not None:
+    if current_user.id_ancien is not None:
 
         experience_form = user.update_experience_form(request.form)
         experience_form.set_pays(PAYS)
@@ -521,7 +510,7 @@ def update_experience(id_experience = None):
                 date_fin = None
 
             success = annuaire.update_experience(
-                utilisateur.id_ancien,
+                current_user.id_ancien,
                 id_experience,
                 experience_form.ville.data,
                 experience_form.pays.data,
@@ -571,17 +560,15 @@ def update_photo():
             l'url de la requête (bof bof ...)
     """
 
-    utilisateur = user.find_user_by_id(current_user.id)
-
     res = {}
     res["content"] = None
     res["csrf_token"] = generate_csrf_token()
     res["success"] = False
 
-    if utilisateur.id_ancien is None:
+    if current_user.id_ancien is None:
         return res
     else:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
         if ancien is None:
             return res
         else:
@@ -667,10 +654,9 @@ def update_actif():
 
     :return:
     """
-    utilisateur = user.find_user_by_id(current_user.id)
 
-    if utilisateur.id_ancien is not None:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    if current_user.id_ancien is not None:
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
 
         if ancien is not None:
             annuaire.update_actif(ancien['id_ancien'], not ancien['actif'])
@@ -678,7 +664,7 @@ def update_actif():
                 "ANCIEN - successfully updated ancien :%s, set actif : %s, user : %s",
                 ancien['id_ancien'],
                 not ancien['actif'],
-                utilisateur.id)
+                current_user.id)
 
             mot = "est &agrave; nouveau visible"
             if ancien['actif']:
@@ -697,14 +683,13 @@ def remove_experience(id_experience):
     :param id_experience: id_experience de l'experience à supprimer.
     :return: redirect @compte
     """
-    utilisateur = user.find_user_by_id(current_user.id)
-    if utilisateur.id_ancien is not None:
-        annuaire.remove_experience(utilisateur.id_ancien, id_experience)
+    if current_user.id_ancien is not None:
+        annuaire.remove_experience(current_user.id_ancien, id_experience)
         app.logger.info(
             "EXPERIENCE - successfully removed experience :%s, for ancien : %s, user : %s",
             id_experience,
-            utilisateur.id_ancien,
-            utilisateur.id)
+            current_user.id_ancien,
+            current_user.id)
         flash("Exp&eacute;rience supprim&eacute;e", "success")
 
     return redirect(url_for('compte'))
@@ -726,14 +711,13 @@ def linkedin_associer():
     - Récupérer ces données et les insérer en base
     """
     success = False
-    utilisateur = user.find_user_by_id(current_user.id)
     app.logger.info(
             "LINKEDIN - begin authorize for ancien : %s, user : %s",
-            utilisateur.id_ancien,
-            utilisateur.id)
+            current_user.id_ancien,
+            current_user.id)
 
-    if utilisateur.id_ancien is not None:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    if current_user.id_ancien is not None:
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
         if ancien is not None:
             access_token = __get_linkedin_token(url_for('linkedin_associer', _external=True))
             api_url = "https://api.linkedin.com/v1/people/~:(id,public-profile-url)?oauth2_access_token=%s" % access_token
@@ -752,12 +736,12 @@ def linkedin_associer():
                         success = annuaire.update_linkedin_ancien(ancien['id_ancien'], id_linkedin, url_linkedin)
                         app.logger.info(
                             "LINKEDIN - successful update for user : %s, ancien : %s, id_linkedin : %s, url public profile : %s",
-                            utilisateur.id, ancien['id_ancien'], id_linkedin, url_linkedin)
+                            current_user.id, ancien['id_ancien'], id_linkedin, url_linkedin)
 
             if not success:
                 app.logger.error(
                     "LINKEDIN - bad people API request for user : %s, code : %s, request response : %s",
-                    utilisateur.id, api_req.status_code, api_req.text)
+                    current_user.id, api_req.status_code, api_req.text)
 
     if success:
         flash("Profil linkedin correctement connect&eacute; !", "success")
@@ -773,12 +757,11 @@ def linkedin_dissocier():
     Virer l'association au compte linkedin d'un ancien
     :return:
     """
-    utilisateur = user.find_user_by_id(current_user.id)
-    if utilisateur.id_ancien is not None:
+    if current_user.id_ancien is not None:
         app.logger.info(
             "LINKEDIN - successful unlink for user : %s, ancien : %s",
-            utilisateur.id, utilisateur.id_ancien)
-        annuaire.update_linkedin_ancien(utilisateur.id_ancien)
+            current_user.id, current_user.id_ancien)
+        annuaire.update_linkedin_ancien(current_user.id_ancien)
         flash("Compte LinkedIn dissoci&eacute; de l'annuaire", "success")
     return redirect(url_for('compte'))
 
@@ -802,14 +785,13 @@ def linkedin_importer():
     """
     import_success = False
     saved_positions = 0
-    utilisateur = user.find_user_by_id(current_user.id)
     app.logger.info(
             "LINKEDIN - begin import for ancien : %s, user : %s",
-            utilisateur.id_ancien,
-            utilisateur.id)
+            current_user.id_ancien,
+            current_user.id)
 
-    if utilisateur.id_ancien is not None:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    if current_user.id_ancien is not None:
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
         if ancien is not None:
             access_token = __get_linkedin_token(url_for('linkedin_importer', _external=True))
             api_url = "https://api.linkedin.com/v1/people/~:(id,positions)?oauth2_access_token=%s" % access_token
@@ -834,13 +816,13 @@ def linkedin_importer():
                         for position in positions:
                             app.logger.info(
                                 "LINKEDIN - saving experience for user %s, enreprise : %s, position : %s, id_xp : %s",
-                                utilisateur.id,
+                                current_user.id,
                                 position['entreprise'],
                                 position['position'],
                                 position['id_experience_linkedin']
                             )
                             success = annuaire.update_experience(
-                                utilisateur.id_ancien,
+                                current_user.id_ancien,
                                 None,
                                 None,
                                 None,
@@ -865,17 +847,17 @@ def linkedin_importer():
                             else:
                                 saved_positions += 1
                     else:
-                        app.logger.warning("LINKEDIN - no positions found for user : %s", utilisateur.id)
+                        app.logger.warning("LINKEDIN - no positions found for user : %s", current_user.id)
 
                 else:
-                    app.logger.error("LINKEDIN - blank API response file for user : %s", utilisateur.id)
+                    app.logger.error("LINKEDIN - blank API response file for user : %s", current_user.id)
 
             elif api_req is None:
-                app.logger.error("LINKEDIN - bad people API request for user : %s, null response", utilisateur.id)
+                app.logger.error("LINKEDIN - bad people API request for user : %s, null response", current_user.id)
             else:
                 app.logger.error(
                     "LINKEDIN - bad people API request for user : %s, code : %s, request response : %s",
-                    utilisateur.id,
+                    current_user.id,
                     api_req.status_code,
                     api_req.text
                 )
@@ -1118,14 +1100,12 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
 
         Ce n'est pas super propre, mais c'est la vie :3
     """
-    utilisateur = user.find_user_by_id(current_user.id)
-
     ancien = None
     adresse = None
 
-    if utilisateur is not None and utilisateur.id_ancien is not None:
+    if current_user is not None and current_user.id_ancien is not None:
 
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
 
         #~~~~~~~~~~~~~#
         # INFOS PERSO #
@@ -1140,7 +1120,7 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
         if adresse_form is None:
             adresse_form = user.update_adresse_form()
             adresse_form.set_pays(PAYS)
-            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            adresse = annuaire.find_adresse_by_id_ancien(current_user.id_ancien)
             if adresse is not None:
                 adresse_form.load_adresse(adresse)
 
@@ -1183,15 +1163,14 @@ def _get_experience_template(id_experience, form = None):
 
         cf : _get_info_perso_template
     """
-    utilisateur = user.find_user_by_id(current_user.id)
 
     experience = None
     is_this_me = False
 
-    if utilisateur is not None and utilisateur.id_ancien is not None:
+    if current_user is not None and current_user.id_ancien is not None:
         is_this_me = True
 
-        experience = annuaire.find_experience_by_id_ancien_id_experience(utilisateur.id_ancien, id_experience).first()
+        experience = annuaire.find_experience_by_id_ancien_id_experience(current_user.id_ancien, id_experience).first()
 
         if form is None:
             form = user.update_experience_form()
