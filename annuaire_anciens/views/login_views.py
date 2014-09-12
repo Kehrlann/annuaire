@@ -206,10 +206,27 @@ def activation(code_activation):
 @app.route("/reset", methods=["GET", "POST"])
 def reset_password():
     """
-    """
+    Pour qu'un utilisateur met à jour son mot de passe oublié.
+    L'ancien tape son adresse. Si un utilisateur existe, on génère
+    une signature avec `itsdangerous`
+    (voir :func:`helper.security.generate_signed_string_from_mail_and_date`)
 
-    # TODO : commentaires
-    # TODO : logger
+    Cette signature contient :
+    - Le mail de l'utilisateur
+    - La date max d'utilisation de la signature
+        - Heure UTC
+        - Par défaut : utcnow() + 12h
+
+    Cette signature "activation" est ensuite envoyée par mail,
+    dans le lien https://truc.com/rest/<activation>
+
+    Méthodes :
+    - GET   :   afficher le formulaire
+    - POST  :   submit le formulaire
+
+    ATTENTION : le reset de mot de passe est donc stateless, et l'utilisateur
+    peut utiliser le lien autant de fois qu'il le souhaite pendant ses 12h d'activité.
+    """
 
     form = user.request_new_password_form()
 
@@ -220,6 +237,8 @@ def reset_password():
 
         # Validation du formulaire
         if form.validate():
+            app.logger.info("REQUEST PASS RESET - START - updating pass for user with mail : %s", form.mail_ancien.data)
+
             mail_ancien = form.mail_ancien.data+form.domaine_ancien.data
             utilisateur_confirmed = user.find_user_by_mail(mail_ancien) is not None
 
@@ -231,12 +250,15 @@ def reset_password():
                     "<br>As-tu pens&eacute; &agrave; cr&eacute;er un compte ?",
                     "warning"
                 )
+                app.logger.error("REQUEST PASS RESET - FAIL - Not exist user with mail : %s", form.mail_ancien.data)
                 return redirect(url_for("inscription"))
 
             # Si l'utilisateur existe, on lui envoie un mail
             # Et on redirige vers "login"
             else:
 
+
+                # TODO : que se passe-t-il si l'envoi de mail fail ?
                 date_max = dt.datetime.utcnow() + dt.timedelta(hours=12)
                 signature = generate_signed_string_from_mail_and_date(mail_ancien, date_max.strftime(DATETIME_FORMAT))
                 annuaire.helper.send_reset_password_mail(mail_ancien, signature)
@@ -246,6 +268,8 @@ def reset_password():
                     " &agrave; jour ton mont de passe.",
                     "success"
                 )
+                app.logger.info("REQUEST PASS RESET - SUCCESS - updating pass for user with mail : %s", form.mail_ancien.data)
+
                 return redirect(url_for("login"))
 
 
@@ -258,10 +282,27 @@ def reset_password():
 @app.route("/reset/<activation>", methods=["GET", "POST"])
 def reset_password_activate(activation):
     """
+    Vue qui correspond au lien envoyé dans l'e-mail de reset du password.
+
+    Méthodes :
+    - GET   :   Afficher le formulaire
+    - POST  :   Submit et traitement du formulaire
+
+    Dans tous les cas, on vérifie la validité de la signature :
+    - On arrive à la lire
+    - On arrive à extraire mail et date
+    - Le mail existe dans notre user base
+    - La date est inférieure à datetime.utcnow()
+
+    Une fois la signature validée, on affiche ou on submit le formulaire.
+
+    Si pas de code d'activation, le routing de Flask devrait rediriger vers
+    :func:`reset_password()`, mais au cas où, on abort avec une 401 - Unauthorized
+
+    :param str activation:  Le code d'activation. Est créé + signé avec itsdangerous.
+                            Contient les données de la forme suivante :
+                            { "mail" : "user@provider.com", "date" : "yyyyMMddhhmm" }
     """
-
-    # TODO : commentaires
-
 
     form = user.create_new_password_form()
     if activation is not None and activation != "":
@@ -335,7 +376,7 @@ def reset_password_activate(activation):
         return redirect(url_for("reset_password"))
 
     else:
-        abort(405, "Page uniquement accessible avec un code d'activation")
+        abort(401, "Page uniquement accessible avec un code d'activation")
 
 
 @app.route('/logout', methods=['GET', 'POST'])
