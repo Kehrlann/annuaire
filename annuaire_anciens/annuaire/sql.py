@@ -873,6 +873,30 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
         success = update_ancien_date(id_ancien)
     return success
 
+
+def update_ancien_bloque(id_ancien, bloque):
+    """
+    Bloquer ou débloquer un ancien
+
+    :param int id_ancien:   l'id de l'ancien à bloquer/débloquer
+    :param bool bloque:     Pour bloquer (True) ou débloquer (False)
+    :return:
+    """
+    success = False
+    if id_ancien is not None and bloque is not None:
+        up = __ancien.update().where(
+                __ancien.c.id_ancien == id_ancien
+        ).values(
+            bloque = bloque
+        )
+        engine.execute(up)
+
+        success = True
+
+    return success
+
+
+
 def remove_experience(id_ancien, id_experience):
     """
     Supprimer une experience, en vérifiant qu'elle est bien associée au bon ancien

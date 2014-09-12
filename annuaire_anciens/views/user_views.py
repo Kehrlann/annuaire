@@ -1,4 +1,9 @@
 # coding=utf-8
+"""
+    Vues relatives à l'utilsateur et à la gestion de son compte.
+
+    Contient également la vue "ancien", qui permet de visualiser un profil
+"""
 from datetime import datetime
 import os
 
@@ -101,11 +106,12 @@ def ancien(id_ancien):
 
     is_this_me =  current_user is not None and current_user.id_ancien == id_ancien
 
+    kwargs = { "actif" : True, "bloque" : False }
+    if is_this_me or current_user.admin:
+        kwargs = { "actif" : None, "bloque" : None }
+
     # Chargement de l'ancien
-    if is_this_me:
-        ancien = annuaire.find_ancien_by_id(id_ancien, actif=None, bloque=None, nouveau=False)
-    else:
-        ancien = annuaire.find_ancien_by_id(id_ancien, actif=True)
+    ancien = annuaire.find_ancien_by_id(id_ancien, **kwargs)
 
 
     # Cas 1 : il n'existe pas
@@ -114,7 +120,7 @@ def ancien(id_ancien):
 
     # cas 2 : il est bloqué
     # (donc normalement ici c'est l'utilisateur concerné qui consulte la fiche)
-    elif ancien['bloque']:
+    elif is_this_me and ancien['bloque']:
         flash(
             "Ton compte a &eacute;t&eacute; d&eacute;sactiv&eacute; par les administrateurs."
             "Nous t'invitons &agrave; les contacter pour le d&eacute;bloquer.",
@@ -200,6 +206,7 @@ def ancien(id_ancien):
         # load page
         return render_template(
             'annuaire/ancien.html',
+            admin=current_user.admin,
             ancien=ancien,
             adresse=adresse,
             ancien_form=ancien_form,
