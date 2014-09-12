@@ -274,7 +274,7 @@ def reset_password():
 
 
     return render_template(
-        "user/request_new_password.html",
+        "user/password/request_new_password.html",
         form = form
     )
 
@@ -338,7 +338,7 @@ def reset_password_activate(activation):
 
 
                 return render_template(
-                    "user/create_new_password.html",
+                    "user/password/create_new_password.html",
                     activation=activation,
                     form=form
                 )
