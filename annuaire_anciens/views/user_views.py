@@ -226,10 +226,21 @@ def create_ancien():
     Créer un ancien, associé à mon compte personnel. L'ancien est créé et son status
     est "nouveau".
 
-    :return:
+    1.      Si l'ancien n'existe pas
+    1.a.    Afficher un formulaire à remplir par l'ancien.
+    1.b.    Si le formulaire est valide, on crée l'ancien
+    1.c.    On ajoute l'ancien
+    1.d.    On linke le nouvel ancien à l'utilisateur courant
+
+    2.      Si l'ancien existe mais est "nouveau"
+    2.a.    On affiche un message à l'utilisateur actuel
+
+    3.      Si l'ancien est existe mais n'est pas nouveau
+    3.a.    On flashe une erreur et on redirige l'utilisateur vers son compte
+
+
+    :return: None.
     """
-    # TODO : commentaires
-    # TODO : app.logger
 
     # chopper l'ancien associé à l'utilisateur
     utilisateur = user.find_user_by_id(current_user.id)
@@ -242,6 +253,12 @@ def create_ancien():
     # Cas #1 : Créer l'ancien
     if ancien is None:
         if request.method == "POST":
+
+            app.logger.info(
+                "CREATE ANCIEN - Creating ancien for user %s",
+                current_user.id
+            )
+
             form = user.create_ancien_form(request.form)
 
             # Cas #1.1 : Si le form est valable, on insère l'ancien, on l'associe, et on envoie l'utilisateur
@@ -256,7 +273,6 @@ def create_ancien():
                     diplome=form.diplome.data
                 )
 
-                print "ID ANCIEN", id_ancien
                 user.update_id_ancien(utilisateur.id, id_ancien)
 
                 flash(
@@ -266,11 +282,23 @@ def create_ancien():
                     "success"
                 )
 
+                app.logger.info(
+                    "CREATE ANCIEN - Success ! Ancien with id :s; created for user with ID %s",
+                    id_ancien,
+                    current_user.id
+                )
+
+
                 return redirect(url_for("annuaire_view"))
 
             # Cas #1.2 : Si le form n'est pas valide, on flashe une erreur
             # Puis on tombe dans le cas #1.3
             else:
+
+                app.logger.warning(
+                    "CREATE ANCIEN - Failed formulaire for user with ID %s",
+                    current_user.id
+                )
                 flash(
                     "Oops ! Probl&eacute;me &agrave; la cr&eacute;ation de la fiche."
                     "danger"
@@ -292,6 +320,10 @@ def create_ancien():
 
     # Cas #3 : Il y a déjà un ancien ! redir
     else:
+        flash(
+            "Un ancien existe d&eacute;j&agrave;.",
+            "danger"
+        )
         return redirect(url_for("compte"))
 
 

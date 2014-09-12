@@ -53,10 +53,18 @@
           <input type="checkbox" id="rememberme" name="rememberme" checked="checked"> Se souvenir de moi
         </label>
       </div>
+      <div style="margin-bottom: 10px;">
+          <a href="{{ url_for('reset_password') }}">
+              J'ai oubli&eacute; mon mot de passe
+          </a>
+      </div>
       <div class="error"></div>
-      <button type="submit" class="btn btn-default">Valider</button>
-      <a href="{{ linkedin_url }}" style="margin-left:10px;" ><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
-      <a class="btn btn-link" onclick="$('#js-login-popover').popover('hide')">Annuler</a>
+      <div>
+          <button type="submit" class="btn btn-default">Valider</button>
+          <a href="{{ linkedin_url }}" style="margin-left:10px;" ><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
+          <a class="btn btn-link" onclick="$('#js-login-popover').popover('hide')">Annuler</a>
+      </div>
+
     </form>
 </div>
 {% endif %}

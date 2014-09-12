@@ -46,14 +46,36 @@ def generate_signed_string_from_mail(mail):
     :param mail: le mail à signer
     :return une string signée à utiliser en URL
     """
+    payload = { "mail" : mail }
+    return _generate_signed_string(payload)
+
+
+
+def generate_signed_string_from_mail_and_date(mail, date):
+    """
+    Générer une string signée par itsdangerous à partir d'un mail et d'une date.
+
+    :param mail:
+    :param date:
+    :return:
+    """
+    payload = { "mail" : mail, "date" : date }
+    return _generate_signed_string(payload)
+
+
+def _generate_signed_string(payload):
+    """
+
+    :param payload:
+    :return:
+    """
     signer_kwargs = { "digest_method" : sha256 }
     signer = URLSafeSerializer(app.secret_key, signer_kwargs=signer_kwargs)
-    payload = { "mail" : mail }
     signature = signer.dumps(payload)
     return signature
 
 
-def get_mail_from_signed_string(signed_string):
+def unsing_string(signed_string):
     """
     Récupérer le mail depuis une string signée
 
@@ -62,8 +84,8 @@ def get_mail_from_signed_string(signed_string):
     """
     signer_kwargs = { "digest_method" : sha256 }
     signer = URLSafeSerializer(app.secret_key, signer_kwargs=signer_kwargs)
-    res = signer.loads(signed_string)
-    return res['mail']
+    return signer.loads(signed_string)
+
 
 
 def generate_csrf_token():

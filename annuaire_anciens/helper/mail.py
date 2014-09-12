@@ -22,12 +22,30 @@ def send_activation_mail(to, activation_code):
     """
     message = \
         u'Bonjour !\n\n' \
-        u'Vous avez demandé l\'ouverture d\'un compte sur https://mines-alumni.com. Afin de l\'activer, ' \
-        u'veuillez cliquer sur le lien ci-dessous :\n' \
+        u'Tu as demandé l\'ouverture d\'un compte sur https://mines-alumni.com. Afin de l\'activer, ' \
+        u'merci de cliquer sur le lien ci-dessous :\n' \
         u'https://%s/activation/%s\n\n' \
         u'Cordialement,\n' \
         u'L\'équipe mines-alumni' % (_SERVER_NAME, activation_code)
-    _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Activation de votre compte", message)
+    _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Activation de ton compte", message)
+
+
+def send_reset_password_mail(to, activation_code):
+    """
+    Envoyer le mail de reset d'un mot de pass
+
+    :param to: destinataire
+    :param activation_code: code d'activation, à insérer dans le mail.
+    :return:
+    """
+    message = \
+        u'Bonjour !\n\n' \
+        u'Tu as demandé un reset de mot de passe sur https://mines-alumni.com. Pour compléter la procédure, ' \
+        u'merci de cliquer sur le lien ci-dessous :\n' \
+        u'https://%s/reset/%s\n\n' \
+        u'Cordialement,\n' \
+        u'L\'équipe mines-alumni' % (_SERVER_NAME, activation_code)
+    _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Reset de ton mot de passe", message)
 
 
 def _send_mail(sender, recipient, subject, message):

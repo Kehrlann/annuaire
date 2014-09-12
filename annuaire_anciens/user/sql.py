@@ -137,6 +137,34 @@ def update_password_by_id(id_user, old_pass, new_pass):
     return result
 
 
+def reset_password_by_id(id_user, new_pass):
+    """
+    Mettre a jour le mot de passe d'un utilisateur, SANS VERIFICATION de l'ancien mot de passe.
+
+    Utilisé uniquement dans le cas du rest des mots de passe.
+    Pour un changement de mot de passe, voir :func:`update_password_by_id`.
+
+    :param id_user: user id_user
+    :param old_pass: ancien mot de passe, doit être vérifié pour voir si on a le droit d'update (mieux qu'un fresh login)
+    :param new_pass: nouveau mot de passe
+
+    :rtype : bool
+
+    :return : True si ok, False si nok
+    """
+    result = False
+    if new_pass is not None:
+        up = __utilisateur.update(
+        ).where(
+            __utilisateur.c.id_utilisateur == id_user
+        ).values(
+            password = gen(new_pass,'pbkdf2:sha512:1000', 12)
+        )
+        engine.execute(up)
+        result = True
+    return result
+
+
 def confirm_password(id_user, password):
     """
     verifier que l'utilisateur a bien saisi le bon mot de passe

@@ -341,3 +341,21 @@ class create_ancien_form(Form):
         choices=[(x, x) for x in ["Ing&eacute;nieur Civil", "Ing&eacute;nieur du Corps", "Docteur", "Master sp&eacute;cialis&eacute;"]],
         validators=[validators.Required(message="Veuillez s&eacute;lectionner un dipl&ocirc;me")]
     )
+
+
+class request_new_password_form(Form):
+    """
+    Form pour demander la mise à jour de mon mot de passe
+    """
+    mail_ancien = TextField('Mail @mines-xxx.org*', [validators.Required("Veuillez saisir une adresse de validation")])
+    choices = [(k,v) for k,v in MAILS.items()] # on fait une liste [(@mines-paris.org, @mines-paris.org),...]
+    domaine_ancien = SelectField('Extension', choices=choices)
+
+class create_new_password_form(Form):
+    """
+    Form pour mettre un jour un mot de passe
+    """
+    new_password = PasswordField('Nouveau mot de passe', [validators.Required(message="Veuillez saisir un mot de passe"), validators.Length(min=6, max=25, message="Le mot de passe doit contenir entre 6 et 25 caract&egrave;res")])
+    new_password_confirm = PasswordField('Confirmer mot de passe', [validators.EqualTo('new_password', message='Mots de passe diff&eacute;rents')])
+
+

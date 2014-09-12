@@ -2,11 +2,13 @@
 from annuaire_anciens import app, annuaire, user, helper
 from flask import abort, render_template, request, redirect, url_for, flash
 from flask.ext.login import LoginManager, current_user, login_user, login_required, logout_user
-from itsdangerous import BadData, BadSignature
+import datetime as dt
+from annuaire_anciens.helper.security import generate_signed_string_from_mail_and_date
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "inscription"
+DATETIME_FORMAT = "%Y%m%d%H%M"
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -157,17 +159,17 @@ def resend(id_user):
             signature = helper.generate_signed_string_from_mail(utilisateur.mail)
             helper.send_activation_mail(utilisateur.mail, signature)
             flash(
-                "Succ&egrave;s : un mail d'activation vous sera envoy&eacute; prochainement",
+                "Succ&egrave;s : un mail d'activation te sera envoy&eacute; prochainement",
                 "success"
             )
             app.logger.info("RESEND - resend mail for user with id %s", utilisateur.id)
         else:
             flash("Echec : aucune inscription trouv&eacute;e, "
-            "veuillez contacter l'adminsitrateur pour plus d'information", "danger")
+            "merci de contacter l'adminsitrateur pour plus d'information", "danger")
             app.logger.error("RESEND - try resend but no utilisateur found for id %s", id_user)
     else:
         flash("Echec : pas d'id utilisateur, "
-            "veuillez contacter l'adminsitrateur pour plus d'information", "danger")
+            "merci de contacter l'adminsitrateur pour plus d'information", "danger")
         app.logger.error("RESEND - no id user")
     return redirect(url_for("login"))
 
@@ -181,7 +183,7 @@ def activation(code_activation):
     """
     if code_activation is not None and code_activation != "":
         try:
-            mail = helper.get_mail_from_signed_string(code_activation)
+            mail = helper.unsing_string(code_activation)["mail"]
             utilisateur = user.find_user_by_mail(mail, actif_only=False)
             if utilisateur is not None and not utilisateur.actif:
                 if user.activate_user(utilisateur.id):
@@ -198,9 +200,142 @@ def activation(code_activation):
                 "ACTIVATION - critical error decoding activation_code. Exception : %s",
                 e.__class__.__name__
             )
-
-
     return redirect(url_for("login"))
+
+
+@app.route("/reset", methods=["GET", "POST"])
+def reset_password():
+    """
+    """
+
+    # TODO : commentaires
+    # TODO : logger
+
+    form = user.request_new_password_form()
+
+    # Si c'est un POST, on traite le formulaire
+    if request.method == "POST":
+
+        form = user.request_new_password_form(request.form)
+
+        # Validation du formulaire
+        if form.validate():
+            mail_ancien = form.mail_ancien.data+form.domaine_ancien.data
+            utilisateur_confirmed = user.find_user_by_mail(mail_ancien) is not None
+
+            # Si l'utilisateur n'existe pas dans la base, on redirige vers
+            # la page de création d'un compte, avec un message
+            if not utilisateur_confirmed:
+                flash(
+                    "Il semblerait que cet utilisateur n'existe pas dans notre base de donn&eacute;es."
+                    "<br>As-tu pens&eacute; &agrave; cr&eacute;er un compte ?",
+                    "warning"
+                )
+                return redirect(url_for("inscription"))
+
+            # Si l'utilisateur existe, on lui envoie un mail
+            # Et on redirige vers "login"
+            else:
+
+                date_max = dt.datetime.utcnow() + dt.timedelta(hours=12)
+                signature = generate_signed_string_from_mail_and_date(mail_ancien, date_max.strftime(DATETIME_FORMAT))
+                annuaire.helper.send_reset_password_mail(mail_ancien, signature)
+
+                flash(
+                    "Tu vas bient&ocirc;t recevoir un mail avec les instructions pour mettre"
+                    " &agrave; jour ton mont de passe.",
+                    "success"
+                )
+                return redirect(url_for("login"))
+
+
+    return render_template(
+        "user/request_new_password.html",
+        form = form
+    )
+
+
+@app.route("/reset/<activation>", methods=["GET", "POST"])
+def reset_password_activate(activation):
+    """
+    """
+
+    # TODO : commentaires
+
+
+    form = user.create_new_password_form()
+    if activation is not None and activation != "":
+        app.logger.info("RESET PASS - Start")
+
+        try:
+            mail = helper.unsing_string(activation)["mail"]
+            date = dt.datetime.strptime(helper.unsing_string(activation)["date"], DATETIME_FORMAT)
+            utilisateur = user.find_user_by_mail(mail, actif_only=True)
+
+            app.logger.info("RESET PASS - Trying reset for user : %s, with date (utc) : %s", mail, date)
+
+            if utilisateur is not None and date > dt.datetime.utcnow():
+
+                if request.method == "POST":
+                    form = user.create_new_password_form(request.form)
+                    if form.validate():
+                        success = user.reset_password_by_id(utilisateur.id, form.new_password.data)
+
+                        if not success:
+                            flash("Oops ! Une erreur a eu lieu lors de la mise &agrave; jour de ton mot de passe... <br>"
+                                  "Merci de relancer la proc&eacute;dure, ou de contacter un administrateur "
+                                  "si le probl&egrave;me persiste", "danger")
+                            app.logger.error("RESET PASS - FAIL - update fail fur user with id : %s", utilisateur.id)
+
+                        else:
+                            flash("Succ&egrave;s ! Ton mot de passe a &eacute;t&eacute; modifi&eacute;.",
+                                  "success")
+                            app.logger.warning("RESET PASS - FAIL - update fail fur user with id : %s", utilisateur.id)
+
+                            return redirect(url_for('login'))
+
+
+
+                return render_template(
+                    "user/create_new_password.html",
+                    activation=activation,
+                    form=form
+                )
+
+            elif utilisateur is None:
+                flash("Oops ! Ce code ne correspond à aucun utilisateur... <br>"
+                      "Merci de relancer la proc&eacute;dure, ou de contacter un administrateur "
+                      "si le probl&egrave;me persiste", "danger")
+                app.logger.error("RESET PASS - FAIL - user does not exist, mail : %s", mail)
+
+            elif date > dt.datetime.utcnow():
+                flash("Oops ! Ce code est p&eacute;rim&eacute;... "
+                      "Pour rappel, les codes ne sont valables que 12h. <br>"
+                      "Merci de renvoyer une demande de mot de passe !", "warning")
+                app.logger.error(
+                    "RESET PASS - FAIL - The token is too old, for user %s ; "
+                    "mail is %s ; max date (utc) is %s",
+                    utilisateur.id,
+                    mail,
+                    date
+                )
+
+
+            else:
+                raise Exception("Strange exception, you shouldn't be here ....")
+
+        except Exception, e:
+            flash("URL incorrecte, merci de relancer la proc&eacute;dure de changement de mot de passe, "
+                  "ou de contacter un admnistrateur si le probl&egrave;me persiste", "danger")
+            app.logger.error(
+                "RESET PASS - critical error decoding activation_code. Exception : %s",
+                e.__class__.__name__
+            )
+
+        return redirect(url_for("reset_password"))
+
+    else:
+        abort(405, "Page uniquement accessible avec un code d'activation")
 
 
 @app.route('/logout', methods=['GET', 'POST'])
