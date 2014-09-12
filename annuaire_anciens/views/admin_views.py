@@ -3,50 +3,52 @@
     Vue relatives à l'administration
 """
 
-from flask import request, url_for, redirect, abort
-from flask.ext.login import current_user, login_required
-
+from flask import url_for, redirect, abort
+from annuaire_anciens.helper.security import admin_required
 from annuaire_anciens import app, annuaire
+import admin_api
+import json
+
+@app.route("/admin", methods=["GET"])
+@admin_required
+def admin():
+    """
+    Page centrale d'administration
+    :return:
+    """
+    return "Hello world"
 
 @app.route("/ancien/<int:id_ancien>/bloquer", methods=["GET"])
-@login_required
+@admin_required
 def bloquer(id_ancien):
     """
     Bloquer un ancien. Uniquement utilisable par les administrateurs.
 
     :param int id_ancien: L'id de l'ancien à bloquer
     """
-    if current_user.admin:
-        if annuaire.update_ancien_bloque(id_ancien, bloque=True):
+    try:
+        success = json.loads(admin_api.bloquer_api(id_ancien))["succes"]
+        if success:
             return redirect(url_for('ancien', id_ancien=id_ancien))
         else:
             abort(500, "Oops ! Probleme de mise a jour de l'ancien ...")
-    else:
-        app.logger.error("BLOCK - FAIL - Illegal blocking attempt."
-                         "Id ancien : %s, id user : %s, mail user : %s",
-                         id_ancien, current_user.id, current_user.mail)
-        abort(403, "Seuls les administrateurs peuvent bloquer ou debloquer un ancien ! "
-                   "L'incident a ete enregistre et sera transmis aux "
-                   "administrateurs.")
+    except:
+        abort(500, "Oops ! Probleme de mise a jour de l'ancien ...")
 
 
 @app.route("/ancien/<int:id_ancien>/debloquer", methods=["GET"])
-@login_required
+@admin_required
 def debloquer(id_ancien):
     """
     Débloquer un ancien. Uniquement utilisable par les administrateurs.
 
     :param int id_ancien: L'id de l'ancien à débloquer
     """
-    if current_user.admin:
-        if annuaire.update_ancien_bloque(id_ancien, bloque=False):
+    try:
+        success = json.loads(admin_api.debloquer_api(id_ancien))["succes"]
+        if success:
             return redirect(url_for('ancien', id_ancien=id_ancien))
         else:
             abort(500, "Oops ! Probleme de mise a jour de l'ancien ...")
-    else:
-        app.logger.error("BLOCK - FAIL - Illegal unblocking attempt."
-                         "Id ancien : %s, id user : %s, mail user : %s",
-                         id_ancien, current_user.id, current_user.mail)
-        abort(403, "Seuls les administrateurs peuvent bloquer ou debloquer un ancien ! "
-                   "L'incident a ete enregistre et sera transmis aux "
-                   "administrateurs.")
+    except:
+        abort(500, "Oops ! Probleme de mise a jour de l'ancien ...")

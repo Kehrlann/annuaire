@@ -11,9 +11,11 @@ from itsdangerous import URLSafeSerializer
 from hashlib import sha256
 from flask import request
 from flask import session, abort
+from flask.ext.login import current_user
 
 
 _exempt_views = []
+_admin_views = []
 
 def csrf_exempt(view):
     """
@@ -21,6 +23,31 @@ def csrf_exempt(view):
     """
     _exempt_views.append(view)
     return view
+
+def admin_required(view):
+    """
+    Décorateur à applier sur une vue pour ne laisser passer que les
+    administrateurs.
+    """
+    _admin_views.append(view)
+    return view
+
+@app.before_request
+def filter_admins():
+    """
+    Protection des pages d'administration. Seul les administrateurs
+    peuvent accéder aux vues qui se trouvent dans _admin_views
+    :return:    -   HTTP 401    :   Si l'utilisateur n'est pas authentifié
+                -   HTTP 403    :   Si l'utilisateur est authentifié mais n'est pas admin
+                -   None        :   Si l'utilisateur est authentifié et est admin
+    """
+    destination_view = app.view_functions.get(request.endpoint)
+    if destination_view in _admin_views:
+        if not current_user.is_authenticated():
+            abort(401)
+        elif not current_user.admin:
+            abort(403)
+
 
 @app.before_request
 def csrf_protect():

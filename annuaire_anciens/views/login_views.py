@@ -395,4 +395,9 @@ def inject_auth():
     """
     Ajoute automatiquement une variable `user_is_auth` au contexte Jinja
     """
-    return dict(user_is_auth=current_user.is_authenticated())
+    admin = False
+    auth = False
+    if current_user.is_authenticated():
+        auth = True
+        admin = current_user.admin
+    return dict(user_is_auth=auth, user_is_admin=admin)

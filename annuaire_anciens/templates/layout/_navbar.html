@@ -1,6 +1,10 @@
 {% if user_is_auth %}
 {# user authentifié : afficher le menu mon compte + la search bar #}
 <div class="nav navbar-nav navbar-right">
+    {% if user_is_admin %}
+        <a class='btn btn-warning navbar-btn hidden-xs' href="{{ url_for('admin') }}">Administration</a>
+        <a class='btn btn-warning navbar-btn visible-xs' href="{{ url_for('admin') }}"><span class="glyphicon glyphicon-cog"></span></a>
+    {% endif %}
     <a class='btn btn-default navbar-btn hidden-xs' href="{{ url_for('compte') }}">Mon compte</a>
     <a class='btn btn-link navbar-btn hidden-xs' href="{{ url_for('logout') }}">D&eacute;connexion</a>
     <a class='btn btn-default navbar-btn visible-xs' href="{{ url_for('compte') }}"><span class="glyphicon glyphicon-user"></span></a>
