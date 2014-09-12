@@ -1,14 +1,14 @@
 from flask.ext.login import UserMixin
 
-__author__ = 'dgarnier-moiroux'
 
 class Utilisateur(UserMixin):
 
-    def __init__(self, id_user, mail, id_ancien, actif):
+    def __init__(self, id_user, mail, id_ancien, actif, admin):
         self.id = id_user
         self._mail = mail
         self._id_ancien = id_ancien
         self._actif = actif
+        self._admin = admin
 
     @property
     def mail(self):
@@ -21,3 +21,7 @@ class Utilisateur(UserMixin):
     @property
     def actif(self):
         return self._actif
+
+    @property
+    def admin(self):
+        return self._admin

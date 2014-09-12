@@ -30,7 +30,7 @@ def find_user_by_mail(mail, actif_only=True):
         if res is not None:
             row = res.first()
             if row is not None:
-                return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
+                return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'], row['admin'])
     return None
 
 
@@ -54,7 +54,7 @@ def find_user_by_mail_and_password(mail, password, actif_only=True):
     if res is not None:
         row = res.first()
         if row is not None and check(row['password'], password):
-            return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
+            return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'], row['admin'])
     return None
 
 def find_user_by_id(id_user):
@@ -70,7 +70,7 @@ def find_user_by_id(id_user):
     res = __select_user_by_id(id_user)
     if res is not None:
         row = res.first()
-        return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
+        return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'], row['admin'])
     return None
 
 
@@ -89,7 +89,7 @@ def find_user_by_id_ancien(id_ancien, actif_only=False):
         if result is not None:
             row = result.first()
             if row is not None:
-                return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'])
+                return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'], row['admin'])
     return None
 
 

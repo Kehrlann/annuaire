@@ -297,7 +297,7 @@ def reset_password_activate(activation):
     Une fois la signature validée, on affiche ou on submit le formulaire.
 
     Si pas de code d'activation, le routing de Flask devrait rediriger vers
-    :func:`reset_password()`, mais au cas où, on abort avec une 401 - Unauthorized
+    :func:`reset_password()`, mais au cas où, on pète
 
     :param str activation:  Le code d'activation. Est créé + signé avec itsdangerous.
                             Contient les données de la forme suivante :
@@ -376,7 +376,7 @@ def reset_password_activate(activation):
         return redirect(url_for("reset_password"))
 
     else:
-        abort(401, "Page uniquement accessible avec un code d'activation")
+        abort(405, "Page uniquement accessible avec un code d'activation")
 
 
 @app.route('/logout', methods=['GET', 'POST'])

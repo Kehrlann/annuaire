@@ -34,27 +34,53 @@ __villePro = __ville.alias()
 
 
 
-def count_fulltext(search_terms):
+def count_fulltext(search_terms, actif = True, bloque = False):
     """
     Compter les anciens trouvés par la recherche fulltext
-    :param form: formulaire de filtrage
 
-    :rtype: int
-    :return: le nombre d'anciens qui satisfont FORM
+    :param str search_terms:    Termes utilisés pour la recherche
+
+
+    :param bool actif:          True (default)  =   Chercher uniquement les actifs
+                                False           =   Chercher uniquement les inactifs
+                                None            =   Chercher TOUS les anciens
+
+    :param bool bloque:         True            =   Chercher uniquement les bloqués
+                                False (default) =   Chercher uniquement les autres
+                                None            =   Chercher tous les anciens
+
+    :return int:                le nombre d'anciens qui satisfont les termes de recherche
     """
     sel = select([func.count(__ancien.c.id_ancien.distinct())]).where("fulltext @@ to_tsquery('french', :input_str)")
-    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
+    sel = sel.where(__ancien.c.nouveau == False)
+
+
+    if actif is not None:
+        sel = sel.where(__ancien.c.actif == actif)
+
+    if bloque is not None:
+        sel = sel.where(__ancien.c.bloque == bloque)
+
+
     res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).first()[0]
     return res
 
 
-def fulltext_search(search_terms, offset = 0, limit =0):
+def fulltext_search(search_terms, offset = 0, limit =0, actif = True, bloque = False):
     """
-    Recerche un ancien dans l'annuaire par fulltext search
+    Recherche un ancien dans l'annuaire par fulltext search
 
-    :param search_terms: str, les termes de recherche
-    :param offset: int, démarrer la requête au  rang X
-    :param limit: int, prendre Y résultats
+    :param str search_terms:    Termes utilisés pour la recherche
+    :param int offset:          démarrer la requête au  rang X
+    :param int limit:           prendre Y résultats
+
+    :param bool actif:          True (default)  =   Chercher uniquement les actifs
+                                False           =   Chercher uniquement les inactifs
+                                None            =   Chercher TOUS les anciens
+
+    :param bool bloque:         True            =   Chercher uniquement les bloqués
+                                False (default) =   Chercher uniquement les autres
+                                None            =   Chercher tous les anciens
     :return:
     """
     aaa = __asso_ancien_adresse
@@ -96,7 +122,14 @@ def fulltext_search(search_terms, offset = 0, limit =0):
         desc(__experience.c.actif)
     )
     sel = sel.where("fulltext @@ to_tsquery('french', :input_str)")
-    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
+    sel = sel.where(__ancien.c.nouveau == False)
+
+    if actif is not None:
+        sel = sel.where(__ancien.c.actif == actif)
+
+    if bloque is not None:
+        sel = sel.where(__ancien.c.bloque == bloque)
+
     sel = sel.distinct(
         __ancien.c.ecole,
         __ancien.c.promo,
@@ -109,13 +142,22 @@ def fulltext_search(search_terms, offset = 0, limit =0):
     return res
 
 
-def annuaire_search(form, offset = 0, limit =0):
+def annuaire_search(form, offset = 0, limit = 0, actif = True, bloque = False):
     """
     Recerche un ancien dans l'annuaire selon les critères specifiés dans le form
 
-    :param form: annuaire.form.SearchForm
-    :param offset: int, démarrer la requête au  rang X
-    :param limit: int, prendre Y résultats
+    :param WTForm form:         annuaire.form.SearchForm
+    :param int offset:          démarrer la requête au  rang X
+    :param int limit:           prendre Y résultats
+
+    :param bool actif:          True (default)  =   Chercher uniquement les actifs
+                                False           =   Chercher uniquement les inactifs
+                                None            =   Chercher TOUS les anciens
+
+    :param bool bloque:         True            =   Chercher uniquement les bloqués
+                                False (default) =   Chercher uniquement les autres
+                                None            =   Chercher tous les anciens
+
     :return:
     """
     aaa = __asso_ancien_adresse
@@ -158,7 +200,14 @@ def annuaire_search(form, offset = 0, limit =0):
         desc(__experience.c.actif)
     )
 
-    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
+    sel = sel.where(__ancien.c.nouveau == False)
+
+    if actif is not None:
+        sel = sel.where(__ancien.c.actif == actif)
+
+    if bloque is not None:
+        sel = sel.where(__ancien.c.bloque == bloque)
+
     sel = sel.distinct(
         __ancien.c.ecole,
         __ancien.c.promo,
@@ -170,16 +219,33 @@ def annuaire_search(form, offset = 0, limit =0):
     return _filter_search(form, sel).fetchall()
 
 
-def count_annuaire_search(form):
+def count_annuaire_search(form, actif = True, bloque = False):
     """
     Compter les anciens dans l'annuaire en fonction d'un formulaire
-    :param form: formulaire de filtrage
-    :rtype: int
-    :return: le nombre d'anciens qui satisfont FORM
+
+    :param WTForm form:         formulaire de filtrage
+
+    :param bool actif:          True (default)  =   Chercher uniquement les actifs
+                                False           =   Chercher uniquement les inactifs
+                                None            =   Chercher TOUS les anciens
+
+    :param bool bloque:         True            =   Chercher uniquement les bloqués
+                                False (default) =   Chercher uniquement les autres
+                                None            =   Chercher tous les anciens
+
+    :return int:                le nombre d'anciens qui satisfont FORM
     """
     from_obj = _get_from_object(form)
     sel = select([func.count(__ancien.c.id_ancien.distinct())], from_obj=from_obj)
-    sel = sel.where(__ancien.c.actif == True).where(__ancien.c.bloque == False).where(__ancien.c.nouveau == False)
+    sel = sel.where(__ancien.c.nouveau == False)
+
+
+    if actif is not None:
+        sel = sel.where(__ancien.c.actif == actif)
+
+    if bloque is not None:
+        sel = sel.where(__ancien.c.bloque == bloque)
+
     return _filter_search(form, sel).first()[0]
 
 

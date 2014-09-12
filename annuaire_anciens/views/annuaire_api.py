@@ -3,11 +3,10 @@
     Toutes les API relatives à l'utilisation de l'annuaire.
 """
 
-
 from annuaire_anciens import app, helper
 from search import search_fulltext, search_anciens
 from flask import request, session
-from flask.ext.login import login_required
+from flask.ext.login import login_required, current_user
 import json
 from urllib2 import unquote
 
@@ -36,7 +35,6 @@ def fulltext_api():
                             'entreprise':   'SNCF'
                         }
     """
-
     # 1. Obtenir les paramètres
     fulltext = request.args.get('q', None)
     if fulltext is not None:
@@ -51,7 +49,7 @@ def fulltext_api():
     session['previous_fulltext'] = fulltext
 
     # 3. Effectuer la recherche
-    s = search_fulltext(fulltext, int(page))
+    s = search_fulltext(fulltext, int(page), current_user.admin)
 
     # 4. Mettre en forme les résultats
     results = []
@@ -108,7 +106,7 @@ def search_api():
     session['previous_search'] = request.args
 
     # 3. Effectuer la recherche
-    s = search_anciens(request.args, int(page))
+    s = search_anciens(request.args, int(page), current_user.admin)
 
     # 4. Mettre en forme les résultats
     results = []
