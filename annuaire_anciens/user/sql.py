@@ -70,7 +70,8 @@ def find_user_by_id(id_user):
     res = __select_user_by_id(id_user)
     if res is not None:
         row = res.first()
-        return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'], row['admin'])
+        if row is not None:
+            return Utilisateur(row['id_utilisateur'], row['mail'], row['id_ancien'], row['actif'], row['admin'])
     return None
 
 
