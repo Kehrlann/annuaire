@@ -5,3 +5,4 @@ import admin_views
 import annuaire_api
 import autocomplete_api
 import admin_api
+import user_api
