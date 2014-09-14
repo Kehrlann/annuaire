@@ -3,9 +3,9 @@
     Vue relatives à l'administration
 """
 
-from flask import url_for, redirect, abort
+from flask import url_for, redirect, abort, render_template, flash
 from annuaire_anciens.helper.security import admin_required
-from annuaire_anciens import app, annuaire
+from annuaire_anciens import app
 import admin_api
 import json
 
@@ -16,7 +16,7 @@ def admin():
     Page centrale d'administration
     :return:
     """
-    return "Hello world"
+    return render_template("admin/admin.html")
 
 @app.route("/ancien/<int:id_ancien>/bloquer", methods=["GET"])
 @admin_required

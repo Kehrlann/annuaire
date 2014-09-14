@@ -449,6 +449,34 @@ def find_ancien_by_id_linkedin(id_linkedin):
     return res
 
 
+def find_ancien_filtres(nouveau = None, bloque = None):
+    """
+    Trouver tous les anciens qui ont le flag "nouveau", ou "bloques"
+
+
+    :param bool nouveau:    True            =   Chercher uniquement les nouveaux
+                            False           =   Chercher uniquement les autres
+                            None (default)  =   Chercher tous les anciens
+
+    :param bool bloque:     True            =   Chercher uniquement les bloqués
+                            False           =   Chercher uniquement les autres
+                            None (default)  =   Chercher tous les anciens
+
+
+
+    :return:
+        - SELECT DISTINCT * FROM ancien WHERE nouveau = True
+    """
+    sel = select([__ancien]).distinct()
+
+    if nouveau is not None:
+        sel = sel.where(__ancien.c.nouveau == nouveau)
+
+    if bloque is not None:
+        sel = sel.where(__ancien.c.bloque == bloque)
+
+    return engine.execute(sel).fetchall()
+
 
 def find_adresse_by_id_ancien(id_ancien):
     """
@@ -888,6 +916,26 @@ def update_ancien_bloque(id_ancien, bloque):
                 __ancien.c.id_ancien == id_ancien
         ).values(
             bloque = bloque
+        )
+        engine.execute(up)
+
+        success = True
+
+    return success
+
+
+def update_ancien_valider(id_ancien):
+    """
+    Valider un ancien
+
+    :param int id_ancien:   l'id de l'ancien à valider
+    """
+    success = False
+    if id_ancien is not None:
+        up = __ancien.update().where(
+                __ancien.c.id_ancien == id_ancien
+        ).values(
+            nouveau = False
         )
         engine.execute(up)
 
