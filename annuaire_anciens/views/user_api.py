@@ -73,7 +73,7 @@ def update_ancien_api(id_ancien):
 
 @app.route("/api/v1/ancien/<int:id_ancien>/adresse", methods=["PUT"])
 @login_required
-def update_ancien_api(id_ancien):
+def update_adresse_api(id_ancien):
     """
     Mettre à jour mon adresse. C'est une interface unifiée, même
     si techniquement, l'adresse peut ne pas exister préalablement.
