@@ -6,7 +6,7 @@
 from flask import abort, request
 from annuaire_anciens.helper.security import admin_required
 import json
-from annuaire_anciens import app, annuaire
+from annuaire_anciens import app, annuaire, helper, user
 
 @app.route("/api/v1/admin/ancien", methods=["GET"])
 @admin_required
@@ -34,6 +34,8 @@ def valider_ancien_api(id_ancien):
     :param id_ancien: L'id de l'ancien à valider
     """
     if annuaire.update_ancien_valider(id_ancien):
+        utilisateur = user.find_user_by_id_ancien(id_ancien)
+        helper.send_fiche_activee_mail(utilisateur["mail"])
         return json.dumps({ "succes" : True })
     else:
         abort(500, "Oops ! Probleme de mise a jour de l'ancien ...")

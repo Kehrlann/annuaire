@@ -48,6 +48,23 @@ def send_reset_password_mail(to, activation_code):
     _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Reset de ton mot de passe", message)
 
 
+def send_fiche_activee_mail(to):
+    """
+    Envoyer un mail de notification à un ancien que sa fiche a été activée sur le
+    site.
+
+    :param str to: destinataire
+    """
+    message = \
+        u'Bonjour !\n\n' \
+        u'Ta fiche ancien sur https://mines-alumni.com vient d\'être validée par un administrateur. ' \
+        u'Tu apparaîtras désormais dans les résultats des recherches dans l\'annuaire. Pour mettre ta fiche' \
+        u'à jour, ou la retirer des résultats de recherche, connecte-toi sur le site et clique sur "mon compte".\n\n' \
+        u'Cordialement,\n' \
+        u'L\'équipe mines-alumni'
+    _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Validation de ta fiche ancien", message)
+
+
 def _send_mail(sender, recipient, subject, message):
     """
     Envoyer un mail.
