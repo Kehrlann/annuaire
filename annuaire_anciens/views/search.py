@@ -68,13 +68,12 @@ def search_fulltext(search_terms=None, page=1, admin=False):
         search_terms = session['previous_fulltext']
 
     # remplissage du formulaire
-    if search_terms is not None and search_terms != "":
-        # comptage des resultats, preparation de la pagination
-        count = annuaire.count_fulltext(search_terms, **kwargs)
-        pagination = helper.Pagination(count, 100)
-        pagination.current = page
+    # comptage des resultats, preparation de la pagination
+    count = annuaire.count_fulltext(search_terms, **kwargs)
+    pagination = helper.Pagination(count, 100)
+    pagination.current = page
 
-        # recherche sur la page
-        results = annuaire.fulltext_search(search_terms, pagination.offset, pagination.limit, **kwargs)
+    # recherche sur la page
+    results = annuaire.fulltext_search(search_terms, pagination.offset, pagination.limit, **kwargs)
 
     return pagination, results
