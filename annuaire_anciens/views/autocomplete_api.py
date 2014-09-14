@@ -9,7 +9,7 @@ from flask import request
 from flask.ext.login import login_required
 
 
-@app.route('/autocomplete/nom', methods=['GET'])
+@app.route('/api/v1/autocomplete/nom', methods=['GET'])
 @login_required
 def autocomplete_nom():
     """
@@ -25,7 +25,7 @@ def autocomplete_nom():
         result = helper.result_proxy_to_json(query_result, True)
     return result
 
-@app.route('/autocomplete/ville', methods=['GET'])
+@app.route('/api/v1/autocomplete/ville', methods=['GET'])
 @login_required
 def autocomplete_ville():
     """
@@ -42,7 +42,7 @@ def autocomplete_ville():
     return result
 
 
-@app.route('/autocomplete/entreprise', methods=['GET'])
+@app.route('/api/v1/autocomplete/entreprise', methods=['GET'])
 @login_required
 def autocomplete_entreprise():
     """
@@ -59,7 +59,7 @@ def autocomplete_entreprise():
     return result
 
 
-@app.route('/autocomplete/compte/ville', methods=['GET'])
+@app.route('/api/v1/autocomplete/compte/ville', methods=['GET'])
 @login_required
 def autocomplete_ville_simple():
     """
@@ -75,7 +75,7 @@ def autocomplete_ville_simple():
         result = helper.result_proxy_to_json(query_result)
     return result
 
-@app.route('/autocomplete/compte/entreprise', methods=['GET'])
+@app.route('/api/v1/autocomplete/compte/entreprise', methods=['GET'])
 @login_required
 def autocomplete_entreprise_simple():
     """
@@ -91,7 +91,7 @@ def autocomplete_entreprise_simple():
         result = helper.result_proxy_to_json(query_result)
     return result
 
-@app.route('/autocomplete/fulltext', methods=['GET'])
+@app.route('/api/v1/autocomplete/fulltext', methods=['GET'])
 @login_required
 def autocomplete_fulltext():
     """
