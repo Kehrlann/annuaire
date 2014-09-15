@@ -2,6 +2,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from annuaire_anciens import app
+from flask import url_for
 
 _SMTP_SERVER = app.config['SMTP_SERVER']
 _SMTP_USERNAME = app.config['SMTP_USERNAME']
@@ -22,11 +23,14 @@ def send_activation_mail(to, activation_code):
     """
     message = \
         u'Bonjour !\n\n' \
-        u'Tu as demandé l\'ouverture d\'un compte sur https://mines-alumni.com. Afin de l\'activer, ' \
+        u'Tu as demandé l\'ouverture d\'un compte sur %s. Afin de l\'activer, ' \
         u'merci de cliquer sur le lien ci-dessous :\n' \
-        u'https://%s/activation/%s\n\n' \
+        u'%s\n\n' \
         u'Cordialement,\n' \
-        u'L\'équipe mines-alumni' % (_SERVER_NAME, activation_code)
+        u'L\'équipe mines-alumni' % (
+            url_for('home', _external=True),
+            url_for('activation', code_activation=activation_code, _external=True)
+        )
     _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Activation de ton compte", message)
 
 
@@ -40,11 +44,14 @@ def send_reset_password_mail(to, activation_code):
     """
     message = \
         u'Bonjour !\n\n' \
-        u'Tu as demandé un reset de mot de passe sur https://mines-alumni.com. Pour compléter la procédure, ' \
+        u'Tu as demandé un reset de mot de passe sur %s. Pour compléter la procédure, ' \
         u'merci de cliquer sur le lien ci-dessous :\n' \
-        u'https://%s/reset/%s\n\n' \
+        u'%s\n\n' \
         u'Cordialement,\n' \
-        u'L\'équipe mines-alumni' % (_SERVER_NAME, activation_code)
+        u'L\'équipe mines-alumni' % (
+            url_for('home', _external=True),
+            url_for('reset_password_activate', activation=activation_code, _external=True)
+        )
     _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Reset de ton mot de passe", message)
 
 
@@ -57,11 +64,11 @@ def send_fiche_activee_mail(to):
     """
     message = \
         u'Bonjour !\n\n' \
-        u'Ta fiche ancien sur https://mines-alumni.com vient d\'être validée par un administrateur. ' \
+        u'Ta fiche ancien sur %s vient d\'être validée par un administrateur. ' \
         u'Tu apparaîtras désormais dans les résultats des recherches dans l\'annuaire. Pour mettre ta fiche' \
         u'à jour, ou la retirer des résultats de recherche, connecte-toi sur le site et clique sur "mon compte".\n\n' \
         u'Cordialement,\n' \
-        u'L\'équipe mines-alumni'
+        u'L\'équipe mines-alumni' % url_for('home', _external=True)
     _send_mail("no-reply@mines-alumni.com", to, "Mines-Alumni : Validation de ta fiche ancien", message)
 
 
