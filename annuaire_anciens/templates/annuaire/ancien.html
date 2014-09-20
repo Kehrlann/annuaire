@@ -138,6 +138,43 @@
         };
 
 
+    var set_default_exp =
+            function(id_experience, source)
+            {
+                $.ajax({
+                    url: "{{ url_for('experience_set_default_api', id_experience=0) }}".replace("0", id_experience),
+                    type: 'PUT',
+                    success: function(data){
+
+                        // Step 1 : "eval" la réponse. Ça permet de rejouer tous les scripts, dont le $(document).ready()
+                        var obj = eval("("+data+")");
+
+                        if(obj && obj.succes){
+
+                            var old_principale = $(".experience-principale")
+                                    .removeClass("experience-principale")
+                                    .removeClass("btn-warning")
+                                    .addClass("btn-default");
+
+                            old_principale.find("span").text(" Secondaire");
+
+                            old_principale.find("i").removeClass("glyphicon-star").addClass("glyphicon-star-empty");
+
+                            var new_principale = $(source).addClass("experience-principale")
+                                    .addClass("btn-warning")
+                                    .removeClass("btn-default");
+
+                            new_principale.find("span").text(" Principale");
+
+                            new_principale.find("i").addClass("glyphicon-star").removeClass("glyphicon-star-empty");
+                        }
+                    }
+                });
+
+
+            };
+
+
     var create_exp =
             function()
             {
@@ -203,8 +240,6 @@
 
                 // Step 3 : mettre à jour tous les csrf tokens.
                 $("[name='_csrf_token']").val(obj.csrf_token);
-                console.log(obj.csrf_token);
-
             }
         });
     };

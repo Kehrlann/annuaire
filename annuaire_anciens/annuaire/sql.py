@@ -118,8 +118,8 @@ def fulltext_search(search_terms, offset = 0, limit =0, actif = True, bloque = F
         __ancien.c.promo,
         __ancien.c.nom,
         __ancien.c.prenom,
-        desc(__experience.c.debut).nullslast(),
-        desc(__experience.c.actif)
+        desc(__experience.c.actif),
+        desc(__experience.c.debut).nullslast()
     )
     sel = sel.where("fulltext @@ to_tsquery('french', :input_str)")
     sel = sel.where(__ancien.c.nouveau == False)
@@ -196,8 +196,8 @@ def annuaire_search(form, offset = 0, limit = 0, actif = True, bloque = False):
         __ancien.c.promo,
         __ancien.c.nom,
         __ancien.c.prenom,
-        desc(__experience.c.debut).nullslast(),
-        desc(__experience.c.actif)
+        desc(__experience.c.actif),
+        desc(__experience.c.debut).nullslast()
     )
 
     sel = sel.where(__ancien.c.nouveau == False)
@@ -900,6 +900,38 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
 
         success = update_ancien_date(id_ancien)
     return success
+
+
+def ancien_has_experience(id_ancien, id_experience):
+    """
+    Vérifier qu'une expérience donnée est bien associée à l'ancien
+    en question.
+
+    :param id_ancien:
+    :param id_experience:
+    :return:
+    """
+    sel = select(
+        [__experience.c.id_experience],
+        and_(__experience.c.id_experience==id_experience, __experience.c.id_ancien==id_ancien)
+    )
+    res = engine.execute(sel).first()
+    return res is not None
+
+
+def set_default_experience(id_ancien, id_experience):
+    """
+    marquer une expérience comme "active", et "désactiver" les
+    autre expériences d'un ancien donner.
+
+    :param id_ancien:
+    :param id_experience:
+    :return:
+    """
+    up = __experience.update().where(__experience.c.id_ancien==id_ancien).values(actif=False)
+    engine.execute(up)
+    up = __experience.update().where(__experience.c.id_experience==id_experience).values(actif=True)
+    engine.execute(up)
 
 
 def update_ancien_bloque(id_ancien, bloque):
