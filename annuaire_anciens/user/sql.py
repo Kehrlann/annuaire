@@ -210,6 +210,26 @@ def update_id_ancien(id_user, id_ancien):
             res = True
     return res
 
+def update_user_admin(id_utilisateur, admin):
+    """
+    Donner / retirer le status d'admin à un utilisateur
+
+    :param int id_utilisateur:      l'id de l'utilisateur à rendre admin
+    :param bool admin:             Donner admin (True) ou retirer admin (False)
+    :return:
+    """
+    success = False
+    if id_utilisateur is not None and admin is not None:
+        up = __utilisateur.update().where(
+                __utilisateur.c.id_ancien == id_utilisateur
+        ).values(
+            admin = admin
+        )
+        engine.execute(up)
+
+        success = True
+    return success
+
 
 def create_user(mail, password):
     """

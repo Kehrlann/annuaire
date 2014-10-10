@@ -4,9 +4,10 @@
 """
 
 from flask import abort, request
-from annuaire_anciens.helper.security import admin_required
+from annuaire_anciens.helper.security import admin_required, csrf_exempt
 import json
 from annuaire_anciens import app, annuaire, helper, user
+
 
 @app.route("/api/v1/admin/ancien", methods=["GET"])
 @admin_required
@@ -84,3 +85,31 @@ def debloquer_api(id_ancien):
         return json.dumps({ "succes" : True })
     else:
         abort(500, "Oops ! Probleme de mise a jour de l'ancien ...")
+
+
+@app.route("/api/v1/admin/user/<int:id_user>/admin", methods=["PUT"])
+@admin_required
+def donner_admin_api(id_user):
+    """
+    Donner le status d'admin à un utilisateur. Uniquement utilisable par les administrateurs.
+
+    :param int id_ancien: L'id de l'ancien à admin
+    """
+    if user.update_user_admin(id_user, admin=True):
+        return json.dumps({ "succes" : True })
+    else:
+        abort(500, "Oops ! Probleme de mise a jour de l'utilisateur ...")
+
+
+@app.route("/api/v1/admin/user/<int:id_user>/unadmin", methods=["PUT"])
+@admin_required
+def retirer_admin_api(id_user):
+    """
+    Donner le status d'admin à un utilisateur. Uniquement utilisable par les administrateurs.
+
+    :param int id_user: L'id de l'ancien à un-admin
+    """
+    if user.update_user_admin(id_user, admin=False):
+        return json.dumps({ "succes" : True })
+    else:
+        abort(500, "Oops ! Probleme de mise a jour de l'utilisateur ...")
