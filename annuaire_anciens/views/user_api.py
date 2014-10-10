@@ -151,6 +151,8 @@ def add_experience_api():
     """
     ancien  =   _get_valid_ancien()
     data    =   _get_valid_data()
+    abort(501, "Not implemented (yet) !")
+
     # TODO
     # TODO
     # TODO
@@ -164,23 +166,23 @@ def add_experience_api():
     # TODO
     # TODO
     # TODO
-    succes  =   annuaire.update_experience(
-        id_ancien,
-        id_experience,
-        ville,
-        id_pays,
-        adresse,
-        code,
-        entreprise,
-        poste,
-        description,
-        mail,
-        site,
-        telephone,
-        mobile,
-        date_debut,
-        date_fin=None,
-    )
+    # succes  =   annuaire.update_experience(
+    #     id_ancien,
+    #     id_experience,
+    #     ville,
+    #     id_pays,
+    #     adresse,
+    #     code,
+    #     entreprise,
+    #     poste,
+    #     description,
+    #     mail,
+    #     site,
+    #     telephone,
+    #     mobile,
+    #     date_debut,
+    #     date_fin=None,
+    # )
 
 
 @app.route("/api/v1/me/experience/<int:id_experience>", methods=["PUT"])
