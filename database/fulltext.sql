@@ -60,6 +60,15 @@ AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION
+  reset_fulltext_by_id_ancien(id INTEGER) RETURNS VOID
+AS $$
+  BEGIN
+    UPDATE ancien SET fulltext = create_tsvector_by_id_ancien(id) WHERE id_ancien = id;
+  END;
+$$ LANGUAGE plpgsql;
+
+
 -- Methode pour créer les tsvectors pour tous les anciens
 CREATE OR REPLACE FUNCTION
     index_all_anciens() RETURNS VOID

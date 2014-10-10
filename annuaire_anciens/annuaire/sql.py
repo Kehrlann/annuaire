@@ -693,6 +693,15 @@ def update_ancien_date(id_ancien):
             )
         result = engine.execute(up)
         if result is not None:
+
+            # Update le ts_vector (fulltext) associé à l'ancien en question.
+            # Étrangement, il faut EXPLICITEMENT démarrer une transaction et la commiter
+            conn = engine.connect()
+            trans = conn.begin()
+            conn.execute(func.reset_fulltext_by_id_ancien(id_ancien))
+            trans.commit()
+            conn.close()
+
             success = True
     return success
 
