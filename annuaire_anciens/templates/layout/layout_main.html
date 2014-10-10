@@ -33,7 +33,7 @@
 
         <!-- Le analytics, to spy on you. -->
         {% if google_analytics != None %}
-            {{ google_analytics }}
+            {{ google_analytics|safe }}
         {% endif %}
 
         <!-- Le jQuery-ui, for sexy search-bars and datepickers. -->
