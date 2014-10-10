@@ -76,6 +76,9 @@ def compte():
                     user_temp.id,
                     ancien_temp['id_ancien']
                 )
+        else:
+            # Sinon, on le laisse créer sa fiche !
+            return redirect(url_for("create_ancien"))
 
     elif ancien['nouveau']:
         return redirect(url_for("create_ancien")) # cas spécifique : ancien en cours de création
