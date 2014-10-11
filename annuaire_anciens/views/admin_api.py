@@ -36,7 +36,7 @@ def valider_ancien_api(id_ancien):
     """
     if annuaire.update_ancien_valider(id_ancien):
         utilisateur = user.find_user_by_id_ancien(id_ancien)
-        helper.send_fiche_activee_mail(utilisateur["mail"])
+        helper.send_fiche_activee_mail(utilisateur.mail)
         return json.dumps({ "succes" : True })
     else:
         abort(500, "Oops ! Probleme de mise a jour de l'ancien ...")
