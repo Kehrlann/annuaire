@@ -63,7 +63,7 @@ def compte():
                         current_user.id,
                         ancien_temp['id_ancien']
                     )
-                    return redirect(url_for("ancien", id_ancien=current_user.id_ancien))
+                    return redirect(url_for("ancien", id_ancien=ancien_temp['id_ancien']))
 
                 else:
                     app.logger.error(
