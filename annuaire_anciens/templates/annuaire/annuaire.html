@@ -55,6 +55,35 @@
 
 <script>
 
+
+    //==========================================================================================
+    // Work in progress : search order
+    var page        =   1;
+
+    var modes       =   {
+                            fulltext    :   "fulltext-search",
+                            advanced    :   "advanced-search"
+                        };
+
+    var mode        =   modes.fulltext;
+
+    var searchModes =   {   pertinence  :   'pertinence',
+                            nom         :   'nom',
+                            entreprise  :   'entreprise',
+                            promo       :   'promo'
+                        };
+
+    var searchMode  =   searchModes.pertinence;
+
+    var searchDirs  =   {
+                            ascending   :   'asc',
+                            descending  :   'desc'
+                        };
+
+    var searchDir   =   searchDirs.ascending;
+    //==========================================================================================
+
+
     //==========================================================================================
     // Setup de la page ( doc.ready() )
     $(document).ready(
@@ -196,6 +225,7 @@
                                 if(ancien_list.length > 0){
                                     var pagination = render_pagination(results["current_page"], results["max_pages"], "_search_advanced", querystring);
                                     $("#annuaire-results").append(pagination);
+                                    $("#annuaire-results").append(create_header_row());
                                     $.each(
                                             ancien_list,
                                             function (index, value) {
@@ -239,6 +269,7 @@
                                 if(ancien_list.length > 0){
                                     var pagination = render_pagination(results["current_page"], results["max_pages"], "search_fulltext", query);
                                     $("#annuaire-results").append(pagination);
+                                    $("#annuaire-results").append(create_header_row());
                                     $.each(
                                             ancien_list,
                                             function (index, value) {
@@ -352,6 +383,23 @@
             };
 
     /************************************************************
+     * Fonction le header du tableau des résultats              *
+     *                                                          *
+     * :returns {string}                                        *
+     ************************************************************/
+    var create_header_row =
+            function(){
+                var row = "<div class='row' style='font-weight:bold; font-size:16px;margin-bottom:5px;'>";
+                row += "<div class='col-sm-3'>Nom</div>";
+                row += "<div class='col-sm-4'>Entreprise</div>";
+                row += "<div class='col-sm-3'>Adresse</div>";
+                row += "<div class='col-sm-2 custom-text-right-big-screen'>Promo</div>";
+                row += "</div>";
+                return row;
+            };
+
+
+    /************************************************************
      * Fonction pour préparer la ligne qui représente un ancien *
      * :param data  object : un objet représentant un ancien    *
      * :returns {string}                                        *
@@ -366,7 +414,6 @@
                 row += "</div></a>";
                 return row;
             };
-
 
     //==========================================================================================
     // Helper de formattage des lignes anciens
