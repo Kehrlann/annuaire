@@ -84,6 +84,7 @@ def fulltext_search(search_terms, offset = 0, limit =0, actif = True, bloque = F
     :return:
     """
     aaa = __asso_ancien_adresse
+
     from_obj = __ancien
     from_obj = from_obj.outerjoin(
     aaa, and_(__ancien.c.id_ancien == aaa.c.id_ancien, aaa.c.actif == True)
@@ -106,6 +107,7 @@ def fulltext_search(search_terms, offset = 0, limit =0, actif = True, bloque = F
         __ancien.c.nom.label('nom'),
         __ancien.c.ecole.label('ecole'),
         __ancien.c.promo.label('promo'),
+        __ancien.c.fulltext.label('fulltext'),
         __ville.c.nom.label('ville'),
         __adresse.c.code.label('code_postal'),
         __entreprise.c.nom.label('entreprise'),
@@ -136,9 +138,14 @@ def fulltext_search(search_terms, offset = 0, limit =0, actif = True, bloque = F
         __ancien.c.nom,
         __ancien.c.prenom
     )
-    sel = sel.offset(offset).limit(limit)
 
-    res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).fetchall()
+    new_sel = sel.alias().select().order_by(
+        "ts_rank_cd(fulltext, to_tsquery('french', :input_str)) DESC"
+    )
+
+    new_sel = new_sel.offset(offset).limit(limit)
+
+    res = engine.execute(new_sel, input_str=helper.prepare_for_fulltext(search_terms)).fetchall()
     return res
 
 
