@@ -40,7 +40,7 @@ AS $$
 		
 		-- Ajouter l'entreprise, le poste, la ville et le pays des experiences pro
         FOR entreprise_record IN
-            SELECT ex.poste, ent.nom, v.nom as ville, p.nom as pays
+            SELECT ex.poste, ex.description, ent.nom, v.nom as ville, p.nom as pays
                 FROM experience as ex
                     JOIN entreprise as ent ON ex.id_entreprise = ent.id_entreprise
 					LEFT OUTER JOIN adresse as ad ON ex.id_adresse = ad.id_adresse
@@ -51,6 +51,7 @@ AS $$
 			res := res
 				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.poste, ''))), 'C')
 				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.nom, ''))), 'B')
+        || setweight(to_tsvector('french', slugify(coalesce(entreprise_record.description, ''))), 'C')
 				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.ville, ''))), 'D')
 				|| setweight(to_tsvector('french', slugify(coalesce(entreprise_record.pays, ''))), 'D');
         END LOOP;
