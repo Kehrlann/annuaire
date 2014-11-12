@@ -97,7 +97,7 @@ def inscription():
         app.logger.info("REGISTER - Trying to add user for %s", mail_ancien)
 
         # Gestion des utilisateurs : si un compte existe déjà, le signaler
-        utilisateur = user.find_user_by_mail(mail_ancien)
+        utilisateur = user.find_user_by_mail(mail_ancien, actif_only=False)
         if utilisateur is not None:
 
             if utilisateur.actif:
