@@ -1,24 +1,62 @@
 {% extends "layout/layout_main.html" %}
 
+{% from "helper/_formhelper.html" import render_field, render_radio %}
+
 {% block layout %}
 <div class="container">
     <div class="row">
         <div class="col-lg-10 col-lg-offset-1">
-            <div class="main-search-field" style="position: relative">
-                <form>
+            <div id="fulltext-search">
+                <div class="main-search-field">
                     <input type="text" class="form-control input-lg" id="fulltext_main">
                     <span class="glyphicon glyphicon-search"></span>
-                </form>
+                </div>
+                <div class="text-right">
+                    <a href="#" class="btn btn-link" onclick="showAvance()">Recherche avancée</a>
+                </div>
             </div>
-            <a href="" class="pull-right btn btn-link">Recherche avancée</a>
+
+            <div id="advanced-search">
+                <div class="custom-ancien-container row">
+                    <form id="advanced-search-form" class="col-sm-12" action="#" onsubmit="search_advanced_from_form()">
+                        {{ render_field(form.prenom, class="form-control", id="prenom") }}
+                        {{ render_field(form.nom, class="form-control", id="nom") }}
+                        {{ render_field(form.ecole, class="form-control", id="ecole") }}
+                        {{ render_field(form.promo, class="form-control", id="promo") }}
+                        {{ render_field(form.ville, class="form-control", id="ville") }}
+                        {{ render_field(form.pays, class="form-control", id="pays") }}
+                        {{ render_radio(form.adresse) }}
+                        {{ render_field(form.entreprise, class="form-control", id="entreprise") }}
+                        <div class="text-right" style="margin-top:10px;">
+                            <a class="btn btn-success btn-sm" href="#" onclick="search_advanced_from_form()">
+                                <i class="glyphicon glyphicon-search"></i>Recherche
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div class="text-right">
+                    <a href="#" class="btn btn-link" onclick="showFulltext()">Recherche simple</a>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div id="annuaire-results" style="margin-top:10px;" class="col-md-12">
         </div>
     </div>
 </div>
 
 
 <script>
-$(document).ready(
+    $(document).ready(
         function() {
+
+            // Se mettre en mode "recherche normale"
+            $("#advanced-search").hide();
+
+            // Setup the autocomplete
             $('input#fulltext_main').autocomplete({
                 source : '{{ url_for("autocomplete_fulltext") }}',
                 max: 10,
@@ -27,14 +65,337 @@ $(document).ready(
                 scroll: false,
                 select: function(event, ui) {
                     $(this).val(ui.item.value);
-                    $(this).parents("form").submit();
+                    var query = ui.item.value;
+                    search_fulltext(query);
                 }
             });
+
+            $('input#nom').autocomplete({
+                source : '{{ url_for("autocomplete_nom") }}',
+                //width: 300,
+                max: 10,
+                delay: 50,
+                cacheLength: 1,
+                scroll: false,
+                select: function(event, ui) {
+                    $(this).val(ui.item.value);
+                }
+            });
+
+            $('input#ville').autocomplete({
+                source : '{{ url_for("autocomplete_ville") }}',
+                //width: 300,
+                max: 10,
+                delay: 50,
+                cacheLength: 1,
+                scroll: false,
+                select: function(event, ui) {
+                    $(this).val(ui.item.value);
+                }
+            });
+
+            $('input#entreprise').autocomplete({
+                source : '{{ url_for("autocomplete_entreprise") }}',
+                //width: 300,
+                max: 10,
+                delay: 50,
+                cacheLength: 1,
+                scroll: false,
+                select: function(event, ui) {
+                    $(this).val(ui.item.value);
+                }
+            });
+
+            // Focus on the input
             $("input#fulltext_main").focus(function(){
                 this.select();
             });
+
+            // Détection de la touche entrée sur la textbox
+            $('input#fulltext_main').keyup(
+                    function (e) {
+                        if (e.keyCode == 13) {
+                            console.log("toto");
+                            e.preventDefault();
+                            $(this).autocomplete('close');
+                            console.log(this.value);
+                            search_fulltext(this.value, 1);
+                        }
+                    }
+            );
+
+
+            // Si l'url est de type q=... ; lancer une recherche
+            var match = location.search.match("q=[^&.]+");
+            if(match != null){
+                var query = match[0].replace("q=", "");
+                $("input#fulltext_main").val(query);
+                search_fulltext(query);
+            }
         }
-);
+    );
+
+
+    var search_advanced_from_form =
+            function () {
+                var queryString = "";
+                var array = $("#advanced-search-form").formToArray();
+                $.each(
+                        array,
+                        function(index, value)
+                        {
+                            if (value.value != "") {
+                                queryString += value.name;
+                                queryString += "=";
+                                queryString += value.value;
+                                queryString += "&";
+                            }
+                        }
+                );
+
+                search_advanced(queryString.slice(0, -1), 1);
+
+                return false;
+            };
+
+
+    var search_advanced =
+            function (parameters, page){
+                if(page == null){
+                    page = 1;
+                }
+                $.ajax(
+                        {
+                            method: "GET",
+                            url: "{{ url_for('search_api') }}?" + parameters + "&p=" + page,
+                            success: function (data) {
+
+                                $("#annuaire-results").empty();
+
+                                var results = eval("(" + data + ")");
+                                var ancien_list = results["data"];
+
+                                if(ancien_list.length > 0){
+                                    var pagination = render_pagination(results["current_page"], results["max_pages"], "search_advanced", parameters);
+                                    $("#annuaire-results").append(pagination);
+                                    $.each(
+                                            ancien_list,
+                                            function (index, value) {
+                                                var row = create_ancien_row(value);
+                                                $("#annuaire-results").append(row);
+                                            }
+                                    );
+                                    $("#annuaire-results").append(pagination);
+                                } else {
+                                    $("#annuaire-results").append("<div class='text-center' style='margin-top:20px;'>Aucun r&eacute;sultat trouv&eacute;.</div>");
+                                }
+
+                            }
+                        }
+                );
+            };
+
+    /********************************************************************************
+     * Fonction pour recherche des anciens en mode "fulltext" = avec un seul champ. *
+    *                                                                               *
+     * @param query     str : Le text de la query à utiliser                        *
+     * @param page      int : La page (dans le sens de pagination). Défaut = 1.     *
+     * @returns null                                                                *
+     ********************************************************************************/
+    var search_fulltext =
+            function(query, page) {
+                if(page == null){
+                    page = 1;
+                }
+                $.ajax(
+                        {
+                            method: "GET",
+                            url: "{{ url_for('fulltext_api') }}?q=" + query + "&p=" + page,
+                            success: function (data) {
+
+                                $("#annuaire-results").empty();
+
+                                var results = eval("(" + data + ")");
+                                var ancien_list = results["data"];
+
+                                if(ancien_list.length > 0){
+                                    var pagination = render_pagination(results["current_page"], results["max_pages"], "search_fulltext", query);
+                                    $("#annuaire-results").append(pagination);
+                                    $.each(
+                                            ancien_list,
+                                            function (index, value) {
+                                                var row = create_ancien_row(value);
+                                                $("#annuaire-results").append(row);
+                                            }
+                                    );
+                                    $("#annuaire-results").append(pagination);
+                                } else {
+                                    $("#annuaire-results").append("<div class='text-center' style='margin-top:20px;'>Aucun r&eacute;sultat trouv&eacute;.</div>");
+                                }
+
+                            }
+                        }
+                );
+            };
+
+    /*******************************************************************************************************************
+     * Fonction helper pour créer le petit encart de pagination, à placer avant et après les résultats de la recherche.*
+     * Renvoie un élément HTML qui peut être directement injecté dans la page.                                         *
+     *                                                                                                                 *
+     * @param current_page      int : page en cours                                                                    *
+     * @param max_pages         int : le nombre maximum de pages                                                       *
+     * @param search_function   int : la fonction à utiliser onclick                                                   *
+     * @param parameters        str : les paramètres à passer à la fonction de recherche                               *
+     * @returns {string}                                                                                               *
+     *******************************************************************************************************************/
+    var render_pagination =
+            function(current_page, max_pages, search_function, parameters) {
+                var result = "";
+                if (max_pages > 1){
+                    var delta = 2;      // nombre de pages à afficher autour de la page en cours
+
+                    // Ouverture de la liste
+                    result = '<div class="text-center">';
+                    result += '<ul class="pagination">';
+
+                    // Previous / first
+                    var disabled = "";
+                    var first = "<span>&lt;&lt;</span>";
+                    var prev = "<span>&lt;</span>";
+                    if (current_page == 1){
+                        disabled = 'class="disabled"';
+                    } else{
+                        var previous_page = current_page - 1;
+                        first = "<a href='#' onclick='" + search_function + "(\""+ parameters +"\", 1)'>&lt;&lt;</a>";
+                        prev = "<a href='#' onclick='" + search_function + "(\"" + parameters + "\", " + previous_page + ")'>&lt;</a>";
+                    }
+                    result += '<li ' + disabled + '>' + first + '</li>';
+                    result += '<li ' + disabled + '>' + prev + '</li>';
+
+                    // Liste des pages
+
+                    // Afficher les pages précédentes
+                    // Si il y a "trop" de pages précédentes (plus que delta), alors on
+                    // affiche des points de suspensions
+                    var first_page_displayed = current_page - delta;
+                    if(first_page_displayed > 1) {
+                        result += '<li class="disabled"><span>...</span></li>';
+                    }
+
+                    // Précédentes > 0
+                    for (var i = delta; i > 0; i--) {
+                        var temppage = current_page - i;
+                        if(temppage > 0){
+                            result += '<li><a href="#" onclick="' + search_function + '(\'' + parameters + '\', ' + temppage + ')">' + temppage + '</a></li>';
+                        }
+                    }
+
+                    // Page en cours
+                    result += '<li class="active"><span>' + current_page + '</span></li>';
+
+                    // Précédentes > 0
+                    for (var j = 1; j <= delta; j++) {
+                        var pagetemp = current_page + j;
+                        if(pagetemp <= max_pages){
+                            result += '<li><a href="#" onclick="' + search_function + '(\'' + parameters + '\', ' + pagetemp + ')">' + pagetemp + '</a></li>';
+                        }
+                    }
+
+                    // Si il y a "trop" de pages précédentes (plus que delta), alors on
+                    // affiche des points de suspensions
+                    var last_page_displayed = current_page + delta;
+                    if(last_page_displayed < max_pages) {
+                        result += '<li class="disabled"><span>...</span></li>';
+                    }
+
+
+
+                    // Next / last
+                    disabled = "";
+                    var last = "<span>&gt;&gt;</span>";
+                    var next = "<span>&gt;</span>";
+                    if (current_page == max_pages){
+                        disabled = 'class="disabled"';
+                    } else{
+                        var next_page = current_page + 1;
+                        next = "<a href='#' onclick='" + search_function + "(\"" + parameters + "\", " + next_page + ")'>&gt;</a></li>";
+                        last = "<a href='#' onclick='" + search_function + "(\""+ parameters +"\", " + max_pages + ")'>&gt;&gt;</a></li>";
+                    }
+                    result += '<li ' + disabled + '>' + next + '</li>';
+                    result += '<li ' + disabled + '>' + last + '</li>';
+
+
+
+                    // Fermeture de la liste
+                    result += "</ul>";
+                    result += "</div>";
+                }
+                return result;
+            };
+
+    /************************************************************
+     * Fonction pour préparer la ligne qui représente un ancien *
+     * @param data  object : un objet représentant un ancien    *
+     * @returns {string}                                        *
+     ************************************************************/
+    var create_ancien_row =
+            function(data){
+                var row = "<a href='" + get_url_ancien(data['id']) + "' target='_blank'><div class='row annuaire-row'>";
+                row += "<div class='col-sm-3'>" + format_nom(data['prenom'], data['nom']) + "</div>";
+                row += "<div class='col-sm-4'>" + format_entreprise(data['entreprise']) + "</div>";
+                row += "<div class='col-sm-3'>" + format_address(data["ville"], data["pays"]) + "</div>";
+                row += "<div class='col-sm-2 custom-text-right-big-screen'>" + data['ecole'] + " " + data['promo'] + "</div>";
+                row += "</div></a>";
+                return row;
+            };
+
+    var format_address =
+            function(ville, pays) {
+                var result = "";
+                if (ville!=null && ville != ""){
+                    result += ville;
+                    result += " ";
+                }
+                if(pays != null && pays != ""){
+                    result += "(";
+                    result += pays;
+                    result += ")";
+                }
+                return result;
+            };
+
+    var format_nom =
+            function(prenom, nom) {
+                var result = "";
+                if (prenom != null && prenom != ""){
+                    result += prenom;
+                    result += " ";
+                }
+                if(nom != null && nom != ""){
+                    result += nom;
+                }
+                return result;
+            };
+
+    var format_entreprise =
+            function(nom) {
+                var result = "";
+                if (nom != null && nom != ""){
+                    result = nom;
+                }
+                return result;
+            };
+
+    var get_url_ancien =
+            function(id){
+                var base = "{{ url_for('ancien', id_ancien=0) }}";
+                return base.replace("0", id);
+            };
+
+
+
+    var showAvance = function() { $("#fulltext-search").hide(); $("#advanced-search").show(); };
+    var showFulltext = function() { $("#fulltext-search").show(); $("#advanced-search").hide(); };
 
 </script>
 {% endblock %}

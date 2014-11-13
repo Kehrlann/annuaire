@@ -27,6 +27,11 @@ def search_anciens(request_values=None, page=1):
     annuaire_form.setEcole(ECOLES)
     annuaire_form.setPays(PAYS)
 
+    ecole = request_values.get("ecole", '')
+    pays = request_values.get("pays", '')
+    annuaire_form.pays.data = pays
+    annuaire_form.ecole.data = ecole
+
     # si POST d'un formulaire valide + user logged : count
     if annuaire_form.validate():
 

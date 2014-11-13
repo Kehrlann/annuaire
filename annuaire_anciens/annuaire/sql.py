@@ -66,22 +66,22 @@ def fulltext_search(search_terms, offset = 0, limit =0):
     ).outerjoin(
         __pays, __ville.c.id_pays == __pays.c.id_pays
     ).outerjoin(
-        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien, __experience.c.actif == True)
+        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien)
     ).outerjoin(
         __entreprise, __experience.c.id_entreprise == __entreprise.c.id_entreprise
     )
 
     sel = select(
     [
-        __ancien.c.id_ancien,
-        __ancien.c.prenom,
-        __ancien.c.nom,
-        __ancien.c.ecole,
-        __ancien.c.promo,
-        __ville.c.nom,
-        __adresse.c.code,
-        __entreprise.c.nom,
-        __pays.c.nom
+        __ancien.c.id_ancien.label('id'),
+        __ancien.c.prenom.label('prenom'),
+        __ancien.c.nom.label('nom'),
+        __ancien.c.ecole.label('ecole'),
+        __ancien.c.promo.label('promo'),
+        __ville.c.nom.label('ville'),
+        __adresse.c.code.label('code_postal'),
+        __entreprise.c.nom.label('entreprise'),
+        __pays.c.nom.label('pays')
     ],
         from_obj=from_obj,
         use_labels=True
@@ -89,10 +89,17 @@ def fulltext_search(search_terms, offset = 0, limit =0):
         __ancien.c.ecole,
         __ancien.c.promo,
         __ancien.c.nom,
-        __ancien.c.prenom
+        __ancien.c.prenom,
+        desc(__experience.c.debut).nullslast(),
+        desc(__experience.c.actif)
     )
     sel = sel.where("fulltext @@ to_tsquery('french', :input_str)")
-    sel = sel.distinct()
+    sel = sel.distinct(
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ancien.c.nom,
+        __ancien.c.prenom
+    )
     sel = sel.offset(offset).limit(limit)
 
     res = engine.execute(sel, input_str=helper.prepare_for_fulltext(search_terms)).fetchall()
@@ -120,22 +127,22 @@ def annuaire_search(form, offset = 0, limit =0):
     ).outerjoin(
         __pays, __ville.c.id_pays == __pays.c.id_pays
     ).outerjoin(
-        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien, __experience.c.actif == True)
+        __experience, and_(__ancien.c.id_ancien == __experience.c.id_ancien)
     ).outerjoin(
         __entreprise, __experience.c.id_entreprise == __entreprise.c.id_entreprise
     )
 
     sel = select(
     [
-        __ancien.c.id_ancien,
-        __ancien.c.prenom,
-        __ancien.c.nom,
-        __ancien.c.ecole,
-        __ancien.c.promo,
-        __ville.c.nom,
-        __adresse.c.code,
-        __entreprise.c.nom,
-        __pays.c.nom
+        __ancien.c.id_ancien.label('id'),
+        __ancien.c.prenom.label('prenom'),
+        __ancien.c.nom.label('nom'),
+        __ancien.c.ecole.label('ecole'),
+        __ancien.c.promo.label('promo'),
+        __ville.c.nom.label('ville'),
+        __adresse.c.code.label('code_postal'),
+        __entreprise.c.nom.label('entreprise'),
+        __pays.c.nom.label('pays')
     ],
     from_obj=from_obj,
     use_labels=True
@@ -143,10 +150,17 @@ def annuaire_search(form, offset = 0, limit =0):
         __ancien.c.ecole,
         __ancien.c.promo,
         __ancien.c.nom,
-        __ancien.c.prenom
+        __ancien.c.prenom,
+        desc(__experience.c.debut).nullslast(),
+        desc(__experience.c.actif)
     )
 
-    sel = sel.distinct()
+    sel = sel.distinct(
+        __ancien.c.ecole,
+        __ancien.c.promo,
+        __ancien.c.nom,
+        __ancien.c.prenom
+    )
     sel = sel.offset(offset).limit(limit)
 
     return _filter_search(form, sel).fetchall()

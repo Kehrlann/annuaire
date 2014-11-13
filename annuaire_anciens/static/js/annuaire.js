@@ -1,10 +1,6 @@
-function intermines_pagination_page(url){
-    $.get(url, function(html) {
-        $('#custom-pagination').replaceWith(html);
-    });
-    return false;
-}
-
+/************************************************
+ * Le sexy pop-up de login                      *
+ ************************************************/
 $(function(){
   $('#js-login-popover').popover({
       html : true,
@@ -42,6 +38,19 @@ $(function(){
 
 });
 
+
+
+
+
+
+//---------------------------------------------------------------------------------------------------------------------
+/************************************************
+ * Helper jquery pour transformer un formulaire *
+ * html (<form>...</form> en array javascript.  *
+ *                                              *
+ * S'utilise avec $("form").formToArray();      *
+ *                                              *
+ ************************************************/
 (function (factory) {
     "use strict";
     if (typeof define === 'function' && define.amd) {

@@ -25,7 +25,6 @@ class Pagination():
 
     @current.setter
     def current(self, page):
-        print "lol"
         if page is not None and type(page) is int and page > 0:
             self._page_current = page
      

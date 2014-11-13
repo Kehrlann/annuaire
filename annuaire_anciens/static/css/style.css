@@ -318,6 +318,51 @@ h1, h2, h3, h4, h5 {
     right: 0;
     font-size: 20px;
 }
+<<<<<<< HEAD:annuaire_anciens/static/css/style.css
+=======
+
+.annuaire-row {
+    border-top: 1px solid #888;
+    padding: 10px 0;
+}
+
+.annuaire-row:hover {
+    background-color: #3f5c73 !important;
+    cursor: pointer;
+}
+
+#annuaire-results  >  a:nth-child(odd) > .annuaire-row {
+    background-color: #34495E;
+}
+
+#annuaire-results > a {
+    text-decoration: none;
+    color: white;
+}
+
+.pagination > li > a,
+.pagination > li > span,
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .disabled > a,
+.pagination > .disabled > span{
+    background-color:#2c3e50;
+    color:white;
+    border-color:white;
+}
+
+.pagination > li > a:hover,
+.pagination > li > span:hover {
+    background-color: #3f5c73 !important;
+    cursor:pointer;
+}
+
+.pagination > .active > a,
+.pagination > .active > span {
+    font-weight: bold;
+    background-color: #34495E;
+}
+>>>>>>> origin/paduc:annuaire_anciens/static/css/custom.css
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
