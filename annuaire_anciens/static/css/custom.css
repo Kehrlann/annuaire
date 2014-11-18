@@ -442,6 +442,10 @@ cosmétique pour l'autocomplete
     margin-bottom: 6px;
 }
 
+.custom-visible-big-screen {
+    display: none;
+}
+
 @media (min-width: 768px) {
     .custom-text-right-big-screen {
         text-align: right;
@@ -453,6 +457,10 @@ cosmétique pour l'autocomplete
 
     .custom-label {
         margin-top: 6px;
+    }
+
+    .custom-visible-big-screen {
+        display: block;
     }
 
 }
