@@ -1,4 +1,9 @@
 # coding=utf-8
+"""
+    Vues relatives à l'utilsateur et à la gestion de son compte.
+
+    Contient également la vue "ancien", qui permet de visualiser un profil
+"""
 from datetime import datetime
 import os
 
@@ -26,17 +31,14 @@ def compte():
 
     """
 
-    #TODO : et si il n'y a pas d'ancien ?
-    # chopper l'ancien associé à l'utilisateur
-    utilisateur = user.find_user_by_id(current_user.id)
 
     # Trouver si l'utilisateur a un ancien associé
-    ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    ancien = annuaire.find_ancien_by_id(current_user.id_ancien, actif=None, bloque=None, nouveau=None)
 
     # Si l'utilisateur n'a pas d'ancien, on va vérifier
     # Via le mail asso, s'il existe un ancien dans la base pour lui
     if ancien is None:
-        ancien_temp = annuaire.find_ancien_by_mail_asso(utilisateur.mail)
+        ancien_temp = annuaire.find_ancien_by_mail_asso(current_user.mail)
 
         # si il y a effectivement un ancien, vérifier
         # qu'il n'est pas déjà associé à un utilisateur
@@ -51,18 +53,17 @@ def compte():
             # Si ça n'existe pas, alors faire l'association
             if user_temp is None:
                 # On récupère le nouvel utilisateur
-                sql_res = user.update_id_ancien(utilisateur.id, ancien_temp['id_ancien'])
+                sql_res = user.update_id_ancien(current_user.id, ancien_temp['id_ancien'])
 
                 # Si l'association réussit
                 # réucpérer l'ancien
                 if sql_res :
-                    utilisateur = user.find_user_by_id(utilisateur.id)
                     app.logger.info(
                         "USER ASSOCIATION - Success, associated user %s with ancien %s",
-                        utilisateur.id,
+                        current_user.id,
                         ancien_temp['id_ancien']
                     )
-                    return redirect(url_for("ancien", id_ancien=utilisateur.id_ancien))
+                    return redirect(url_for("ancien", id_ancien=ancien_temp['id_ancien']))
 
                 else:
                     app.logger.error(
@@ -75,9 +76,15 @@ def compte():
                     user_temp.id,
                     ancien_temp['id_ancien']
                 )
+        else:
+            # Sinon, on le laisse créer sa fiche !
+            return redirect(url_for("create_ancien"))
+
+    elif ancien['nouveau']:
+        return redirect(url_for("create_ancien")) # cas spécifique : ancien en cours de création
 
     else:
-        return redirect(url_for("ancien", id_ancien=utilisateur.id_ancien))
+        return redirect(url_for("ancien", id_ancien=current_user.id_ancien))
 
 
 @app.route('/ancien/<int:id_ancien>')
@@ -100,61 +107,93 @@ def ancien(id_ancien):
     :return:
     """
 
-    is_this_me = False
-    adresse_form = user.update_adresse_form()
-    adresse_form.set_pays(PAYS)
-    experience_forms = {}
-    new_experience_form = None
-    linkedin_url = None
-    import_linkedin_url = None
-    password_form = user.change_password_form()
+    is_this_me =  current_user is not None and current_user.id_ancien == id_ancien
+
+    kwargs = { "actif" : True, "bloque" : False }
+    if is_this_me or current_user.admin:
+        kwargs = { "actif" : None, "bloque" : None }
+
+    # Chargement de l'ancien
+    ancien = annuaire.find_ancien_by_id(id_ancien, **kwargs)
 
 
-    # get data by id ancien
-    ancien = annuaire.find_ancien_by_id(id_ancien)
-    adresse = annuaire.find_adresse_by_id_ancien(id_ancien)
-    experiences = annuaire.find_experience_by_id_ancien(id_ancien).fetchall()
+    # Cas 1 : il n'existe pas
+    if ancien is None:
+        abort(404, "Il semblerait que la page n'existe pas ...")
 
-    for exp in experiences:
-        form = user.update_experience_form()
-        form.set_pays(PAYS)
-        form.load_experience(exp)
-        experience_forms[exp['experience_id_experience']] = form
+    # cas 2 : il est bloqué
+    # (donc normalement ici c'est l'utilisateur concerné qui consulte la fiche)
+    elif is_this_me and ancien['bloque']:
+        flash(
+            "Ton compte a &eacute;t&eacute; d&eacute;sactiv&eacute; par les administrateurs."
+            "Nous t'invitons &agrave; les contacter pour le d&eacute;bloquer.",
+            "danger"
+        )
+        return redirect(url_for("annuaire_view"))
 
-    utilisateur = user.find_user_by_id(current_user.id)
-
-    #~~~~~~~~~#
-    # ADRESSE #
-    #~~~~~~~~~#
-    if utilisateur is not None and utilisateur.id_ancien == id_ancien:
-        is_this_me = True
-
-        adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
-        if adresse is not None:
-            adresse_form.load_adresse(adresse)
-
-    #~~~~~~~~~~~~~#
-    # INFOS PERSO #
-    #~~~~~~~~~~~~~#
-    ancien_form = user.update_ancien_form()
-    ancien_form.load_ancien(ancien)
-
-    #~~~~~~~~~~~~~~~~~~#
-    # AJOUT EXPERIENCE #
-    #~~~~~~~~~~~~~~~~~~#
-    if is_this_me:
-        new_experience_form = user.update_experience_form()
-        new_experience_form.set_pays(PAYS)
+    # Cas 3 : cas nominal !
+    else:
+        ancien_form = user.update_ancien_form()
+        adresse_form = user.update_adresse_form()
+        adresse_form.set_pays(PAYS)
+        experience_forms = {}
+        new_experience_form = None
+        linkedin_url = None
+        import_linkedin_url = None
+        password_form = user.change_password_form()
 
 
-    #~~~~~~~~~~~~~~~~~~#
-    # Gestion LinkedIn #
-    #~~~~~~~~~~~~~~~~~~#
-    if is_this_me:
+        # get data by id ancien
+        adresse = annuaire.find_adresse_by_id_ancien(id_ancien)
+        experiences = annuaire.find_experience_by_id_ancien(id_ancien).fetchall()
 
-        # Connexion à LinkedIn
-        if ancien['url_linkedin'] is None:
-            linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+        for exp in experiences:
+            form = user.update_experience_form()
+            form.set_pays(PAYS)
+            form.load_experience(exp)
+            experience_forms[exp['experience_id_experience']] = form
+
+        # Ici on regarde si il s'agit bien de l'utilisateur
+        if is_this_me:
+
+            #~~~~~~~~~#
+            # ADRESSE #
+            #~~~~~~~~~#
+            adresse = annuaire.find_adresse_by_id_ancien(current_user.id_ancien)
+            if adresse is not None:
+                adresse_form.load_adresse(adresse)
+
+            #~~~~~~~~~~~~~#
+            # INFOS PERSO #
+            #~~~~~~~~~~~~~#
+            ancien_form = user.update_ancien_form()
+            ancien_form.load_ancien(ancien)
+
+            #~~~~~~~~~~~~~~~~~~#
+            # AJOUT EXPERIENCE #
+            #~~~~~~~~~~~~~~~~~~#
+            new_experience_form = user.update_experience_form()
+            new_experience_form.set_pays(PAYS)
+
+
+            #~~~~~~~~~~~~~~~~~~#
+            # Gestion LinkedIn #
+            #~~~~~~~~~~~~~~~~~~#
+            # Connexion à LinkedIn
+            if ancien['url_linkedin'] is None:
+                linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
+                                    "response_type=code&"
+                                    "client_id=%s&"
+                                    "scope=%s"
+                                    "&state=%s"
+                                    "&redirect_uri=%s" %
+                                    (app.config['LINKEDIN_KEY'],
+                                     app.config['LINKEDIN_SCOPE'],
+                                     generate_csrf_token(),
+                                     url_for('linkedin_associer', _external=True)))
+
+            # import des expériences pro linkeding
+            import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
                                 "response_type=code&"
                                 "client_id=%s&"
                                 "scope=%s"
@@ -163,38 +202,132 @@ def ancien(id_ancien):
                                 (app.config['LINKEDIN_KEY'],
                                  app.config['LINKEDIN_SCOPE'],
                                  generate_csrf_token(),
-                                 url_for('linkedin_associer', _external=True)))
-
-        # import des expériences pro linkeding
-        import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
-                            "response_type=code&"
-                            "client_id=%s&"
-                            "scope=%s"
-                            "&state=%s"
-                            "&redirect_uri=%s" %
-                            (app.config['LINKEDIN_KEY'],
-                             app.config['LINKEDIN_SCOPE'],
-                             generate_csrf_token(),
-                             url_for('linkedin_importer', _external=True)))
+                                 url_for('linkedin_importer', _external=True)))
 
 
 
-    # load page
-    return render_template(
-        'annuaire/ancien.html',
-        ancien=ancien,
-        adresse=adresse,
-        ancien_form=ancien_form,
-        adresse_form=adresse_form,
-        experiences=experiences,
-        utilisateur=current_user,
-        editable=is_this_me,
-        experience_forms=experience_forms,
-        new_experience_form = new_experience_form,
-        linkedin_url = linkedin_url,
-        import_linkedin_url= import_linkedin_url,
-        password_form = password_form
-    )
+        # load page
+        return render_template(
+            'annuaire/ancien.html',
+            admin=current_user.admin,
+            ancien=ancien,
+            adresse=adresse,
+            ancien_form=ancien_form,
+            adresse_form=adresse_form,
+            experiences=experiences,
+            utilisateur=current_user,
+            editable=is_this_me,
+            experience_forms=experience_forms,
+            new_experience_form = new_experience_form,
+            linkedin_url = linkedin_url,
+            import_linkedin_url= import_linkedin_url,
+            password_form = password_form
+        )
+
+
+@app.route('/me/create', methods=['GET', 'POST'])
+@login_required
+def create_ancien():
+    """
+    Créer un ancien, associé à mon compte personnel. L'ancien est créé et son status
+    est "nouveau".
+
+    1.      Si l'ancien n'existe pas
+    1.a.    Afficher un formulaire à remplir par l'ancien.
+    1.b.    Si le formulaire est valide, on crée l'ancien
+    1.c.    On ajoute l'ancien
+    1.d.    On linke le nouvel ancien à l'utilisateur courant
+
+    2.      Si l'ancien existe mais est "nouveau"
+    2.a.    On affiche un message à l'utilisateur actuel
+
+    3.      Si l'ancien est existe mais n'est pas nouveau
+    3.a.    On flashe une erreur et on redirige l'utilisateur vers son compte
+
+
+    :return: None.
+    """
+
+    # Trouver si l'utilisateur a un ancien associé
+    ancien = annuaire.find_ancien_by_id(current_user.id_ancien, actif=None, nouveau=None, bloque=None)
+
+    form = user.create_ancien_form()
+
+    # Cas #1 : Créer l'ancien
+    if ancien is None:
+        if request.method == "POST":
+
+            app.logger.info(
+                "CREATE ANCIEN - Creating ancien for user %s",
+                current_user.id
+            )
+
+            form = user.create_ancien_form(request.form)
+
+            # Cas #1.1 : Si le form est valable, on insère l'ancien, on l'associe, et on envoie l'utilisateur
+            # sur la page de l'annuaire
+            if form.validate():
+                id_ancien = annuaire.create_ancien(
+                    prenom=form.prenom.data,
+                    nom=form.nom.data,
+                    promo=int(form.promo.data),
+                    ecole=form.ecole.data,
+                    mail_asso=current_user.mail,
+                    diplome=form.diplome.data
+                )
+
+                user.update_id_ancien(current_user.id, id_ancien)
+
+                flash(
+                    "F&eacute;licitations ! Ta fiche ancien a &eacute;t&eacute; cr&eacute;e.<br>"
+                    "Elle est maintenant en attente de validation par un administrateur.<br>"
+                    "Une fois ta fiche valid&eacute;e, tu recevras un mail de confirmation.",
+                    "success"
+                )
+
+                app.logger.info(
+                    "CREATE ANCIEN - Success ! Ancien with id :s; created for user with ID %s",
+                    id_ancien,
+                    current_user.id
+                )
+
+
+                return redirect(url_for("annuaire_view"))
+
+            # Cas #1.2 : Si le form n'est pas valide, on flashe une erreur
+            # Puis on tombe dans le cas #1.3
+            else:
+
+                app.logger.warning(
+                    "CREATE ANCIEN - Failed formulaire for user with ID %s",
+                    current_user.id
+                )
+                flash(
+                    "Oops ! Probl&eacute;me &agrave; la cr&eacute;ation de la fiche."
+                    "danger"
+                )
+
+
+        # Cas #1.3 : render le formulaire (avec ou sans erreurs)
+        return render_template(
+            'user/creation/creation.html',
+            form=form
+        )
+
+    # Cas #2 : l'ancien a été créé mais pas activé
+    if ancien is not None and ancien["nouveau"]:
+        return render_template(
+            'user/creation/attente.html',
+            ancien=ancien
+        )
+
+    # Cas #3 : Il y a déjà un ancien ! redir
+    else:
+        flash(
+            "Un ancien existe d&eacute;j&agrave;.",
+            "danger"
+        )
+        return redirect(url_for("compte"))
 
 
 
@@ -273,15 +406,12 @@ def update_info_perso():
 
     info_ok = False
 
-    utilisateur = user.find_user_by_id(current_user.id)
-    if utilisateur is not None:
-
-
+    if current_user is not None:
 
         #~~~~~~~~~~~~~#
         # INFOS PERSO #
         #~~~~~~~~~~~~~#
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
 
         if ancien is not None:
             form.load_ancien(ancien)
@@ -322,8 +452,8 @@ def update_info_perso():
         adresse_form = user.update_adresse_form()
         adresse_form.set_pays(PAYS)
 
-        if utilisateur.id_ancien is not None:
-            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+        if current_user.id_ancien is not None:
+            adresse = annuaire.find_adresse_by_id_ancien(current_user.id_ancien)
             if adresse is not None:
                 adresse_form.load_adresse(adresse)
 
@@ -335,7 +465,7 @@ def update_info_perso():
             # si tout va bien, mettre a jour.
             if form_confirmed:
                 annuaire.update_adresse_perso(
-                    utilisateur.id_ancien,
+                    current_user.id_ancien,
                     adresse_form.ville.data,
                     adresse_form.pays.data,
                     adresse_form.adresse.data,
@@ -372,9 +502,8 @@ def update_experience(id_experience = None):
     experience_form = user.update_experience_form()
     experience_form.set_pays(PAYS)
 
-    utilisateur = user.find_user_by_id(current_user.id)
 
-    if utilisateur.id_ancien is not None:
+    if current_user.id_ancien is not None:
 
         experience_form = user.update_experience_form(request.form)
         experience_form.set_pays(PAYS)
@@ -390,8 +519,8 @@ def update_experience(id_experience = None):
             except ValueError:
                 date_fin = None
 
-            id = annuaire.update_experience(
-                utilisateur.id_ancien,
+            success = annuaire.update_experience(
+                current_user.id_ancien,
                 id_experience,
                 experience_form.ville.data,
                 experience_form.pays.data,
@@ -441,17 +570,15 @@ def update_photo():
             l'url de la requête (bof bof ...)
     """
 
-    utilisateur = user.find_user_by_id(current_user.id)
-
     res = {}
     res["content"] = None
     res["csrf_token"] = generate_csrf_token()
     res["success"] = False
 
-    if utilisateur.id_ancien is None:
+    if current_user.id_ancien is None:
         return res
     else:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
         if ancien is None:
             return res
         else:
@@ -529,22 +656,50 @@ def update_photo():
     return json.dumps(res)
 
 
+@app.route('/compte/actif/update', methods=['GET'])
+@login_required
+def update_actif():
+    """
+    Toggle l'état d'une fiche ancien : actif, inactif
+
+    :return:
+    """
+
+    if current_user.id_ancien is not None:
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
+
+        if ancien is not None:
+            annuaire.update_actif(ancien['id_ancien'], not ancien['actif'])
+            app.logger.info(
+                "ANCIEN - successfully updated ancien :%s, set actif : %s, user : %s",
+                ancien['id_ancien'],
+                not ancien['actif'],
+                current_user.id)
+
+            mot = "est &agrave; nouveau visible"
+            if ancien['actif']:
+                mot = "n'est plus visible"
+
+            flash("Votre fiche %s dans l'annuaire" % mot, "success")
+
+    return redirect(url_for('compte'))
+
+
 @app.route('/compte/experience/remove/<int:id_experience>', methods=['POST'])
 @login_required
 def remove_experience(id_experience):
     """
     Supprimer une expérience par id
-    @param id_experience: id_experience de l'experience à supprimer.
-    @return: redirect @compte
+    :param id_experience: id_experience de l'experience à supprimer.
+    :return: redirect @compte
     """
-    utilisateur = user.find_user_by_id(current_user.id)
-    if utilisateur.id_ancien is not None:
-        annuaire.remove_experience(utilisateur.id_ancien, id_experience)
+    if current_user.id_ancien is not None:
+        annuaire.remove_experience(current_user.id_ancien, id_experience)
         app.logger.info(
             "EXPERIENCE - successfully removed experience :%s, for ancien : %s, user : %s",
             id_experience,
-            utilisateur.id_ancien,
-            utilisateur.id)
+            current_user.id_ancien,
+            current_user.id)
         flash("Exp&eacute;rience supprim&eacute;e", "success")
 
     return redirect(url_for('compte'))
@@ -566,14 +721,13 @@ def linkedin_associer():
     - Récupérer ces données et les insérer en base
     """
     success = False
-    utilisateur = user.find_user_by_id(current_user.id)
     app.logger.info(
             "LINKEDIN - begin authorize for ancien : %s, user : %s",
-            utilisateur.id_ancien,
-            utilisateur.id)
+            current_user.id_ancien,
+            current_user.id)
 
-    if utilisateur.id_ancien is not None:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    if current_user.id_ancien is not None:
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
         if ancien is not None:
             access_token = __get_linkedin_token(url_for('linkedin_associer', _external=True))
             api_url = "https://api.linkedin.com/v1/people/~:(id,public-profile-url)?oauth2_access_token=%s" % access_token
@@ -592,12 +746,12 @@ def linkedin_associer():
                         success = annuaire.update_linkedin_ancien(ancien['id_ancien'], id_linkedin, url_linkedin)
                         app.logger.info(
                             "LINKEDIN - successful update for user : %s, ancien : %s, id_linkedin : %s, url public profile : %s",
-                            utilisateur.id, ancien['id_ancien'], id_linkedin, url_linkedin)
+                            current_user.id, ancien['id_ancien'], id_linkedin, url_linkedin)
 
             if not success:
                 app.logger.error(
                     "LINKEDIN - bad people API request for user : %s, code : %s, request response : %s",
-                    utilisateur.id, api_req.status_code, api_req.text)
+                    current_user.id, api_req.status_code, api_req.text)
 
     if success:
         flash("Profil linkedin correctement connect&eacute; !", "success")
@@ -611,14 +765,13 @@ def linkedin_associer():
 def linkedin_dissocier():
     """
     Virer l'association au compte linkedin d'un ancien
-    @return:
+    :return:
     """
-    utilisateur = user.find_user_by_id(current_user.id)
-    if utilisateur.id_ancien is not None:
+    if current_user.id_ancien is not None:
         app.logger.info(
             "LINKEDIN - successful unlink for user : %s, ancien : %s",
-            utilisateur.id, utilisateur.id_ancien)
-        annuaire.update_linkedin_ancien(utilisateur.id_ancien)
+            current_user.id, current_user.id_ancien)
+        annuaire.update_linkedin_ancien(current_user.id_ancien)
         flash("Compte LinkedIn dissoci&eacute; de l'annuaire", "success")
     return redirect(url_for('compte'))
 
@@ -642,14 +795,13 @@ def linkedin_importer():
     """
     import_success = False
     saved_positions = 0
-    utilisateur = user.find_user_by_id(current_user.id)
     app.logger.info(
             "LINKEDIN - begin import for ancien : %s, user : %s",
-            utilisateur.id_ancien,
-            utilisateur.id)
+            current_user.id_ancien,
+            current_user.id)
 
-    if utilisateur.id_ancien is not None:
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+    if current_user.id_ancien is not None:
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
         if ancien is not None:
             access_token = __get_linkedin_token(url_for('linkedin_importer', _external=True))
             api_url = "https://api.linkedin.com/v1/people/~:(id,positions)?oauth2_access_token=%s" % access_token
@@ -674,13 +826,13 @@ def linkedin_importer():
                         for position in positions:
                             app.logger.info(
                                 "LINKEDIN - saving experience for user %s, enreprise : %s, position : %s, id_xp : %s",
-                                utilisateur.id,
+                                current_user.id,
                                 position['entreprise'],
                                 position['position'],
                                 position['id_experience_linkedin']
                             )
                             success = annuaire.update_experience(
-                                utilisateur.id_ancien,
+                                current_user.id_ancien,
                                 None,
                                 None,
                                 None,
@@ -705,17 +857,17 @@ def linkedin_importer():
                             else:
                                 saved_positions += 1
                     else:
-                        app.logger.warning("LINKEDIN - no positions found for user : %s", utilisateur.id)
+                        app.logger.warning("LINKEDIN - no positions found for user : %s", current_user.id)
 
                 else:
-                    app.logger.error("LINKEDIN - blank API response file for user : %s", utilisateur.id)
+                    app.logger.error("LINKEDIN - blank API response file for user : %s", current_user.id)
 
             elif api_req is None:
-                app.logger.error("LINKEDIN - bad people API request for user : %s, null response", utilisateur.id)
+                app.logger.error("LINKEDIN - bad people API request for user : %s, null response", current_user.id)
             else:
                 app.logger.error(
                     "LINKEDIN - bad people API request for user : %s, code : %s, request response : %s",
-                    utilisateur.id,
+                    current_user.id,
                     api_req.status_code,
                     api_req.text
                 )
@@ -805,8 +957,8 @@ def __get_linkedin_token(url):
     - Dans la réponse, on obtient le token
 
     @note: pas sûr que redirection = authentification réussie ; il faudrait vérifier les codes ...
-    @param url: l'url pour laquelle va être utilisé le token
-    @return:
+    :param url: l'url pour laquelle va être utilisé le token
+    :return:
     """
     access_token = None
     user_id = "Anonymous"
@@ -873,8 +1025,8 @@ def __get_positions(element):
         </position>
     </positions>
 
-    @param element: etree.element
-    @return:
+    :param element: etree.element
+    :return:
     """
     positions = []
     for e in element:
@@ -925,8 +1077,8 @@ def __get_positions(element):
 def _getNodeText(nodeElement):
     """
     Helper pour récupérer le texte d'un etree s'il n'est pas nul
-    @param nodeElement: etree.node
-    @return: node.text
+    :param nodeElement: etree.node
+    :return: node.text
     """
     if nodeElement is not None:
         return nodeElement.text
@@ -945,8 +1097,8 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
     """
     Permet de render le template _info_perso pour l'ancien en cours.
 
-    @param adresse_form:    le formulaire d'adresse à inclure
-    @param ancien_form:     le formulaire d'infos persos à inclure
+    :param adresse_form:    le formulaire d'adresse à inclure
+    :param ancien_form:     le formulaire d'infos persos à inclure
 
     On prend des formulaires en entrée pour gérer les erreurs.
 
@@ -958,16 +1110,12 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
 
         Ce n'est pas super propre, mais c'est la vie :3
     """
-    utilisateur = user.find_user_by_id(current_user.id)
-
     ancien = None
     adresse = None
-    is_this_me = False
 
-    if utilisateur is not None and utilisateur.id_ancien is not None:
-        is_this_me = True
+    if current_user is not None and current_user.id_ancien is not None:
 
-        ancien = annuaire.find_ancien_by_id(utilisateur.id_ancien)
+        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
 
         #~~~~~~~~~~~~~#
         # INFOS PERSO #
@@ -982,7 +1130,7 @@ def _get_info_perso_template(ancien_form=None, adresse_form=None):
         if adresse_form is None:
             adresse_form = user.update_adresse_form()
             adresse_form.set_pays(PAYS)
-            adresse = annuaire.find_adresse_by_id_ancien(utilisateur.id_ancien)
+            adresse = annuaire.find_adresse_by_id_ancien(current_user.id_ancien)
             if adresse is not None:
                 adresse_form.load_adresse(adresse)
 
@@ -1025,15 +1173,14 @@ def _get_experience_template(id_experience, form = None):
 
         cf : _get_info_perso_template
     """
-    utilisateur = user.find_user_by_id(current_user.id)
 
     experience = None
     is_this_me = False
 
-    if utilisateur is not None and utilisateur.id_ancien is not None:
+    if current_user is not None and current_user.id_ancien is not None:
         is_this_me = True
 
-        experience = annuaire.find_experience_by_id_ancien_id_experience(utilisateur.id_ancien, id_experience).first()
+        experience = annuaire.find_experience_by_id_ancien_id_experience(current_user.id_ancien, id_experience).first()
 
         if form is None:
             form = user.update_experience_form()

@@ -17,8 +17,8 @@ def int_to_str_filter(i):
 def escape_none(input_text):
     """
     Pour afficher une str != None
-    @param input: string
-    @return: str if str, '' if not str
+    :param input: string
+    :return: str if str, '' if not str
     """
     if input_text:
         return input_text
@@ -29,8 +29,8 @@ def escape_none(input_text):
 def count(array):
     """
     compter le nombre d'éléments d'un tableau
-    @param array:
-    @return: nombre d'éléments d'un tableau
+    :param array:
+    :return: nombre d'éléments d'un tableau
     """
     if array is not None:
         return len(array)
@@ -41,8 +41,8 @@ def count(array):
 def count_not_null(array):
     """
     compter le nombre d'éléments NON NULS d'un tableau
-    @param array:
-    @return: nombre d'éléments d'un tableau
+    :param array:
+    :return: nombre d'éléments d'un tableau
     """
     if array is not None:
         res = 0
@@ -58,8 +58,8 @@ def count_not_null(array):
 def hidden(token):
     """
     pour afficher un Cross-Site Request Forgery token
-    @param token:
-    @return: <input name="_csrf_token" type="hidden" value="'+str(token)+'">
+    :param token:
+    :return: <input name="_csrf_token" type="hidden" value="'+str(token)+'">
     """
     if token is not None:
         return '<input id="_csrf_token" name="_csrf_token" type="hidden" value="'+str(token)+'">'
@@ -68,8 +68,8 @@ def hidden(token):
 def default_date(date_input):
     """
     vérifie que l'input est une date ; sinon mettre today
-    @param string:
-    @return: string if not None or str(date.today())
+    :param string:
+    :return: string if not None or str(date.today())
     """
     if date_input is None:
         date_input = date.today()
@@ -82,8 +82,8 @@ def date_to_month(date_input):
     transforme une date 1999-03-25 en date 03/1999.
     ignore les dates déjà formattées
 
-    @param string: une string sous la forme 1999-03-25
-    @return: date
+    :param string: une string sous la forme 1999-03-25
+    :return: date
     """
     try:
         # cas 1 : c'est une date
@@ -103,8 +103,8 @@ def date_to_month(date_input):
 def nl2br(eval_ctx, value):
     """
     Transforme les sauts de ligne (\n) dans une string en sauts de ligne HTML (<br />)
-    @param string_input:
-    @return:
+    :param string_input:
+    :return:
     """
     result = ""
     if value is not None:
@@ -117,8 +117,8 @@ def nl2br(eval_ctx, value):
 def to_http(value):
     """
     Permet de rajouter http:// devant un lien, SI celui-ci manque.
-    @param value: valeur du lien
-    @return: http://+value
+    :param value: valeur du lien
+    :return: http://+value
     """
     res = ""
     if value is not None and value != '':

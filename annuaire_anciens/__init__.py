@@ -1,7 +1,6 @@
 # coding=utf-8
 from flask import Flask
 import config
-import json
 
 # Création de l'app SANS static folder. On le crée à posteriori, pour le lier au subdomain
 app = Flask(__name__, static_url_path="")

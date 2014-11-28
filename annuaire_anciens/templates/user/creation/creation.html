@@ -1,0 +1,28 @@
+{% extends "layout/layout_mono.html" %}
+
+{% block title %}Anciens Intermines{% endblock %}
+
+{% block top_band %}
+    <h1 style="font-weight: bold !important;">Cr&eacute;ation de ma fiche ancien</h1>
+        {% endblock %}
+
+{% block content %}
+    <div class="row custom-login">
+        <div class="col-sm-8 col-sm-offset-2 custom-ancien-container">
+            {% include "helper/_flashes.html" %}
+            {% from "helper/_formhelper.html" import render_field_error %}
+            <form class="form container" method=post action="{{ url_for('create_ancien') }}">
+                {{ csrf_token()|hidden|safe }}
+                {{ render_field_error(form.prenom, class="form-control") }}
+                {{ render_field_error(form.nom, class="form-control") }}
+                {{ render_field_error(form.ecole, class="form-control") }}
+                {{ render_field_error(form.promo, class="form-control") }}
+                {{ render_field_error(form.diplome, class="form-control") }}
+                <div class="controls text-right" style="margin-top:15px;">
+                    <input type=submit class="btn btn-success" value="Cr&eacute;er ma fiche !">
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

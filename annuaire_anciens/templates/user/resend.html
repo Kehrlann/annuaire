@@ -1,13 +1,13 @@
 {% extends "layout/layout_mono.html" %}
 
-{% block header %}
-    <h1>Demande d'inscription</h1>
+{% block top_band %}
+    <h3>Demande d'inscription</h3>
 {% endblock %}
 
 {% block content %}
 {% from "helper/_formhelper.html" import render_field_error %}
 <div class="row">
-    <div class="span6 offset3 custom-ancien-container">
+    <div class="col-sm-8 col-sm-offset-2 custom-ancien-container">
         <p class="custom-justify">
             <br />
             Une demande de cr&eacute;ation de compte a d&eacute;j&agrave; eu lieu pour cette adresse mail. Si vous le
@@ -16,7 +16,7 @@
         </p>
         <p class="custom-center">
             <br />
-            <a href="{{ url_for("resend", id_ancien=id_ancien) }}" class="btn btn-success">Renvoyez-moi un mail</a>
+            <a href="{{ url_for("resend", id_user=id_utilisateur) }}" class="btn btn-success">Renvoyez-moi un mail</a>
             <a href="{{ url_for("login") }}" class="btn btn-danger">Annuler</a>
         </p>
     </div>

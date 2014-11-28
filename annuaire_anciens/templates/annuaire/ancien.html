@@ -138,6 +138,43 @@
         };
 
 
+    var set_default_exp =
+            function(id_experience, source)
+            {
+                $.ajax({
+                    url: "{{ url_for('experience_set_default_api', id_experience=0) }}".replace("0", id_experience),
+                    type: 'PUT',
+                    success: function(data){
+
+                        // Step 1 : "eval" la réponse. Ça permet de rejouer tous les scripts, dont le $(document).ready()
+                        var obj = eval("("+data+")");
+
+                        if(obj && obj.succes){
+
+                            var old_principale = $(".experience-principale")
+                                    .removeClass("experience-principale")
+                                    .removeClass("btn-warning")
+                                    .addClass("btn-default");
+
+                            old_principale.find("span").text(" Secondaire");
+
+                            old_principale.find("i").removeClass("glyphicon-star").addClass("glyphicon-star-empty");
+
+                            var new_principale = $(source).addClass("experience-principale")
+                                    .addClass("btn-warning")
+                                    .removeClass("btn-default");
+
+                            new_principale.find("span").text(" Principale");
+
+                            new_principale.find("i").addClass("glyphicon-star").removeClass("glyphicon-star-empty");
+                        }
+                    }
+                });
+
+
+            };
+
+
     var create_exp =
             function()
             {
@@ -203,8 +240,6 @@
 
                 // Step 3 : mettre à jour tous les csrf tokens.
                 $("[name='_csrf_token']").val(obj.csrf_token);
-                console.log(obj.csrf_token);
-
             }
         });
     };
@@ -226,9 +261,66 @@
             <div class="col-md-10 col-md-offset-1 container">
 
 
+                <!-- Edition du compte -->
+                {% if not editable and admin %}
+                <div class="row custom-ancien-container" id="admin">
+                    <div class="col-sm-2">
+                        <!--<a href="#" class="btn btn-default disabled" style="opacity:1;">
+                            <i class="glyphicon glyphicon-cog"></i>
+                            ADMIN
+                        </a>-->
+                        Informations d'administration :
+                    </div>
+
+                    {% if ancien["actif"] %}
+                    <div class="col-sm-3" >
+                        <a class="btn btn-success disabled" type="button" href="#" style="opacity:1;">
+                            <i class="glyphicon glyphicon-eye-open"></i>
+                        </a>
+                        <span style="margin-left:10px;">
+                            Fiche visible
+                        </span>
+                    </div>
+                    {% else %}
+                    <div class="col-sm-3" >
+                        <a class="btn btn-danger disabled" type="button" href="#" style="opacity:1;">
+                            <i class="glyphicon glyphicon-eye-close"></i>
+                        </a>
+                        <span style="margin-left:10px;">
+                            Fiche cach&eacute;e
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    {% if ancien["bloque"] %}
+                    <div class="col-sm-4" >
+                        <div>
+                            <a class="btn btn-danger disabled" type="button" href="#" style="opacity:1;">
+                                <i class="glyphicon glyphicon-ban-circle"></i>
+                            </a>
+                            <span style="margin-left:10px;">
+                                Utilisateur bloqu&eacute; : <a href="{{ url_for('debloquer', id_ancien=ancien['id_ancien']) }}">d&eacute;bloquer</a>
+                            </span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-sm-4" >
+                        <a class="btn btn-success disabled" type="button" href="#" style="opacity:1;">
+                            <i class="glyphicon glyphicon-ok-circle"></i>
+                        </a>
+                        <span style="margin-left:10px;">
+                            Utilisateur autoris&eacute; : <a href="{{ url_for('bloquer', id_ancien=ancien['id_ancien']) }}">bloquer</a>
+                        </span>
+                    </div>
+                    {% endif %}
+
+                </div>
+                {% endif %}
+
                 {% if editable %}
                 <!-- Edition du compte -->
                 <div class="row custom-ancien-container-light experience-container" id="management">
+
                     <div class="experience container">
 
                         <div class="row">
@@ -286,6 +378,30 @@
                             </div>
                             <div class="col-sm-11" style="padding-top: 6px; padding-bottom: 6px;">
                                 Importer des exp&eacute;riences depuis LinkedIn
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if ancien["actif"] %}
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-sm-1 custom-text-center-big-screen">
+                                <a class="btn btn-danger" type="button" style="height:100%;" href="{{ url_for('update_actif') }}">
+                                    <i class="glyphicon glyphicon-eye-close"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-11" style="padding-top: 6px; padding-bottom: 6px;">
+                                Cacher ma fiche ancien dans l'annuaire
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-sm-1 custom-text-center-big-screen">
+                                <a class="btn btn-success" type="button" style="height:100%;" href="{{ url_for('update_actif') }}">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                </a>
+                            </div>
+                            <div class="col-sm-11" style="padding-top: 6px; padding-bottom: 6px;">
+                                Rendre ma fiche ancien visible dans l'annuaire
                             </div>
                         </div>
                         {% endif %}

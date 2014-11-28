@@ -1,6 +1,10 @@
 {% if user_is_auth %}
 {# user authentifié : afficher le menu mon compte + la search bar #}
 <div class="nav navbar-nav navbar-right">
+    {% if user_is_admin %}
+        <a class='btn btn-warning navbar-btn hidden-xs' href="{{ url_for('admin') }}">Administration</a>
+        <a class='btn btn-warning navbar-btn visible-xs' href="{{ url_for('admin') }}"><span class="glyphicon glyphicon-cog"></span></a>
+    {% endif %}
     <a class='btn btn-default navbar-btn hidden-xs' href="{{ url_for('compte') }}">Mon compte</a>
     <a class='btn btn-link navbar-btn hidden-xs' href="{{ url_for('logout') }}">D&eacute;connexion</a>
     <a class='btn btn-default navbar-btn visible-xs' href="{{ url_for('compte') }}"><span class="glyphicon glyphicon-user"></span></a>
@@ -23,7 +27,7 @@
                     cacheLength: 1,
                     scroll: false,
                     select: function(event, ui) {
-                        $(this).val(ui.item.value);
+                        $(this).val(encodeURIComponent(ui.item.value));
                         $(this).parents("form").submit();
                     }
                 });
@@ -53,10 +57,18 @@
           <input type="checkbox" id="rememberme" name="rememberme" checked="checked"> Se souvenir de moi
         </label>
       </div>
+      <div style="margin-bottom: 10px;">
+          <a href="{{ url_for('reset_password') }}">
+              J'ai oubli&eacute; mon mot de passe
+          </a>
+      </div>
       <div class="error"></div>
-      <button type="submit" class="btn btn-default">Valider</button>
-      <a href="{{ linkedin_url }}" style="margin-left:10px;" ><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
-      <a class="btn btn-link" onclick="$('#js-login-popover').popover('hide')">Annuler</a>
+      <div>
+          <button type="submit" class="btn btn-default">Valider</button>
+          <a href="{{ linkedin_url }}" style="margin-left:10px;" ><img src="{{ url_for('static',filename='img/linkedin.gif') }}"/></a>
+          <a class="btn btn-link" onclick="$('#js-login-popover').popover('hide')">Annuler</a>
+      </div>
+
     </form>
 </div>
 {% endif %}

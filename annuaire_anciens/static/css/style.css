@@ -235,6 +235,12 @@ h1, h2, h3, h4, h5 {
     border: 2px solid #eee;
     color: #eee;
 }
+
+.footer-hack-container select.form-control {
+    background-color: #2c3e50 !important;
+}
+
+
 .footer-hack-container input.form-control::-webkit-input-placeholder {
    color: #eee;
 }
@@ -476,6 +482,10 @@ cosmétique pour l'autocomplete
     margin-bottom: 6px;
 }
 
+.custom-visible-big-screen {
+    display: none;
+}
+
 @media (min-width: 768px) {
     .custom-text-right-big-screen {
         text-align: right;
@@ -487,6 +497,10 @@ cosmétique pour l'autocomplete
 
     .custom-label {
         margin-top: 6px;
+    }
+
+    .custom-visible-big-screen {
+        display: block;
     }
 
 }

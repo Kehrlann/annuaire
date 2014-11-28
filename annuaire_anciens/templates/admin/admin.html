@@ -1,0 +1,243 @@
+{% extends "layout/layout_mono.html" %}
+
+{% block title %}Administration{% endblock %}
+
+{% block top_band %}
+<h3>Administration du site</h3>
+{% endblock %}
+
+
+
+{% block content %}
+<script>
+
+    //==================================================================================================================
+    /****************************************************************************
+     * Fonction pour préparer la ligne qui représente un ancien                 *
+     *                                                                          *
+     * :param   data        object      :   un objet représentant un ancien     *
+     * :param   onValidate  function    :   Callback pour l'appui du bouton OK  *
+     * :param   onRemove    function    :   Callback pour l'appui du bouton NOK *
+     *                                                                          *
+     * Si onValidate est présent, on dessine un bouton OK, et on lui attribue   *
+     * onClick="onValidate(data['id_ancien'])"                                  *
+     *                                                                          *
+     * :returns {string}                                                        *
+     ****************************************************************************/
+    var create_ancien_row =
+            function(data, onValidate, onRemove){
+                var row = "<div class='row annuaire-row'>";
+                row += "<div class='col-sm-3'>" + format_nom(data['prenom'], data['nom']) + "</div>";
+                row += "<div class='col-sm-3'>" + data['mail_asso'] + "</div>";
+                row += "<div class='col-sm-3'>" + format_diplome(data["diplome"]) + "</div>";
+                row += "<div class='col-sm-1 text-center'>" + data['ecole'] + " " + data['promo'] + "</div>";
+                row += "<div class='col-sm-2 custom-text-right-big-screen'>";
+
+                if(onValidate != null)
+                {
+                    row +=  "<a href='#' class='btn btn-sm btn-success' onclick='"+onValidate+"("+ data['id_ancien'] +")'>" +
+                            "<i class='glyphicon glyphicon-ok'></i>" +
+                            "</a>&nbsp;";
+                }
+
+                if(onRemove != null)
+                {
+                    row +=  "<a href='#' class='btn btn-sm btn-danger' onclick='"+onRemove+"("+ data['id_ancien'] +")'>" +
+                            "<i class='glyphicon glyphicon-remove'></i>" +
+                            "</a>";
+                }
+
+                row += "</div>";
+                row += "</div>";
+                return row;
+            };
+
+    //==================================================================================================================
+    /****************
+     * Formatage    *
+     ****************/
+    var format_nom =
+        function(prenom, nom) {
+            var result = "";
+            if (prenom != null && prenom != ""){
+                result += prenom;
+                result += " ";
+            }
+            if(nom != null && nom != ""){
+                result += nom;
+            }
+            return result;
+        };
+
+    var format_diplome =
+            function(nom) {
+                var result = "";
+                if (nom != null && nom != ""){
+                    result = nom;
+                }
+                return result;
+            };
+
+
+    //==================================================================================================================
+    /********************************************************
+     * Fonction pour valider une nouvelle fiche.            *
+     * Fait un PUT sur /api/v1/ancien/<id_ancien>/valider   *
+     *                                                      *
+     * :param int id_ancien: Id de l'ancier à valider.      *
+     * :returns null                                        *
+     ********************************************************/
+    var validerNouveau =
+            function(id_ancien)
+            {
+                $.ajax(
+                        {
+                            method: "PUT",
+                            url: "{{ url_for('valider_ancien_api', id_ancien=0) }}".replace("0", id_ancien),
+                            success: function (data) { load_nouveaux(); }
+                        }
+                );
+            };
+
+
+    /********************************************************
+     * Fonction pour refuser une nouvelle fiche.            *
+     * Fait un PUT sur /api/v1/ancien/<id_ancien>/refuser   *
+     *                                                      *
+     * :param int id_ancien: Id de l'ancier à refuser.      *
+     * :returns null                                        *
+     ********************************************************/
+    var refuserNouveau =
+            function(id_ancien)
+            {
+                $.ajax(
+                        {
+                            method: "PUT",
+                            url: "{{ url_for('refuser_ancien_api', id_ancien=0) }}".replace("0", id_ancien),
+                            success: function (data) { load_nouveaux(); }
+                        }
+                );
+            };
+
+
+    //==================================================================================================================
+    /********************************************************
+     * Fonction pour débloquer un ancien.                   *
+     * Fait un PUT sur /api/v1/ancien/<id_ancien>/debloquer *
+     *                                                      *
+     * :param int id_ancien: Id de l'ancier à débloquer     *
+     * :returns null                                        *
+     ********************************************************/
+    var debloquerAncien =
+            function(id_ancien)
+            {
+                $.ajax(
+                        {
+                            method: "PUT",
+                            url: "{{ url_for('debloquer_api', id_ancien=0) }}".replace("0", id_ancien),
+                            success: function (data) { load_bloques(); }
+                        }
+                );
+            };
+
+
+
+    //==================================================================================================================
+    /********************************************************************************
+     * Fonction pour charger tous les "nouveaux" anciens = fiches à valider.        *
+     * Fait un GET sur /api/v1/ancien?nouveau=True                                  *
+     *                                                                              *
+     * :returns null                                                                *
+     ********************************************************************************/
+    var load_nouveaux =
+        function (){
+            $.ajax(
+                    {
+                        method: "GET",
+                        url: "{{ url_for('ancien_api', nouveau=True, bloque=False) }}",
+                        success: function (data) {
+                            var ancien_list = eval("(" + data + ")");
+                            if( ancien_list != null && ancien_list.length > 0){
+                                $.each(
+                                        ancien_list,
+                                        function (index, value) {
+                                            var row = create_ancien_row(value, "validerNouveau", "refuserNouveau");
+                                            $("#new").find(".ancien-list").empty().append(row);
+                                        }
+                                );
+                            } else {
+                                $("#new").find(".ancien-list").empty().append("<div class='text-center' style='margin-top:20px;'>Aucun r&eacute;sultat trouv&eacute;.</div>");
+                            }
+                        }
+                    }
+            );
+        };
+
+
+    //==================================================================================================================
+    /********************************************************************************
+     * Fonction pour charger tous les anciens "bloques".                            *
+     * Fait un GET sur /api/v1/ancien?bloques=True                                  *
+     *                                                                              *
+     * :returns null                                                                *
+     ********************************************************************************/
+    var load_bloques =
+        function (){
+            $.ajax(
+                    {
+                        method: "GET",
+                        url: "{{ url_for('ancien_api', bloque=True) }}",
+                        success: function (data) {
+                            var ancien_list = eval("(" + data + ")");
+                            if( ancien_list != null && ancien_list.length > 0){
+                                $.each(
+                                        ancien_list,
+                                        function (index, value) {
+                                            var row = create_ancien_row(value, "debloquerAncien");
+                                            $("#blocked").find(".ancien-list").empty().append(row);
+                                        }
+                                );
+                            } else {
+                                $("#blocked").find(".ancien-list").empty().append("<div class='text-center' style='margin-top:20px;'>Aucun r&eacute;sultat trouv&eacute;.</div>");
+                            }
+                        }
+                    }
+            );
+        };
+
+
+    //==================================================================================================================
+    $(document).ready(
+        function(){
+            load_nouveaux();
+            load_bloques();
+        }
+    );
+</script>
+
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-sm-12">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="active"><a href="#new" role="tab" data-toggle="tab">Nouvelles fiches</a></li>
+            <li><a href="#blocked" role="tab" data-toggle="tab">Anciens bloqu&eacute;s</a></li>
+            <li><a href="#import" role="tab" data-toggle="tab">Importer des anciens</a></li>
+        </ul>
+        <div style="margin-top:20px;">
+            {% include "helper/_flashes.html" %}
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane active" id="new">
+                <div class="ancien-list" style="margin-top:10px;">
+                </div>
+            </div>
+            <div class="tab-pane" id="blocked">
+                <div class="ancien-list" style="margin-top:10px;">
+                </div>
+            </div>
+            <div class="tab-pane text-center" id="import">Fonctionnalit&eacute; non impl&eacute;ment&eacute;e</div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -4,6 +4,10 @@
 
 {% block layout %}
 <div class="container">
+    <div class="row" style="margin-top:10px;">
+        {% include "helper/_flashes.html" %}
+    </div>
+
     <div class="row">
         <div class="col-lg-10 col-lg-offset-1">
             <div id="fulltext-search">
@@ -50,6 +54,38 @@
 
 
 <script>
+
+
+    //==========================================================================================
+    // Work in progress : search order
+    var page        =   1;
+
+    var modes       =   {
+                            fulltext    :   "fulltext-search",
+                            advanced    :   "advanced-search"
+                        };
+
+    var mode        =   modes.fulltext;
+
+    var searchModes =   {   pertinence  :   'pertinence',
+                            nom         :   'nom',
+                            entreprise  :   'entreprise',
+                            promo       :   'promo'
+                        };
+
+    var searchMode  =   searchModes.pertinence;
+
+    var searchDirs  =   {
+                            ascending   :   'asc',
+                            descending  :   'desc'
+                        };
+
+    var searchDir   =   searchDirs.ascending;
+    //==========================================================================================
+
+
+    //==========================================================================================
+    // Setup de la page ( doc.ready() )
     $(document).ready(
         function() {
 
@@ -76,10 +112,7 @@
                 max: 10,
                 delay: 50,
                 cacheLength: 1,
-                scroll: false,
-                select: function(event, ui) {
-                    $(this).val(ui.item.value);
-                }
+                scroll: false
             });
 
             $('input#ville').autocomplete({
@@ -88,10 +121,7 @@
                 max: 10,
                 delay: 50,
                 cacheLength: 1,
-                scroll: false,
-                select: function(event, ui) {
-                    $(this).val(ui.item.value);
-                }
+                scroll: false
             });
 
             $('input#entreprise').autocomplete({
@@ -100,10 +130,7 @@
                 max: 10,
                 delay: 50,
                 cacheLength: 1,
-                scroll: false,
-                select: function(event, ui) {
-                    $(this).val(ui.item.value);
-                }
+                scroll: false
             });
 
             // Focus on the input
@@ -115,20 +142,18 @@
             $('input#fulltext_main').keyup(
                     function (e) {
                         if (e.keyCode == 13) {
-                            console.log("toto");
                             e.preventDefault();
                             $(this).autocomplete('close');
-                            console.log(this.value);
                             search_fulltext(this.value, 1);
                         }
                     }
             );
 
 
-            // Si l'url est de type q=... ; lancer une recherche
+            // Si l'url est de type q=... ; lancer automatiquement une recherche
             var match = location.search.match("q=[^&.]+");
             if(match != null){
-                var query = match[0].replace("q=", "");
+                var query = decodeURIComponent(match[0].replace("q=", ""));
                 $("input#fulltext_main").val(query);
                 search_fulltext(query);
             }
@@ -136,6 +161,19 @@
     );
 
 
+    //==========================================================================================
+    // Fonctions principales de query
+
+
+    /********************************************************************************
+     * Fonction pour recherche des anciens en mode "advanced" = formulaire complet. *
+     * Est bindé sur le bouton du submit du form ; retourne false pour empêcher     *
+     * ledit submit.                                                                *
+     *                                                                              *
+     * Décompile le formulaire, html-encode les valeurs et prépare la querystring.  *
+     *                                                                              *
+     * :returns false                                                               *
+     ********************************************************************************/
     var search_advanced_from_form =
             function () {
                 var queryString = "";
@@ -147,27 +185,36 @@
                             if (value.value != "") {
                                 queryString += value.name;
                                 queryString += "=";
-                                queryString += value.value;
+                                queryString += encodeURIComponent(value.value);
                                 queryString += "&";
                             }
                         }
                 );
 
-                search_advanced(queryString.slice(0, -1), 1);
+                _search_advanced(queryString.slice(0, -1), 1);
 
                 return false;
             };
 
 
-    var search_advanced =
-            function (parameters, page){
+    /********************************************************************************
+     * Fonction interne pour effectuer une recherche en mode full text ; effectue   *
+     * l'appel http et popule le tableau de résultats.                              *
+     *                                                                              *
+     * :param querystring   str : La query string de recherche.                     *
+     * :param page          int : La page (dans le sens de pagination). Défaut = 1. *
+     *                                                                              *
+     * :returns null                                                                *
+     ********************************************************************************/
+    var _search_advanced =
+            function (querystring, page){
                 if(page == null){
                     page = 1;
                 }
                 $.ajax(
                         {
                             method: "GET",
-                            url: "{{ url_for('search_api') }}?" + parameters + "&p=" + page,
+                            url: "{{ url_for('search_api') }}?" + querystring + "&p=" + page,
                             success: function (data) {
 
                                 $("#annuaire-results").empty();
@@ -176,8 +223,9 @@
                                 var ancien_list = results["data"];
 
                                 if(ancien_list.length > 0){
-                                    var pagination = render_pagination(results["current_page"], results["max_pages"], "search_advanced", parameters);
+                                    var pagination = render_pagination(results["current_page"], results["max_pages"], "_search_advanced", querystring);
                                     $("#annuaire-results").append(pagination);
+                                    $("#annuaire-results").append(create_header_row());
                                     $.each(
                                             ancien_list,
                                             function (index, value) {
@@ -198,9 +246,9 @@
     /********************************************************************************
      * Fonction pour recherche des anciens en mode "fulltext" = avec un seul champ. *
     *                                                                               *
-     * @param query     str : Le text de la query à utiliser                        *
-     * @param page      int : La page (dans le sens de pagination). Défaut = 1.     *
-     * @returns null                                                                *
+     * :param query     str : Le text de la query à utiliser                        *
+     * :param page      int : La page (dans le sens de pagination). Défaut = 1.     *
+     * :returns null                                                                *
      ********************************************************************************/
     var search_fulltext =
             function(query, page) {
@@ -210,7 +258,7 @@
                 $.ajax(
                         {
                             method: "GET",
-                            url: "{{ url_for('fulltext_api') }}?q=" + query + "&p=" + page,
+                            url: "{{ url_for('fulltext_api') }}?q=" + encodeURIComponent(query) + "&p=" + page,
                             success: function (data) {
 
                                 $("#annuaire-results").empty();
@@ -221,6 +269,7 @@
                                 if(ancien_list.length > 0){
                                     var pagination = render_pagination(results["current_page"], results["max_pages"], "search_fulltext", query);
                                     $("#annuaire-results").append(pagination);
+                                    $("#annuaire-results").append(create_header_row());
                                     $.each(
                                             ancien_list,
                                             function (index, value) {
@@ -242,11 +291,11 @@
      * Fonction helper pour créer le petit encart de pagination, à placer avant et après les résultats de la recherche.*
      * Renvoie un élément HTML qui peut être directement injecté dans la page.                                         *
      *                                                                                                                 *
-     * @param current_page      int : page en cours                                                                    *
-     * @param max_pages         int : le nombre maximum de pages                                                       *
-     * @param search_function   int : la fonction à utiliser onclick                                                   *
-     * @param parameters        str : les paramètres à passer à la fonction de recherche                               *
-     * @returns {string}                                                                                               *
+     * :param current_page      int : page en cours                                                                    *
+     * :param max_pages         int : le nombre maximum de pages                                                       *
+     * :param search_function   int : la fonction à utiliser onclick                                                   *
+     * :param parameters        str : les paramètres à passer à la fonction de recherche                               *
+     * :returns {string}                                                                                               *
      *******************************************************************************************************************/
     var render_pagination =
             function(current_page, max_pages, search_function, parameters) {
@@ -334,9 +383,26 @@
             };
 
     /************************************************************
+     * Fonction le header du tableau des résultats              *
+     *                                                          *
+     * :returns {string}                                        *
+     ************************************************************/
+    var create_header_row =
+            function(){
+                var row = "<div class='row' style='font-weight:bold; font-size:16px;margin-bottom:5px;'>";
+                row += "<div class='col-sm-3'>Nom</div>";
+                row += "<div class='col-sm-4'>Entreprise</div>";
+                row += "<div class='col-sm-3'>Adresse</div>";
+                row += "<div class='col-sm-2 custom-text-right-big-screen'>Promo</div>";
+                row += "</div>";
+                return row;
+            };
+
+
+    /************************************************************
      * Fonction pour préparer la ligne qui représente un ancien *
-     * @param data  object : un objet représentant un ancien    *
-     * @returns {string}                                        *
+     * :param data  object : un objet représentant un ancien    *
+     * :returns {string}                                        *
      ************************************************************/
     var create_ancien_row =
             function(data){
@@ -349,6 +415,8 @@
                 return row;
             };
 
+    //==========================================================================================
+    // Helper de formattage des lignes anciens
     var format_address =
             function(ville, pays) {
                 var result = "";
@@ -394,8 +462,19 @@
 
 
 
-    var showAvance = function() { $("#fulltext-search").hide(); $("#advanced-search").show(); };
-    var showFulltext = function() { $("#fulltext-search").show(); $("#advanced-search").hide(); };
+    //==========================================================================================
+    // Switch du contexte graphique (fulltext / advanced)
+    var showAvance =
+            function() {
+                $("#fulltext-search").hide();
+                $("#advanced-search").show();
+            };
+
+    var showFulltext =
+            function() {
+                $("#fulltext-search").show();
+                $("#advanced-search").hide();
+            };
 
 </script>
 {% endblock %}

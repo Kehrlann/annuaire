@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import htmlentitydefs as entity
-
+from datetime import date
 
 def result_proxy_to_json(array=None, guillemets=False):
     """
@@ -11,9 +11,9 @@ def result_proxy_to_json(array=None, guillemets=False):
 
     TODO : vérifier s'il ne faudrait pas plutôt utiliser json.dumps
 
-    @param array: tableau
-    @param guillemets: mettre des guillemets autour des termes pour une recherche exacte
-    @return: array
+    :param array: tableau
+    :param guillemets: mettre des guillemets autour des termes pour une recherche exacte
+    :return: array
     """
 
     result = "["
@@ -35,20 +35,45 @@ def result_proxy_to_json(array=None, guillemets=False):
     return result
 
 
-def row_to_json(row):
+def row_to_json(row, excluded_keys=None):
     """
     Prendre une row de `sqlalchemy.ResultProxy`, et le transformer en dictionnaire,
     avec comme clefs les noms de colonnes.
 
+    Attention, dans le cas spécifique des dates, qui ne sont pas JSON-isable telles
+    quelles, on les formatte au format yyyyMMdd.
+
+
     Le dictionnaire est HTML-encodé.
 
-    :param row: Une row de `sqlalchemy.ResultProxy`
-    :return: Un dictionnaire, HTML-ENCODED
+    :param sqlalchemy.ResultProxy row:  Une row de `sqlalchemy.ResultProxy`
+    :param list excluded_keys:          Les noms de colonne à exlure.
+                                        Pratique dans les cas où on veut manipuler
+                                        des données avant de l'envoyer au client ;
+                                        mais qu'on ne veut pas envoyer toutes les
+                                        données manipulées.
+    :return:                            Un dictionnaire, HTML-ENCODED
     """
     d = {}
+    if excluded_keys is None:
+        excluded_keys = []
+
+
     for key in row._parent.keys:
-        if isinstance(row[key], unicode):
+
+        # Cas 0 : Clef à ignorer
+        if key in excluded_keys:
+            pass
+
+        # Cas 1 : C'est un unicode-string, l'encoder en HTML
+        elif isinstance(row[key], unicode):
             d[key] = _decode_to_entity(row[key])
+
+        # Cas 2 : C'est une date, la dump en string
+        elif type(row[key]) is date:
+            d[key] = row[key].strftime("%Y%m%d")
+
+        # Cas 3 : Tout le reste, return as-if
         else:
             d[key] = row[key]
 
