@@ -5,8 +5,7 @@
 window.React = require('react');
 window.Backbone = require('backbone');
 window._ = require('underscore');
-window.$ = require('jquery');
-Backbone.$ = $;
+Backbone.$ = require('jquery');
 
 //
 // Dependencies

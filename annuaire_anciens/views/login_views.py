@@ -22,7 +22,7 @@ def load_user(user_id):
 # API READY
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    return render_template('index.html')
 
 # NOT YET API READY
 @helper.csrf_exempt

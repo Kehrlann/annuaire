@@ -9,15 +9,21 @@
     "jquery": "^2.1.0",
     "backbone": "^1.1.2",
     "underscore": "*",
-    "bootstrap": "^3.2.0"
+    "bootstrap": "^3.2.0",
+    "react-tools": "^0.12.1",
+	"react": "^0.12.1"
   },
   "devDependencies": {
+    "beefy": "^1.1.0",
     "browserify": "^3.44.2",
-    "beefy": "^1.1.0"
+    "reactify": "^0.17.1",
+    "envify": "^3.2.0",
+    "uglify-js": "^2.4.15",
+    "watchify": "^2.1.1"
   },
   "scripts": {
-    "start": "STATIC_ROOT=./static watchify -o app-bundle.js -v -d .",
-    "build": "STATIC_ROOT=./static NODE_ENV=production browserify . | uglifyjs -cm > app-bundle.min.js",
+    "start": "STATIC_ROOT=./static watchify -o js/app-bundle.js -v -d .",
+    "build": "STATIC_ROOT=./static NODE_ENV=production browserifyb . | uglifyjs -cm > app-bundle.min.js",
     "collect-static": "collect-static . ./static",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
