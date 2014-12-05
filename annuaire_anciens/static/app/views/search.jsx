@@ -20,13 +20,14 @@ module.exports = React.createClass({
             cacheLength: 1,
             scroll: false,
             select: function(event, ui) {
-                Backbone.$(this).val(ui.item.value);
+                $(this).val(ui.item.value);
                 var query = ui.item.value;
-                console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~> Autocomplete");
-                console.log(ui.item.value);
-                console.log(query);
+                searchFullText(query);
             }
         });
+    },
+    searchFulltext:function(query){
+
     },
     render: function () {
         return (

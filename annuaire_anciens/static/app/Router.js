@@ -43,7 +43,7 @@ var Router = Backbone.Router.extend({
         // console.log("defaultRoute, rendering RegisterView", document.getElementById('js-main'));
         // Render the register view
         React.renderComponent(
-          RegisterView({}),
+          SearchView({}),
           document.getElementById('js-main')
         );
 

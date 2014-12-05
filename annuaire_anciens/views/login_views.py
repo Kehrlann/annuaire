@@ -4,6 +4,7 @@ from flask import abort, render_template, request, redirect, url_for, flash
 from flask.ext.login import LoginManager, current_user, login_user, login_required, logout_user
 import datetime as dt
 from annuaire_anciens.helper.security import generate_signed_string_from_mail_and_date
+import json
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -50,18 +51,14 @@ def login_ajax():
             app.logger.warning("LOGIN - fail %s", form.mail.data)
     abort(401)
 
-# LEGACY - TO BE REMOVED
-@app.route('/login', methods=['GET'])
+@app.route('/logged', methods=['GET'])
 def login():
     """
     Méthode legacy pour supporter l'url /login
     GET  : afficher l'annuaire si l'utilisateur est loggué, la page d'inscription sinon
     :return:
     """
-    if current_user.is_authenticated():
-        return redirect(url_for('annuaire_view'))
-    else:
-        return redirect(url_for('inscription'))
+    return json.dumps({ "logged" : current_user.is_authenticated()})
 
 # API READY
 @app.route('/register', methods=['POST'])

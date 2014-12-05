@@ -42,6 +42,7 @@ gulp.task(  'script',   ['clean'],
                 return gulp.src('./app/Router.js')
                     .pipe(plumber({errorHandler: onError}))
                     .pipe(browserify({transform: ['reactify'], debug: true}))
+                    .pipe(plumber({errorHandler: onError}))
                     .pipe(rename('app-bundle.js'))
                     .pipe(gulp.dest('./js/'));
 
