@@ -166,6 +166,6 @@ def ancien_by_id(id_ancien):
 
         if request.args.get("complet", None) is not None:
             ancien_dict["adresse"] = helper.row_to_json(annuaire.find_adresse_by_id_ancien(id_ancien, False))
-            ancien_dict["experiences"] = [helper.row_to_json(r) for r in annuaire.find_experience_by_id_ancien(id_ancien, True)]
+            ancien_dict["experiences"] = [helper.row_to_json(r) for r in annuaire.find_experience_by_id_ancien(id_ancien, False)]
 
         return json.dumps(ancien_dict)

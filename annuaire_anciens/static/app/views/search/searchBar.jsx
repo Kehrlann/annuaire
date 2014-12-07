@@ -5,18 +5,9 @@
 module.exports = React.createClass({
         handleSubmit: function (e) {
             e.preventDefault();
-            this.props.handleSearch($("#mainSearchBar").val(), 1);
-
-            // TODO
-            // TODO
-            // TODO
-            // TODO
-            // TODO
-            // TODO
-            // TODO
-            // TODO
-            // TODO
-            // close autocomplete
+            var input = $("#mainSearchBar");
+            input.autocomplete('close');
+            this.props.handleSearch(input.val(), 1);
         },
         componentDidMount: function () {
             var searchFullText = this.props.handleSearch;

@@ -16,6 +16,7 @@ module.exports = React.createClass({
         // TODO : add autocomplete
     },
     componentDidMount: function(){
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~>        NAVBAR MOUNT");
         $.ajax(
             {
                 method: "GET",
@@ -45,6 +46,14 @@ module.exports = React.createClass({
             }
         );
     },
+    clickMonCompte: function(e){
+        e.preventDefault();
+        Backbone.history.navigate("/me", {trigger:true});
+    },
+    clickHome: function(e){
+        e.preventDefault();
+        Backbone.history.navigate("/", {trigger:true});
+    },
     render: function () {
 
         if (!this.state.isUserConnected) {
@@ -54,21 +63,25 @@ module.exports = React.createClass({
         }
         else {
             return (
-                <div>
-                    <div className="nav navbar-nav navbar-right">
-                        <a className='btn btn-default navbar-btn hidden-xs' href="#">Mon compte</a>
-                        <a className='btn btn-link navbar-btn hidden-xs' href="#" onClick={this.handleLogout}>D&eacute;connexion</a>
-                        <a className='btn btn-default navbar-btn visible-xs' href="#">
-                            <span className="glyphicon glyphicon-user"></span>
-                        </a>
-                        <a className='btn btn-danger navbar-btn visible-xs' href="#">
-                            <span className="glyphicon glyphicon-log-out"></span>
-                        </a>
+                <div className="col-lg-10 col-lg-offset-1">
+                    <a className="navbar-brand" href="#" onClick={this.clickHome}>Mines-Alumni.com</a>
+
+                    <div className="navbar-right" id="js-navbar">
+                        <div className="nav navbar-nav navbar-right">
+                            <a className='btn btn-default navbar-btn hidden-xs' href="#" onClick={this.clickMonCompte}>Mon compte</a>
+                            <a className='btn btn-link navbar-btn hidden-xs' href="#" onClick={this.handleLogout}>D&eacute;connexion</a>
+                            <a className='btn btn-default navbar-btn visible-xs' href="#">
+                                <span className="glyphicon glyphicon-user"></span>
+                            </a>
+                            <a className='btn btn-danger navbar-btn visible-xs' href="#">
+                                <span className="glyphicon glyphicon-log-out"></span>
+                            </a>
+                        </div>
+                        <form className="navbar-form navbar-left nav-search-zone" role="search">
+                            <span className="glyphicon glyphicon-search"></span>
+                            <input type="text" autoComplete="off" ref="fulltext_top" onKeyUp={this.handleSearch} name="fulltext" className="form-control" />
+                        </form>
                     </div>
-                    <form className="navbar-form navbar-left nav-search-zone" role="search">
-                        <span className="glyphicon glyphicon-search"></span>
-                        <input type="text" autoComplete="off" ref="fulltext_top" onKeyUp={this.handleSearch} name="fulltext" className="form-control" />
-                    </form>
                 </div>
             )
         }

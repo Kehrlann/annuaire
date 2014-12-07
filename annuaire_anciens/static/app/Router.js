@@ -22,6 +22,7 @@ var Router = Backbone.Router.extend({
         "search/:term": "search",
         "search": "search",
         "ancien/:id": "ancien",
+        "me": "me",
         "*actions": "defaultRoute"
     },
 
@@ -69,7 +70,7 @@ var Router = Backbone.Router.extend({
      ********************************************************************/
     search: function(term){
         React.render(
-          SearchView({term: term}),
+          SearchView({q: term}),
           document.getElementById('js-main')
         );
     },
@@ -94,6 +95,41 @@ var Router = Backbone.Router.extend({
                                     AncienView({ancien: ancien}),
                                     document.getElementById('js-main')
                                 );
+                            }
+                ,
+                error:      function(data)
+                            {
+                                Backbone.history.navigate("/search");
+                            }
+            }
+        );
+    },
+
+
+    /********************************************************************
+     * Récupération de mes infos puis affichage de mon profil.          *
+     ********************************************************************/
+    me: function() {
+        $.ajax
+        (
+            {
+                method:"GET",
+                url:appGlobals.url.whoami,
+                success:    function(data)
+                            {
+                                // TODO
+                                // TODO
+                                // TODO
+                                // TODO
+                                // TODO
+                                // TODO
+                                // TODO
+                                // TODO
+                                // TODO
+                                // TODO
+                                // Créer mon compte ...
+                                var ancien = eval("("+data+")");
+                                Backbone.history.navigate("/ancien/"+ancien.id_ancien, {trigger:true});
                             }
                 ,
                 error:      function(data)
