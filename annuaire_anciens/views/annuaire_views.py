@@ -24,3 +24,5 @@ def annuaire_view():
 
     return render_template('annuaire/annuaire.html',
         form = annuaire_form)
+
+

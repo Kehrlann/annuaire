@@ -3,7 +3,7 @@
  */
 module.exports = React.createClass({
         buildUrl: function(){
-            return appGlobals.url.ancien(this.props.ancien.id);
+            return "/ancien/"+this.props.ancien.id;
         },
         nom: function() {
             var result = "";

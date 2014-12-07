@@ -87,7 +87,7 @@ def compte():
         return redirect(url_for("ancien", id_ancien=current_user.id_ancien))
 
 
-@app.route('/ancien/<int:id_ancien>')
+@app.route('/ancien_old/<int:id_ancien>')
 @login_required
 def ancien(id_ancien):
     """

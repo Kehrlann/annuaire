@@ -16,9 +16,14 @@ def load_user(user_id):
     return user.find_user_by_id(user_id)
 
 
-# API READY
 @app.route('/')
+@app.route('/search')
+@app.route('/ancien')
 def root():
+    return render_template('index.html')
+
+@app.route('/ancien/<int:id>')
+def root_with_id(id):
     return render_template('index.html')
 
 # API READY

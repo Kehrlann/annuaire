@@ -55,6 +55,10 @@ def row_to_json(row, excluded_keys=None):
     :return:                            Un dictionnaire, HTML-ENCODED
     """
     d = {}
+
+    if row is None:
+        return d
+
     if excluded_keys is None:
         excluded_keys = []
 

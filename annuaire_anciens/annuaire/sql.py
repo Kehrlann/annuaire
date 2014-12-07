@@ -485,7 +485,7 @@ def find_ancien_filtres(nouveau = None, bloque = None):
     return engine.execute(sel).fetchall()
 
 
-def find_adresse_by_id_ancien(id_ancien):
+def find_adresse_by_id_ancien(id_ancien, use_labels=True):
     """
     Rechercher une adresse par id_ancien
 
@@ -497,18 +497,18 @@ def find_adresse_by_id_ancien(id_ancien):
         sel = select(
             [__adresse.c.adresse,
              __adresse.c.code,
-             __ville.c.nom,
-             __pays.c.nom,
+             __ville.c.nom.label("ville"),
+             __pays.c.nom.label("pays"),
              __pays.c.id_pays],
             and_(aaa.c.id_ancien == id_ancien, aaa.c.actif==True),
             from_obj=aaa.join(__adresse).outerjoin(__ville).outerjoin(__pays),
-            use_labels=True).distinct()
+            use_labels=use_labels).distinct()
         return engine.execute(sel).first()
     else:
         return None
 
 
-def find_experience_by_id_ancien(id_ancien):
+def find_experience_by_id_ancien(id_ancien, use_labels=True):
     """
     Rechercher une experience par id_ancien
     
@@ -534,15 +534,15 @@ def find_experience_by_id_ancien(id_ancien):
              ex.c.debut,
              ex.c.fin,
              ex.c.id_experience_linkedin,
-             en.c.nom,
+             en.c.nom.label("entreprise"),
              a.c.adresse,
              a.c.code,
-             v.c.nom,
-             p.c.nom,
+             v.c.nom.label("ville"),
+             p.c.nom.label("pays"),
              p.c.id_pays],
             ex.c.id_ancien == id_ancien,
             from_obj=ex.outerjoin(en).outerjoin(a).outerjoin(v).outerjoin(p),
-            use_labels=True).order_by(desc(ex.c.actif)).order_by(desc(ex.c.debut).nullslast()).distinct()
+            use_labels=use_labels).order_by(desc(ex.c.actif)).order_by(desc(ex.c.debut).nullslast()).distinct()
         return engine.execute(sel)
     else:
         return None

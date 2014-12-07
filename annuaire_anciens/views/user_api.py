@@ -6,7 +6,7 @@ from flask import request, session, abort
 from flask.ext.login import current_user, login_required, login_user
 import json
 
-from annuaire_anciens import app, annuaire, user
+from annuaire_anciens import app, annuaire, user, SUCCESS, FAILURE
 from annuaire_anciens.helper.security import generate_csrf_token
 
 
@@ -88,7 +88,7 @@ def update_ancien_api():
         mail_perso  =   data.get("mail_perso",  ancien["mail_perso"])
     )
 
-    return json.dumps({"succes":succes})
+    return json.dumps({"success":succes})
 
 
 @app.route("/api/v1/me/adresse", methods=["PUT"])
@@ -119,7 +119,7 @@ def update_adresse_api():
         code        =   data.get("code",        "")
     )
 
-    return json.dumps({"succes":succes})
+    return json.dumps({"success":succes})
 
 
 
@@ -212,7 +212,7 @@ def experience_set_default_api(id_experience):
     else:
         if annuaire.ancien_has_experience(current_user.id_ancien, id_experience):
             annuaire.set_default_experience(current_user.id_ancien, id_experience)
-            return json.dumps({ "succes" : True })
+            return json.dumps(SUCCESS)
         else:
             abort(404, "Aucune experience avec cet id n'est associee a ton compte.")
 

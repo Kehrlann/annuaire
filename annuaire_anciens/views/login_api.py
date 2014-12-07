@@ -4,7 +4,7 @@ from flask import request, abort
 from flask.ext.login import current_user, login_user, login_required, logout_user
 import json
 
-@app.route('/logged', methods=['GET'])
+@app.route('/api/v1/logged', methods=['GET'])
 def logged():
     """
     Méthode legacy pour supporter l'url /login
@@ -15,7 +15,7 @@ def logged():
 
 
 @helper.csrf_exempt
-@app.route('/login', methods=['POST'])
+@app.route('/api/v1/login', methods=['POST'])
 def login():
     """
     :return:    Réussite :  code 200 et { "success" : True }
@@ -37,7 +37,7 @@ def login():
     abort(401)
 
 
-@app.route('/logout', methods=['GET', 'POST'])
+@app.route('/api/v1/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
     """

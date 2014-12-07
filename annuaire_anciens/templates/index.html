@@ -18,10 +18,18 @@
                                                             },
                                             search:         {   fulltext:   '{{ url_for("fulltext_api") }}'
                                                             },
-                                            ancien:         function(id) { return '{{ url_for("ancien", id_ancien=0) }}'.replace("0", id); },
+                                            ancien:         function(id) { return '{{ url_for("ancien_by_id", id_ancien=0) }}'.replace("0", id); },
+                                            ancien_complet: function(id) { return '{{ url_for("ancien_by_id", id_ancien=0, complet=True) }}'.replace("0", id); },
                                             logged:         '{{ url_for("logged") }}',
                                             login:          '{{ url_for("login") }}',
-                                            logout:         '{{ url_for("logout") }}'
+                                            logout:         '{{ url_for("logout") }}',
+                                            photo:          function(photo_id)
+                                                            {
+                                                                if(photo_id)
+                                                                    return "{{ url_for('static',filename='img/0') }}".replace("0", photo_id);
+                                                                else
+                                                                    return "{{ url_for('static',filename='img/no_photo.jpg') }}";
+                                                            }
                                         }
                             }
     </script>

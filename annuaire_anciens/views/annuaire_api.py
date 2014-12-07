@@ -122,7 +122,7 @@ def search_api():
 
 @app.route('/api/v1/ancien/<int:id_ancien>', methods=["GET"])
 @login_required
-def ancien_by_id_api(id_ancien):
+def ancien_by_id(id_ancien):
     """
     API pour afficher un ancien.
 
@@ -165,7 +165,7 @@ def ancien_by_id_api(id_ancien):
         ancien_dict = helper.row_to_json(ancien, excluded_columns)
 
         if request.args.get("complet", None) is not None:
-            ancien_dict["adresses"] = helper.row_to_json(annuaire.find_adresse_by_id_ancien(id_ancien))
-            ancien_dict["experiences"] = [helper.row_to_json(r) for r in annuaire.find_experience_by_id_ancien(id_ancien)]
+            ancien_dict["adresse"] = helper.row_to_json(annuaire.find_adresse_by_id_ancien(id_ancien, False))
+            ancien_dict["experiences"] = [helper.row_to_json(r) for r in annuaire.find_experience_by_id_ancien(id_ancien, True)]
 
         return json.dumps(ancien_dict)

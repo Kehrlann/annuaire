@@ -82,10 +82,25 @@ var Router = Backbone.Router.extend({
      * @param id      (obl)     Id de l'ancien à afficher (int)         *
      ********************************************************************/
     ancien: function(id){
-        // Render the search view
-        React.render(
-            SearchView({term: term}),
-            document.getElementById('js-main')
+        $.ajax
+        (
+            {
+                method:"GET",
+                url:appGlobals.url.ancien_complet(id),
+                success:    function(data)
+                            {
+                                var ancien = eval("("+data+")");
+                                React.render(
+                                    AncienView({ancien: ancien}),
+                                    document.getElementById('js-main')
+                                );
+                            }
+                ,
+                error:      function(data)
+                            {
+                                Backbone.history.navigate("/search");
+                            }
+            }
         );
     }
 
