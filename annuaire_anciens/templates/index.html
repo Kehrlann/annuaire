@@ -11,10 +11,17 @@
 
     <!-- SCRIPTS : Le scripts and styles -->
     <link href="/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/css/autocomplete.min.css" rel="stylesheet"/>
     <link href="/css/style.css" rel="stylesheet"/>
     <script>
         var appGlobals =    {   url:    {   autocomplete:   {   fulltext:   '{{ url_for("autocomplete_fulltext") }}'
-                                                            }
+                                                            },
+                                            search:         {   fulltext:   '{{ url_for("fulltext_api") }}'
+                                                            },
+                                            ancien:         function(id) { return '{{ url_for("ancien", id_ancien=0) }}'.replace("0", id); },
+                                            logged:         '{{ url_for("logged") }}',
+                                            login:          '{{ url_for("login") }}',
+                                            logout:         '{{ url_for("logout") }}'
                                         }
                             }
     </script>

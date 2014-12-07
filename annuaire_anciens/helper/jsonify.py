@@ -65,24 +65,19 @@ def row_to_json(row, excluded_keys=None):
         if key in excluded_keys:
             pass
 
-        # Cas 1 : C'est un unicode-string, l'encoder en HTML
-        elif isinstance(row[key], unicode):
-            d[key] = _decode_to_entity(row[key])
-
-        # Cas 2 : C'est une date, la dump en string
+        # Cas 1 : C'est une date, la dump en string
         elif type(row[key]) is date:
             d[key] = row[key].strftime("%Y%m%d")
 
-        # Cas 3 : Tout le reste, return as-if
+        # Cas 2 : Tout le reste, return as-if
         else:
             d[key] = row[key]
 
     return d
 
-
-
 def _decode_to_entity(u):
     """
+    !! deprecated
     Transformer un unicode en ASCII html-encoded
 
     Cas particulier : retourne "" si u est nul

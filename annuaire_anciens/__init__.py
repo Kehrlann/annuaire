@@ -61,6 +61,12 @@ with open('var/pays.json', 'r') as f:
 with open('var/mails.json', 'r') as f:
     MAILS = json.load(f)
 
+
+# Default objects
+SUCCESS = { "success" : True }
+FAILURE = { "success" : False }
+
+
 # attacher les filtres et les vues à l'application
 import helper.filters
 import views

@@ -22,10 +22,10 @@ def fulltext_api():
 
     :return:    Un objet contenant :
                     - max_pages : le nombre de pages maximum
-                    - data : la liste des résultats sous forme d'objets JSON html-encodé de la forme
+                    - data : la liste des résultats sous forme d'objets JSON utf8 de la forme
                         {
                             'id':           23154,
-                            'prenom':       'J&eacute;r&ocirc;me',
+                            'prenom':       'Jérôme',
                             'nom':          'Toto',
                             'ecole':        'P',
                             'promo':        2008,
@@ -54,7 +54,7 @@ def fulltext_api():
     # 4. Mettre en forme les résultats
     results = []
     for ancien in s[1]:
-        results.append(helper.row_to_json(ancien))
+        results.append(helper.row_to_json(ancien, excluded_keys=["fulltext", "nom_slug", "prenom_slug"]))
 
     to_send = { "current_page" : s[0].current, "max_pages" : s[0].last , "data" : results }
 
@@ -82,10 +82,10 @@ def search_api():
 
     :return:    Un objet contenant :
                     - max_pages : le nombre de pages maximum
-                    - data : la liste des résultats sous forme d'objets JSON html-encodé de la forme
+                    - data : la liste des résultats sous forme d'objets JSON de la forme
                         {
                             'id':           23154,
-                            'prenom':       'J&eacute;r&ocirc;me',
+                            'prenom':       'Jérôme',
                             'nom':          'Toto',
                             'ecole':        'P',
                             'promo':        2008,
@@ -111,7 +111,7 @@ def search_api():
     # 4. Mettre en forme les résultats
     results = []
     for ancien in s[1]:
-        results.append(helper.row_to_json(ancien))
+        results.append(helper.row_to_json(ancien, excluded_keys=["fulltext", "nom_slug", "prenom_slug"]))
 
     to_send = { "current_page" : s[0].current, "max_pages" : s[0].last , "data" : results }
 

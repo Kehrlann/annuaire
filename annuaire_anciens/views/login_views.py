@@ -16,49 +16,10 @@ def load_user(user_id):
     return user.find_user_by_id(user_id)
 
 
-# @app.route('/')
-# def home():
-#     return redirect(url_for('annuaire_view'))
-
 # API READY
 @app.route('/')
 def root():
     return render_template('index.html')
-
-# NOT YET API READY
-@helper.csrf_exempt
-@app.route('/login', methods=['POST'])
-def login_ajax():
-    """
-    Méthode pour logguer un utilisateur (no shit) à partir de son adresse mail et son mot de pass
-    POST : valider les infos et logguer ou invalider les infos et retourner l'url sur lequel rediriger
-    :return: code 401 si échec de l'authentification, code 200 et url en cas de réussite
-    """
-    form = user.login_form(request.form)
-
-    # if current_user.is_authenticated():
-    #     return url_for('annuaire_view')
-
-    if form.validate():
-        utilisateur = user.find_user_by_mail_and_password(form.mail.data, form.password.data, actif_only=True)
-        app.logger.info("LOGIN - valid form")
-        if utilisateur is not None:
-            app.logger.info("LOGIN - success %s, with id %s", form.mail.data, utilisateur.id)
-            # app.logger.info("LOGIN - rememberme is %b", form.rememberme.data)
-            login_user(utilisateur, remember=form.rememberme.data)
-            return url_for('annuaire_view')
-        else:
-            app.logger.warning("LOGIN - fail %s", form.mail.data)
-    abort(401)
-
-@app.route('/logged', methods=['GET'])
-def login():
-    """
-    Méthode legacy pour supporter l'url /login
-    GET  : afficher l'annuaire si l'utilisateur est loggué, la page d'inscription sinon
-    :return:
-    """
-    return json.dumps({ "logged" : current_user.is_authenticated()})
 
 # API READY
 @app.route('/register', methods=['POST'])
@@ -391,16 +352,6 @@ def reset_password_activate(activation):
     else:
         abort(405, "Page uniquement accessible avec un code d'activation")
 
-
-@app.route('/logout', methods=['GET', 'POST'])
-@login_required
-def logout():
-    """
-    Logout the user, duh.
-    """
-    app.logger.info("Logout user with id %s", current_user.id)
-    logout_user()
-    return redirect(url_for('login'))
 
 
 @app.context_processor
