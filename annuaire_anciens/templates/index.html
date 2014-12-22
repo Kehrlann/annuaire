@@ -13,6 +13,7 @@
     <link href="/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/css/autocomplete.min.css" rel="stylesheet"/>
     <link href="/css/style.css" rel="stylesheet"/>
+
     <script>
         var appGlobals =    {   url:    {   autocomplete:   {   fulltext:   '{{ url_for("autocomplete_fulltext") }}'
                                                             },
@@ -27,6 +28,9 @@
                                                                 else
                                                                     return "{{ url_for('static',filename='img/no_photo.jpg') }}";
                                                             },
+                                            user:           {   experience:     {       setPrimaire:    function(id)    { return "{{ url_for('experience_set_default_api', id_experience='0') }}".replace("0", id); }
+                                                                                }
+                                                            },
                                             logged:         '{{ url_for("logged") }}',
                                             login:          '{{ url_for("login") }}',
                                             logout:         '{{ url_for("logout") }}',
@@ -34,10 +38,19 @@
                                         }
                             }
     </script>
-    <script src="/static/js/app-bundle.js"></script>
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/autocomplete.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/react.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/underscore.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/backbone.min.js')}}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/autocomplete.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/annuaire.js')}}"></script>
+
+
+    <script src="{{ url_for('static', filename='js/app-bundle.js')}}"></script>
+
 
     <!-- /SCRIPTS -->
 </head>

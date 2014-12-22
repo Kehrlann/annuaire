@@ -6,11 +6,28 @@ var Experience = require('./ancienExperience.jsx');
 module.exports = React.createClass({
     getInitialState:function()
     {
-        return { ancien: null };
+        // Setup :  copier l'ancien dans le state, pour pouvoir
+        //          le modifier librement
+        return { ancien: this.props.ancien };
     },
-    componentDidMount:function()
-    {
-        this.setState({ancien : this.props.ancien });
+    setPrimaire: function(id_experience){
+        $.ajax
+        (
+            {
+                method:     "PUT",
+                url:        appGlobals.url.user.experience.setPrimaire(id),
+                success:    function(data)  {   this.state.ancien.experiences.forEach
+                                                (
+                                                    function(value) {
+                                                        value.actif = value.id_experience == id_experience;
+                                                    }
+                                                );
+                                                this.setState({ancien: this.state.ancien});
+                                            }   .bind(this),
+                error:      function(data)  {
+                                            }
+            }
+        );
     },
     render:function()
     {
@@ -21,10 +38,9 @@ module.exports = React.createClass({
 
             var experiences = this.state.ancien.experiences.map(
                 function(exp){
-                    return <Experience experience={exp} />;
-                }
+                    return <Experience experience={exp} key={exp.id_experience} canEdit={this.props.canEdit} setPrimaire={this.setPrimaire} />;
+                }.bind(this)
             );
-
 
             return  <div className="container">
                         <div className="row">
@@ -35,7 +51,5 @@ module.exports = React.createClass({
                         </div>
                     </div>;
         }
-
-
     }
 });

@@ -16,7 +16,6 @@ module.exports = React.createClass({
         // TODO : add autocomplete
     },
     componentDidMount: function(){
-        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~>        NAVBAR MOUNT");
         $.ajax(
             {
                 method: "GET",

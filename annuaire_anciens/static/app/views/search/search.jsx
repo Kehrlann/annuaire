@@ -1,7 +1,6 @@
 /**
  * @jsx React.DOM
  */
-window.$ = require('jquery');
 SearchResultList = require('./searchResultList.jsx');
 SearchBar = require('./searchBar.jsx');
 Pagination = require('./pagination.jsx');
@@ -22,9 +21,6 @@ module.exports = React.createClass({
         this.searchFullText(this.state.query, p);
     },
     componentDidMount: function(){
-        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~>        SEARCH MOUNT");
-        console.log("Props", this.props);
-        console.log("State", this.state);
     },
     searchFullText: function(query, page){
         this.state.query = query;

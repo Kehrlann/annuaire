@@ -2,10 +2,11 @@
 // Globals
 //
 
-window.React = require('react');
-window.Backbone = require('backbone');
-window._ = require('underscore');
-Backbone.$ = require('jquery');
+//window.React = require('react');
+//window.Backbone = require('backbone');
+//window._ = require('underscore');
+//window.$ = require('jquery');
+//Backbone.$ = window.$;
 
 //
 // Dependencies
@@ -92,14 +93,14 @@ var Router = Backbone.Router.extend({
                             {
                                 var ancien = eval("("+data+")");
                                 React.render(
-                                    AncienView({ancien: ancien}),
+                                    AncienView({ancien: ancien, canEdit: true}),
                                     document.getElementById('js-main')
                                 );
                             }
                 ,
                 error:      function(data)
                             {
-                                Backbone.history.navigate("/search");
+                                Backbone.history.navigate("/search", { trigger : true });
                             }
             }
         );
@@ -143,11 +144,10 @@ var Router = Backbone.Router.extend({
 });
 
 
-$(function(){
+$(document).ready(function(){
     //
     // Patchs
     //
-
     // Patch Bootstrap popover to take a React component instead of a
     // plain HTML string (see http://jsfiddle.net/spicyj/q6hj7/)
     $.extend($.fn.popover.Constructor.DEFAULTS, {react: false});

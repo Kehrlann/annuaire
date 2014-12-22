@@ -1,37 +1,42 @@
 /**
  * @jsx React.DOM
  */
-var Descriptor = require('./descriptors.jsx');
+var ExperienceDescriptor = require('./ancienExperienceDescriptor.jsx');
+var ExperienceForm = require('./ancienExperienceForm.jsx');
+
 module.exports = React.createClass({
+    getInitialState: function(){
+        // Experience is the owner of the ancien.experience
+        return { isEditing : false };
+    },
+    toggleEdit: function(){
+        this.setState({ isEditing : !this.state.isEditing });
+    },
+
+    // Passer une expérience de "secondaire" à "primaire"
+    handleSecondaire: function(){
+    },
     render:function(){
-        var experience = this.props.experience;
-        var descriptors = [];
-
-        // Infos basiques
-        descriptors.push(<Descriptor.Simple label="Poste" value={experience.poste} />);
-        descriptors.push(<Descriptor.Simple label="Description" value={experience.description} />);
-
-        if(experience.adresse || experience.code || experience.ville || experience.pays){
-            descriptors.push(<br />);
-            descriptors.push(<Descriptor.Adresse adresse={experience} />);
+        var showElement;
+        if (this.state.isEditing)
+        {
+            showElement =   <ExperienceForm         experience          =   {this.props.experience}
+                                                    handleCancel        =   {this.toggleEdit}
+                                                    handleUpdate        =   {this.toggleEdit}
+            />;
         }
-
-        if(experience.mail || experience.telephone || experience.mobile){
-            descriptors.push(<br />);
-            descriptors.push(<Descriptor.Simple label="Mail" value={experience.mail} mail={true} />);
-            descriptors.push(<Descriptor.Simple label="Téléphone" value={experience.telephone} />);
-            descriptors.push(<Descriptor.Simple label="Mobile" value={experience.mobile} />);
+        else
+        {
+            showElement =   <ExperienceDescriptor   experience          =   {this.props.experience}
+                                                    handleEdit          =   {this.toggleEdit}
+                                                    setPrimaire         =   {this.props.setPrimaire}
+                                                    handleRemove        =   {this.toggleEdit}
+                                                    canEdit             =   {this.props.canEdit}
+                            />;
         }
 
         return  <div className="row custom-ancien-container experience-container">
-                    <div className="col-sm-10 col-sm-offset-1">
-                        <div className="row">
-                            <div className="custom-header-experience col-sm-10 col-sm-offset-2" >
-                                {this.props.experience.entreprise}
-                            </div>
-                        </div>
-                        {descriptors}
-                    </div>
+                    {showElement}
                 </div>;
     }
 });

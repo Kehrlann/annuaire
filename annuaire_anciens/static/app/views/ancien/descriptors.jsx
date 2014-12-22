@@ -11,9 +11,14 @@ var Simple = React.createClass({
                 );
 
                 var toRender = this.props.value;
-                if(values.length > 1){
+                if(this.props.mail) {
+                    toRender = <a href={"mailto:" + this.props.value}>{this.props.value}</a>;
+                } else if (this.props.link){
+                    toRender = <a href={this.props.value} target="_blank">{this.props.value}</a>;
+                } else if (values.length > 1) {
                     toRender = values;
                 }
+
 
                 return  <div className="row">
                     <div className="col-sm-2 custom-text-right-big-screen cutsom-descriptor">{this.props.label}</div>

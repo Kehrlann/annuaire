@@ -25,8 +25,6 @@ module.exports = React.createClass({
     componentDidUpdate: function(prevProps, prevState) {
         var $el = $(this.getDOMNode());
 
-        console.log("Popover componentDidUpdate");
-
         var popoverId = $el.attr('aria-describedby');
         if(popoverId){
             if (prevProps.isLoading !== this.props.isLoading) {
