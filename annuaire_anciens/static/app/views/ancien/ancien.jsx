@@ -15,7 +15,7 @@ module.exports = React.createClass({
         (
             {
                 method:     "PUT",
-                url:        appGlobals.url.user.experience.setPrimaire(id),
+                url:        appGlobals.url.user.experience.setPrimaire(id_experience),
                 success:    function(data)  {   this.state.ancien.experiences.forEach
                                                 (
                                                     function(value) {
@@ -38,7 +38,12 @@ module.exports = React.createClass({
 
             var experiences = this.state.ancien.experiences.map(
                 function(exp){
-                    return <Experience experience={exp} key={exp.id_experience} canEdit={this.props.canEdit} setPrimaire={this.setPrimaire} />;
+                    return  <Experience key             =   {exp.id_experience}
+                                        isPrimaire      =   {exp.actif}
+                                        experience      =   {exp}
+                                        canEdit         =   {this.props.canEdit}
+                                        setPrimaire     =   {this.setPrimaire}
+                            />;
                 }.bind(this)
             );
 

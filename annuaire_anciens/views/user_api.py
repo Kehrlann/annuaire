@@ -6,9 +6,8 @@ from flask import request, session, abort
 from flask.ext.login import current_user, login_required, login_user
 import json
 
-from annuaire_anciens import app, annuaire, user, SUCCESS, FAILURE
-from annuaire_anciens.helper.security import generate_csrf_token
-
+from annuaire_anciens import app, annuaire, user, SUCCESS, FAILURE, PAYS
+from datetime import datetime
 
 
 @app.route("/api/v1/user/me", methods=["GET"])
@@ -193,7 +192,57 @@ def update_experience_api(id_experience):
 
     :return:
     """
-    abort(501, "Not implemented (yet) !")
+    ancien  =   _get_valid_ancien()
+
+    try:
+        experience = annuaire.find_experience_by_id_ancien_id_experience(id_experience, ancien["id_ancien"])
+        if experience is None:
+            abort(403, "Vous ne pouvez modifier QUE les infos liees a votre propre compte")
+        else:
+            # Close the cursor
+            osef = experience.fetchall()
+    except:
+        abort(500)
+
+    experience_form = user.update_experience_form.from_json(request.json)
+    experience_form.set_pays(PAYS)
+    form_confirmed = experience_form.validate()
+
+    if form_confirmed:
+        try:
+            date_debut = datetime.strptime(experience_form.date_debut.data, '%m/%Y')
+        except ValueError:
+            date_debut = None
+        try:
+            date_fin = datetime.strptime(experience_form.date_fin.data, '%m/%Y')
+        except ValueError:
+            date_fin = None
+
+        success = annuaire.update_experience(
+            current_user.id_ancien,
+            id_experience,
+            experience_form.ville.data,
+            experience_form.pays.data,
+            experience_form.adresse.data,
+            experience_form.code.data,
+            experience_form.entreprise.data,
+            experience_form.poste.data,
+            experience_form.description.data,
+            experience_form.mail.data,
+            experience_form.site.data,
+            experience_form.telephone.data,
+            experience_form.mobile.data,
+            date_debut,
+            date_fin
+        )
+
+        if success:
+            return json.dumps(SUCCESS)
+
+    else:
+        abort(400, json.dumps(experience_form.errors))
+
+    abort(500, "Oops ! Erreur interne, vous ne devriez pas arriver ici ...")
 
 
 @app.route("/api/v1/me/experience/<int:id_experience>/set_default", methods=["PUT"])

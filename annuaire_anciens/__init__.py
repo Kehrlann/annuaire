@@ -66,6 +66,10 @@ with open('var/mails.json', 'r') as f:
 SUCCESS = { "success" : True }
 FAILURE = { "success" : False }
 
+# Forms
+import wtforms_json
+wtforms_json.init()
+
 
 # attacher les filtres et les vues à l'application
 import helper.filters

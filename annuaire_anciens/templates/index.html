@@ -28,7 +28,8 @@
                                                                 else
                                                                     return "{{ url_for('static',filename='img/no_photo.jpg') }}";
                                                             },
-                                            user:           {   experience:     {       setPrimaire:    function(id)    { return "{{ url_for('experience_set_default_api', id_experience='0') }}".replace("0", id); }
+                                            user:           {   experience:     {       setPrimaire:    function(id)    { return "{{ url_for('experience_set_default_api', id_experience='0') }}".replace("0", id); },
+                                                                                        update:         function(id)    { return "{{ url_for('update_experience_api', id_experience='0') }}".replace("0", id); }
                                                                                 }
                                                             },
                                             logged:         '{{ url_for("logged") }}',

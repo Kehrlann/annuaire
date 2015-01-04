@@ -71,7 +71,7 @@ def row_to_json(row, excluded_keys=None):
 
         # Cas 1 : C'est une date, la dump en string
         elif type(row[key]) is date:
-            d[key] = row[key].strftime("%Y%m%d")
+            d[key] = row[key].strftime("%m/%Y")
 
         # Cas 2 : Tout le reste, return as-if
         else:

@@ -15,6 +15,7 @@ setup(
                       'psycopg2>=2.4',
                       'WTForms',
                       'requests',
-                      'lxml'
+                      'lxml',
+                      'wtforms_json'
                       ]
 )

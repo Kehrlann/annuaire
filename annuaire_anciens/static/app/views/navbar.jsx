@@ -57,7 +57,11 @@ module.exports = React.createClass({
 
         if (!this.state.isUserConnected) {
             return (
-                <LoginView onLogin={this.handleLogin}></LoginView>
+                <div className="col-lg-10 col-lg-offset-1">
+                    <div className="navbar-right" id="js-navbar">
+                        <LoginView onLogin={this.handleLogin}></LoginView>
+                    </div>
+                </div>
             );
         }
         else {
