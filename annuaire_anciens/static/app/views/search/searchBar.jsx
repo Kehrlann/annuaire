@@ -1,6 +1,7 @@
 /**
  * @jsx React.DOM
  */
+var appGlobals = require('../../AppGlobals.js');
 
 module.exports = React.createClass({
         handleSubmit: function (e) {

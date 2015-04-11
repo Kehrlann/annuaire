@@ -2,6 +2,8 @@
  * @jsx React.DOM
  */
 var Descriptor = require('./descriptors.jsx');
+var appGlobals = require('../../AppGlobals.js');
+
 module.exports = React.createClass({
     getNom: function(){
         var res = "";

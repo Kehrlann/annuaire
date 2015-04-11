@@ -22,8 +22,8 @@
     "watchify": "^2.1.1"
   },
   "scripts": {
-    "start": "STATIC_ROOT=./static watchify -o js/app-bundle.js -v -d .",
-    "build": "STATIC_ROOT=./static NODE_ENV=production browserifyb . | uglifyjs -cm > app-bundle.min.js",
+    "start": "watchify -o js/app-bundle.js -v -d .",
+    "build": "NODE_ENV=production browserifyb . | uglifyjs -cm > app-bundle.min.js",
     "collect-static": "collect-static . ./static",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

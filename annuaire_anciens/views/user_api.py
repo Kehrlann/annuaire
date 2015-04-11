@@ -6,11 +6,13 @@ from flask import request, session, abort
 from flask.ext.login import current_user, login_required, login_user
 import json
 
-from annuaire_anciens import app, annuaire, user, SUCCESS, FAILURE, PAYS
+from annuaire_anciens import app, annuaire, user, SUCCESS, FAILURE, PAYS, helper
 from datetime import datetime
 
+from annuaire_anciens.helper.error_handlers import FormErrorCustom
 
-@app.route("/api/v1/user/me", methods=["GET"])
+
+@app.route("/api/v1/me", methods=["GET"])
 @login_required
 def user_info_api():
     """
@@ -150,6 +152,7 @@ def add_experience_api():
     """
     ancien  =   _get_valid_ancien()
     data    =   _get_valid_data()
+
     abort(501, "Not implemented (yet) !")
 
     # TODO
@@ -184,6 +187,31 @@ def add_experience_api():
     # )
 
 
+@app.route("/api/v1/me/experience/<int:id_experience>", methods=["GET"])
+@login_required
+def get_experience_api(id_experience):
+    """
+    BLAH BLAH BLAH
+
+    :param id_experience:
+    :return:
+    """
+    ancien  =   _get_valid_ancien()
+    experience = None
+    # Verifier que l'ancien a bien le droit de modifier cette expérience
+    try:
+        experience = annuaire.find_experience_by_id_ancien_id_experience(ancien["id_ancien"], id_experience, False)
+    except:
+        abort(500)
+
+    if experience is None:
+        abort(403, "Vous ne pouvez modifier QUE les infos liees a votre propre compte")
+    else:
+        # Close the cursor
+        return json.dumps(helper.row_to_json(experience))
+
+
+
 @app.route("/api/v1/me/experience/<int:id_experience>", methods=["PUT"])
 @login_required
 def update_experience_api(id_experience):
@@ -192,23 +220,28 @@ def update_experience_api(id_experience):
 
     :return:
     """
-    ancien  =   _get_valid_ancien()
-
+    ancien      =   _get_valid_ancien()
+    experience  =   None
+    # Verifier que l'ancien a bien le droit de modifier cette expérience
     try:
-        experience = annuaire.find_experience_by_id_ancien_id_experience(id_experience, ancien["id_ancien"])
-        if experience is None:
-            abort(403, "Vous ne pouvez modifier QUE les infos liees a votre propre compte")
-        else:
-            # Close the cursor
-            osef = experience.fetchall()
+        experience = annuaire.find_experience_by_id_ancien_id_experience(ancien["id_ancien"], id_experience)
     except:
         abort(500)
 
+    if experience is None:
+        abort(403, "Vous ne pouvez modifier QUE les infos liees a votre propre compte")
+
+
     experience_form = user.update_experience_form.from_json(request.json)
+
     experience_form.set_pays(PAYS)
     form_confirmed = experience_form.validate()
 
-    if form_confirmed:
+    if not form_confirmed:
+        print experience_form.errors
+        raise FormErrorCustom("Erreur de saisie", experience_form.errors)
+
+    else:
         try:
             date_debut = datetime.strptime(experience_form.date_debut.data, '%m/%Y')
         except ValueError:
@@ -238,9 +271,6 @@ def update_experience_api(id_experience):
 
         if success:
             return json.dumps(SUCCESS)
-
-    else:
-        abort(400, json.dumps(experience_form.errors))
 
     abort(500, "Oops ! Erreur interne, vous ne devriez pas arriver ici ...")
 

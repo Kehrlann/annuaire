@@ -15,7 +15,7 @@
     <link href="/css/style.css" rel="stylesheet"/>
 
     <script>
-        var appGlobals =    {   url:    {   autocomplete:   {   fulltext:   '{{ url_for("autocomplete_fulltext") }}'
+        var appGlobals_old =    {   url:    {   autocomplete:   {   fulltext:   '{{ url_for("autocomplete_fulltext") }}'
                                                             },
                                             search:         {   fulltext:   '{{ url_for("fulltext_api") }}'
                                                             },
@@ -40,20 +40,13 @@
                             }
     </script>
 
-    <script src="{{ url_for('static', filename='js/react.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/app-bundle.js')}}"></script>
     <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/underscore.min.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/backbone.min.js')}}"></script>
-
     <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/autocomplete.min.js')}}"></script>
-        <script src="{{ url_for('static', filename='js/annuaire.js')}}"></script>
-
-
-    <script src="{{ url_for('static', filename='js/app-bundle.js')}}"></script>
-
-
+    <script src="{{ url_for('static', filename='js/annuaire.js')}}"></script>
     <!-- /SCRIPTS -->
+
 </head>
 <body id="body">
 

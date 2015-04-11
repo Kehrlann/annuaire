@@ -3,6 +3,7 @@
  */
 
 var LoginView = require('./login.jsx');
+var appGlobals = require('../AppGlobals.js');
 
 module.exports = React.createClass({
 

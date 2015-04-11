@@ -12,8 +12,8 @@ class change_password_form(Form):
     - new_passwod_confirm
     """
     old_password = PasswordField('Ancien mot de passe')
-    new_password = PasswordField('Nouveau mot de passe', [validators.Required(message="Veuillez saisir un mot de passe"), validators.Length(min=6, max=25, message="Le mot de passe doit contenir entre 6 et 25 caract&egrave;res")])
-    new_password_confirm = PasswordField('Confirmer mot de passe', [validators.EqualTo('new_password', message='Mots de passe diff&eacute;rents')])
+    new_password = PasswordField('Nouveau mot de passe', [validators.Required(message="Veuillez saisir un mot de passe"), validators.Length(min=6, max=25, message="Le mot de passe doit contenir entre 6 et 25 caractères")])
+    new_password_confirm = PasswordField('Confirmer mot de passe', [validators.EqualTo('new_password', message='Mots de passe différents')])
 
 
 class login_form(Form):
@@ -37,7 +37,7 @@ class registration_form(Form):
     mail_ancien = TextField('Mail @mines-xxx.org*', [validators.Required("Veuillez saisir une adresse de validation")])
     choices = [(k,v) for k,v in MAILS.items()] # on fait une liste [(@mines-paris.org, @mines-paris.org),...]
     domaine_ancien = SelectField('Extension', choices=choices)
-    password = PasswordField('Mot de passe*', [validators.Required(message="Veuillez saisir un mot de passe"), validators.Length(min=6, max=25, message="Le mot de passe doit contenir entre 6 et 25 caract&egrave;res")])
+    password = PasswordField('Mot de passe*', [validators.Required(message="Veuillez saisir un mot de passe"), validators.Length(min=6, max=25, message="Le mot de passe doit contenir entre 6 et 25 caractères")])
 
 
 class update_ancien_form(Form):
@@ -46,14 +46,14 @@ class update_ancien_form(Form):
     """
     nom = TextField('Nom')
     promo = TextField('Promo')
-    diplome = TextField('Dipl&ocirc;me')
+    diplome = TextField('Diplôme')
     telephone = TextField(
         'Fixe',
         [
             validators.Length(
                 min=5,
                 max=20,
-                message="Le t&eacute;l&eacute;phone ne doit pas d&eacute;passer 20 caract&egrave;res"
+                message="Le téléphone ne doit pas dépasser 20 caractères"
             ),
             validators.Optional()
         ]
@@ -65,7 +65,7 @@ class update_ancien_form(Form):
             validators.Length(
                 min=5,
                 max=20,
-                message="Le t&eacute;l&eacute;phone ne doit pas d&eacute;passer 20 caract&egrave;res"
+                message="Le téléphone ne doit pas dépasser 20 caractères"
             ),
             validators.Optional()
         ]
@@ -77,7 +77,7 @@ class update_ancien_form(Form):
             validators.Length(
                 min=5,
                 max=200,
-                message="Le site ne doit pas d&eacute;passer 200 caract&egrave;res"
+                message="Le site ne doit pas dépasser 200 caractères"
             ),
             validators.Optional()
         ]
@@ -88,7 +88,7 @@ class update_ancien_form(Form):
             validators.Length(
                 min=5,
                 max=60,
-                message="Le mail ne doit pas d&eacute;passer 60 caract&egrave;res"
+                message="Le mail ne doit pas dépasser 60 caractères"
             ),
             validators.Optional()
         ]
@@ -128,7 +128,7 @@ class update_adresse_form(Form):
                 validators.Length(
                     min=0,
                     max=200,
-                    message="L'adresse ne doit pas d&eacute;passer 200 caract&egrave;res"
+                    message="L'adresse ne doit pas dépasser 200 caractères"
                 ),
                 validators.Optional()
             ]
@@ -150,7 +150,7 @@ class update_adresse_form(Form):
             validators.Length(
                 min=2,
                 max=10,
-                message="Le code doit faire entre 2 et 10 caract&egrave;res"
+                message="Le code doit faire entre 2 et 10 caractères"
             ),
             validators.Optional()
         ]
@@ -199,7 +199,7 @@ class update_experience_form(Form):
                 validators.Length(
                     min=0,
                     max=100,
-                    message="Le poste ne doit pas d&eacute;passer 100 caract&egrave;res"
+                    message="Le poste ne doit pas dépasser 100 caractères"
                 ),
                 validators.Optional()
             ]
@@ -211,7 +211,7 @@ class update_experience_form(Form):
             validators.Length(
                 min=0,
                 max=2000,
-                message="La description ne doit pas d&eacute;passer 2000 caract&egrave;res"
+                message="La description ne doit pas dépasser 2000 caractères"
             ),
             validators.Optional()
         ]
@@ -240,7 +240,7 @@ class update_experience_form(Form):
             validators.Length(
                 min=0,
                 max=200,
-                message="L'adresse ne doit pas d&eacute;passer 200 caract&egrave;res"
+                message="L'adresse ne doit pas dépasser 200 caractères"
             ),
             validators.Optional()
         ]
@@ -252,22 +252,22 @@ class update_experience_form(Form):
             validators.Length(
                 min=2,
                 max=10,
-                message="Le code doit faire entre 2 et 10 caract&egrave;res"
+                message="Le code doit faire entre 2 et 10 caractères"
             ),
             validators.Optional()
         ]
     )
     date_debut = TextField(
-        'Date de d&eacute;but *',
+        'Date de début *',
         [
-            validators.Required('Date de d&eacute;but obligatoire'),
-            helper.ValidDateMonth("La date d'entr&eacute;e doit &ecirc;tre au format mm/aaaa")
+            validators.Required('Date de début obligatoire'),
+            helper.ValidDateMonth("La date d'entrée doit être au format mm/aaaa")
         ]
     )
     date_fin = TextField(
         'Date de fin',
         [
-            helper.ValidDateMonth("La date de sortie doit &ecirc;tre au format mm/aaaa"),
+            helper.ValidDateMonth("La date de sortie doit être au format mm/aaaa"),
             validators.Optional()
         ]
     )
@@ -324,22 +324,22 @@ class create_ancien_form(Form):
     - Promo
     - Diplôme
     """
-    prenom = TextField('Pr&eacute;nom', [validators.Required(message="Veuillez saisir votre pr&eacute;nom")])
+    prenom = TextField('Prénom', [validators.Required(message="Veuillez saisir votre prénom")])
     nom = TextField('Nom', [validators.Required(message="Veuillez saisir votre nom")])
     ecole = SelectField(
-        '&Eacute;cole',
+        'École',
         choices=[('N', 'Nancy'), ('P', 'Paris'), ('E', 'Saint-Etienne')],
-        validators=[validators.Required(message="Veuillez s&eacute;lectionner une &eacute;cole")]
+        validators=[validators.Required(message="Veuillez sélectionner une école")]
     )
 
     promo = SelectField(
         'Promo', choices=[(str(x), str(x)) for x in xrange(2013,2020)],
-        validators=[validators.Required(message="Veuillez s&eacute;lectionner une &eacute;cole")]
+        validators=[validators.Required(message="Veuillez sélectionner une école")]
     )
     diplome = SelectField(
-        'Dipl&ocirc;me',
-        choices=[(x, x) for x in ["Ing&eacute;nieur Civil", "Ing&eacute;nieur du Corps", "Docteur", "Master sp&eacute;cialis&eacute;"]],
-        validators=[validators.Required(message="Veuillez s&eacute;lectionner un dipl&ocirc;me")]
+        'Diplôme',
+        choices=[(x, x) for x in ["Ingénieur Civil", "Ingénieur du Corps", "Docteur", "Master spécialisé"]],
+        validators=[validators.Required(message="Veuillez sélectionner un diplôme")]
     )
 
 
@@ -355,7 +355,7 @@ class create_new_password_form(Form):
     """
     Form pour mettre un jour un mot de passe
     """
-    new_password = PasswordField('Nouveau mot de passe', [validators.Required(message="Veuillez saisir un mot de passe"), validators.Length(min=6, max=25, message="Le mot de passe doit contenir entre 6 et 25 caract&egrave;res")])
-    new_password_confirm = PasswordField('Confirmer mot de passe', [validators.EqualTo('new_password', message='Mots de passe diff&eacute;rents')])
+    new_password = PasswordField('Nouveau mot de passe', [validators.Required(message="Veuillez saisir un mot de passe"), validators.Length(min=6, max=25, message="Le mot de passe doit contenir entre 6 et 25 caractères")])
+    new_password_confirm = PasswordField('Confirmer mot de passe', [validators.EqualTo('new_password', message='Mots de passe différents')])
 
 

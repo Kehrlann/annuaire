@@ -74,6 +74,7 @@ wtforms_json.init()
 # attacher les filtres et les vues à l'application
 import helper.filters
 import views
+import helper.error_handlers
 
 # configurer google analytics, google CDN, etc
 app.jinja_env.globals['google_analytics'] = app.config['GOOGLE_ANALYTICS']

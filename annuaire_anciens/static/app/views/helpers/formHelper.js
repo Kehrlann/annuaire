@@ -1,11 +1,7 @@
-/**
- * @jsx React.DOM
- */
-
 module.exports.serializeToJson =
     function(domNode) {
         var res = {};
-        $(domNode).find("input").each(
+        $(domNode).find("input, textarea, select").each(
             function(index, input){
                 res[$(input).attr("name")] = $(input).val();
             }

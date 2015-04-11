@@ -3,6 +3,8 @@
  */
 
 var Popover = require('./helpers/popover.jsx');
+var appGlobals = require('../AppGlobals.js');
+
 
 module.exports = React.createClass({
 

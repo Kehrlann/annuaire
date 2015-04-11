@@ -547,7 +547,7 @@ def find_experience_by_id_ancien(id_ancien, use_labels=True):
     else:
         return None
 
-def find_experience_by_id_ancien_id_experience(id_ancien, id_experience):
+def find_experience_by_id_ancien_id_experience(id_ancien, id_experience, use_labels=True):
     """
     Rechercher une experience par id_ancien et id_experience
     Ces doubles id assurent que l'experience esst bien associée à l'ancien étudié
@@ -574,15 +574,16 @@ def find_experience_by_id_ancien_id_experience(id_ancien, id_experience):
              ex.c.debut,
              ex.c.fin,
              ex.c.id_experience_linkedin,
-             en.c.nom,
+             en.c.nom.label("entreprise"),
              a.c.adresse,
              a.c.code,
-             v.c.nom,
+             v.c.nom.label("ville"),
+             p.c.nom.label("pays"),
              p.c.id_pays],
             and_(ex.c.id_ancien == id_ancien, ex.c.id_experience == id_experience),
             from_obj=ex.outerjoin(en).outerjoin(a).outerjoin(v).outerjoin(p),
-            use_labels=True).order_by(desc(ex.c.debut)).order_by(desc(ex.c.actif)).distinct()
-        return engine.execute(sel)
+            use_labels=use_labels).order_by(desc(ex.c.debut)).order_by(desc(ex.c.actif).nullslast()).distinct()
+        return engine.execute(sel).first()
     else:
         return None
 

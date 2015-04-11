@@ -504,3 +504,23 @@ cosmétique pour l'autocomplete
 .custom-label {
     font-weight: 400;
 }
+
+
+
+
+label {
+    font-weight:normal;
+}
+
+.help-block {
+    margin-bottom:5px;
+}
+
+.admin-small-row {
+    margin-top: 10px;
+}
+
+.admin-label {
+    margin-top:6px;
+    margin-bottom:6px;
+}

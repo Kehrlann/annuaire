@@ -1,9 +1,11 @@
 /**
  * @jsx React.DOM
  */
-SearchResultList = require('./searchResultList.jsx');
-SearchBar = require('./searchBar.jsx');
-Pagination = require('./pagination.jsx');
+var SearchResultList = require('./searchResultList.jsx');
+var SearchBar = require('./searchBar.jsx');
+var Pagination = require('./pagination.jsx');
+var appGlobals = require('../../AppGlobals.js');
+
 
 module.exports = React.createClass({
 
@@ -27,12 +29,15 @@ module.exports = React.createClass({
         this.state.page = page;
         $.ajax(
             {
-                method: "GET",
-                url: appGlobals.url.search.fulltext + "?q=" + encodeURIComponent(query) + "&p=" + page,
-                success: function (data) {
-                    var results = eval("(" + data + ")");
-                    this.setState( {anciens: results.data, query: query, page: page, max_page : results.max_pages});
-                }.bind(this)
+                method:     "GET",
+                //url: appGlobals.url.search.fulltext + "?q=" + encodeURIComponent(query) + "&p=" + page,
+                url:        appGlobals.url.search.fulltext,
+                data:       { q : encodeURIComponent(query), p : page },
+                success:    function (data)
+                            {
+                                var results = eval("(" + data + ")");
+                                this.setState( {anciens: results.data, query: query, page: page, max_page : results.max_pages});
+                            }.bind(this)
             }
         );
     },
