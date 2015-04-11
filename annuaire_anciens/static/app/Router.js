@@ -38,7 +38,7 @@ var Router = Backbone.Router.extend({
         });
 
         React.render(
-          NavbarView({}),
+          <NavbarView />,
           document.getElementById('js-navbar')
         );
     },
@@ -54,7 +54,7 @@ var Router = Backbone.Router.extend({
                         Backbone.history.navigate("/search", {trigger:true});
                     } else {
                         React.render(
-                            RegisterView({}),
+                            <RegisterView />,
                             document.getElementById('js-main')
                         );
                     }
@@ -73,7 +73,7 @@ var Router = Backbone.Router.extend({
      ********************************************************************/
     search: function(term){
         React.render(
-          SearchView({q: term}),
+          <SearchView q={term} />,
           document.getElementById('js-main')
         );
     },
@@ -95,7 +95,7 @@ var Router = Backbone.Router.extend({
                             {
                                 var ancien = eval("("+data+")");
                                 React.render(
-                                    AncienView({ancien: ancien, canEdit: true}),
+                                    <AncienView ancien={ancien} canEdit={true} />,
                                     document.getElementById('js-main')
                                 );
                             }

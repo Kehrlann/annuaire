@@ -19,12 +19,10 @@ module.exports = React.createClass({
         this.setState({currentView: views.menu});
     },
     gotoExperience:function(){
-        console.log("GOTO EXP");
         this.setState({currentView: views.exp});
     },
     render:function()
     {
-        console.log(this.state.currentView);
         switch(this.state.currentView)
         {
             case views.menu:

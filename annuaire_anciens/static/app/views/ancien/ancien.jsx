@@ -40,6 +40,13 @@ module.exports = React.createClass({
                     }
                 );
     },
+    componentWillReceiveProps:function(nextProps)
+    {
+        if(nextProps && nextProps.ancien)
+        {
+            this.setState({ ancien : nextProps.ancien });
+        }
+    },
     deleteExperience:function(){},
     render:function()
     {
@@ -60,7 +67,7 @@ module.exports = React.createClass({
                 }.bind(this)
             );
 
-            return  <div className="container">
+            return  <div className="container" id="ancien-container">
                         <div className="row">
                             <div className="col-lg-10 col-lg-offset-1">
                                 <AncienAdmin    ancien={this.state.ancien} />
