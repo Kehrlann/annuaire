@@ -656,34 +656,6 @@ def update_photo():
     return json.dumps(res)
 
 
-@app.route('/compte/actif/update', methods=['GET'])
-@login_required
-def update_actif():
-    """
-    Toggle l'état d'une fiche ancien : actif, inactif
-
-    :return:
-    """
-
-    if current_user.id_ancien is not None:
-        ancien = annuaire.find_ancien_by_id(current_user.id_ancien)
-
-        if ancien is not None:
-            annuaire.update_actif(ancien['id_ancien'], not ancien['actif'])
-            app.logger.info(
-                "ANCIEN - successfully updated ancien :%s, set actif : %s, user : %s",
-                ancien['id_ancien'],
-                not ancien['actif'],
-                current_user.id)
-
-            mot = "est &agrave; nouveau visible"
-            if ancien['actif']:
-                mot = "n'est plus visible"
-
-            flash("Votre fiche %s dans l'annuaire" % mot, "success")
-
-    return redirect(url_for('compte'))
-
 
 @app.route('/compte/experience/remove/<int:id_experience>', methods=['POST'])
 @login_required

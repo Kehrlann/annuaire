@@ -1,30 +1,27 @@
 # coding=utf-8
 from annuaire_anciens import app, annuaire, user, helper
 from flask import abort, render_template, request, redirect, url_for, flash
-from flask.ext.login import LoginManager, current_user, login_user, login_required, logout_user
+from flask.ext.login import current_user
 import datetime as dt
 from annuaire_anciens.helper.security import generate_signed_string_from_mail_and_date
-import json
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "inscription"
+
 DATETIME_FORMAT = "%Y%m%d%H%M"
-
-@login_manager.user_loader
-def load_user(user_id):
-    return user.find_user_by_id(user_id)
 
 
 @app.route('/')
 @app.route('/search')
 @app.route('/ancien')
+@app.route('/register')
 def root():
     return render_template('index.html')
 
 @app.route('/ancien/<int:id>')
 def root_with_id(id):
     return render_template('index.html')
+
+
+
 
 # API READY
 @app.route('/register', methods=['POST'])

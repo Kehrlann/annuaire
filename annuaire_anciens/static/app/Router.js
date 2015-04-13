@@ -16,68 +16,161 @@ var RegisterView    = require('./views/register.jsx'),
     SearchView      = require('./views/search/search.jsx'),
     AncienView      = require('./views/ancien/ancien.jsx');
 
-var appGlobals      = require('./AppGlobals.js');
-var cookie          = require('./cookies.js');
+var appGlobals      = require('./helpers/AppGlobals.js');
+var cookie          = require('./helpers/cookies.js');
 var Q               = require('q');
+var queryString     = require('./helpers/queryString');
 
+
+var _requireLogin   =   function ()
+                        {
+                            if(!cookie.isLogged())
+                            {
+                                Backbone.history.navigate("/register", {trigger:true});
+                                return false;
+                            }
+
+                            return true;
+                        };
+
+var _getCookie      =   function()
+                        {
+                            var deferred = Q.defer();
+
+                            // Get session cookie
+                            Q       (   $.ajax
+                                        (
+                                            {
+                                                method: "GET",
+                                                url:    appGlobals.url.whoami
+                                            }
+                                        )
+                                    )
+                            .then   (   function(data)
+                                        {
+                                            var ancien = eval("("+data+")");
+
+                                            if(ancien && ancien.id_ancien)
+                                            {
+                                                cookie.setIdAncien(ancien.id_ancien);
+                                            }
+                                            else
+                                            {
+                                                cookie.removeIdAncien();
+                                            }
+                                            deferred.resolve();
+                                        }
+                                    )
+                            .catch  (   function(error)
+                                        {
+                                            if(error.status == 401)
+                                            {
+                                                cookie.removeIdAncien();
+                                                Backbone.history.navigate("/register", {trigger:true});
+                                                deferred.resolve();
+                                            }
+                                            else
+                                            {
+                                                // TODO : what do ???
+                                                deferred.reject(error);
+                                            }
+                                        }
+                                    );
+
+                            return deferred.promise;
+                        };
 
 var Router = Backbone.Router.extend({
 
     routes: {
-        "search/:term": "search",
-        "search": "search",
-        "ancien/:id": "ancien",
-        "me": "me",
-        "*actions": "defaultRoute"
+        "search/*qs":       "search",
+        "search":           "search",
+        "ancien/:id":       "ancien",
+        "register":         "register",
+        "login":            "login",
+        "logout":           "logout",
+        "*actions":         "defaultRoute"
     },
 
     initialize: function() {
 
-        // Finally, start up the history
-        // WARNING: this should always be done at the END as it launches the routes, which may need the initialized objects
-        Backbone.history.start({
-            pushState: true
-        });
+        Q.when  (_getCookie())
+        .then   (   function()
+                    {
+                        // Finally, start up the history
+                        // WARNING: this should always be done at the END as it launches the routes, which may need the initialized objects
+                        Backbone.history.start({
+                            pushState: true
+                        });
 
-        React.render(
-          <NavbarView />,
-          document.getElementById('js-navbar')
-        );
+                        React.render(
+                          <NavbarView />,
+                          document.getElementById('js-navbar')
+                        );
+                    }
+                );
+
     },
 
     defaultRoute: function(path) {
-        $.ajax(
-            {
-                method: "GET",
-                url: appGlobals.url.logged,
-                success: function (data) {
-                    var results = eval("(" + data + ")");
-                    if(results.logged){
-                        Backbone.history.navigate("/search", {trigger:true});
-                    } else {
-                        React.render(
-                            <RegisterView />,
-                            document.getElementById('js-main')
-                        );
-                    }
-                }
-            }
-        );
+        Backbone.history.navigate("/search", {trigger:true});
     },
 
 
     /********************************************************************
+     *                                                                  *
+     * Register                                                         *
+     *                                                                  *
+     ********************************************************************/
+    register: function(){
+        React.render    (   <RegisterView />,
+                            document.getElementById('js-main')
+                        );
+    },
+
+    /********************************************************************
+     *                                                                  *
+     * Log-in                                                           *
+     *                                                                  *
+     ********************************************************************/
+    login: function(){
+        Q.when  (_getCookie())
+        .then   (   function()
+                    {
+                        Backbone.history.navigate("/search", {trigger:true});
+                    }
+                );
+    },
+
+    /********************************************************************
+     *                                                                  *
+     * Log-in                                                           *
+     *                                                                  *
+     ********************************************************************/
+    logout: function(){
+        cookie.removeIdAncien();
+        Backbone.history.navigate("/register", {trigger:true});
+    },
+
+    /********************************************************************
      * Search dans l'annuaire                                           *
      *                                                                  *
-     * @param term      (opt)   Recherche à effectuer immédiatement     *
+     * @param qs     (opt)      Recherche à effectuer immédiatement     *
      *                          lors du chargement de la page de        *
-     *                          recherche.                              *
+     *                          recherche, sous forme de queryString.   *
+     *                                                                  *
      ********************************************************************/
-    search: function(term){
-        React.render(
-          <SearchView q={term} />,
-          document.getElementById('js-main')
-        );
+    search: function(qs){
+        if(_requireLogin())
+        {
+            var query = queryString(qs);
+            console.log(query);
+            console.log(qs);
+            React.render(
+              <SearchView query={query.q} page={query.p} />,
+              document.getElementById('js-main')
+            );
+        }
     },
 
 
@@ -88,61 +181,30 @@ var Router = Backbone.Router.extend({
      * @param id      (obl)     Id de l'ancien à afficher (int)         *
      ********************************************************************/
     ancien: function(id){
-        $.ajax
-        (
-            {
-                method:"GET",
-                url:appGlobals.url.ancien_complet(id),
-                success:    function(data)
-                            {
-                                var ancien = eval("("+data+")");
-                                React.render(
-                                    <AncienView ancien={ancien} canEdit={true} />,
-                                    document.getElementById('js-main')
-                                );
-                            }
-                ,
-                error:      function(data)
-                            {
-                                Backbone.history.navigate("/search", { trigger : true });
-                            }
-            }
-        );
-    },
+        if(_requireLogin())
+        {
+            $.ajax
+            (
+                {
+                    method:"GET",
+                    url:appGlobals.url.ancien_complet(id),
+                    success:    function(data)
+                                {
+                                    var ancien = eval("("+data+")");
+                                    React.render(
+                                        <AncienView ancien={ancien} canEdit={true} />,
+                                        document.getElementById('js-main')
+                                    );
+                                }
+                    ,
+                    error:      function(data)
+                                {
+                                    Backbone.history.navigate("/search", { trigger : true });
+                                }
+                }
+            );
+        }
 
-
-    /********************************************************************
-     * Récupération de mes infos puis affichage de mon profil.          *
-     ********************************************************************/
-    me: function() {
-        $.ajax
-        (
-            {
-                method:"GET",
-                url:appGlobals.url.whoami,
-                success:    function(data)
-                            {
-                                // TODO
-                                // TODO
-                                // TODO
-                                // TODO
-                                // TODO
-                                // TODO
-                                // TODO
-                                // TODO
-                                // TODO
-                                // TODO
-                                // Créer mon compte ...
-                                var ancien = eval("("+data+")");
-                                Backbone.history.navigate("/ancien/"+ancien.id_ancien, {trigger:true});
-                            }
-                ,
-                error:      function(data)
-                            {
-                                Backbone.history.navigate("/search");
-                            }
-            }
-        );
     }
 
 });
@@ -172,12 +234,12 @@ $(document).ready(function(){
             // Render title, if any
             var $title = $tip.find('.popover-title');
             if (title) {
-                React.renderComponent(title, $title[0]);
+                React.render(title, $title[0]);
             } else {
                 $title.hide();
             }
 
-            React.renderComponent(
+            React.render(
                 content,
                 $tip.find('.popover-content')[0]
             );

@@ -18,7 +18,8 @@ module.exports =    {   url:    {   autocomplete:   {   fulltext:  '/api/v1/auto
                                                                                 add:            "/api/v1/me/experience",
                                                                                 remove:         _getUpdateDeleteExp,
                                                                                 fetch:          _getUpdateDeleteExp
-                                                                        }
+                                                                        },
+                                                        toggleVisible:  "/api/v1/me/toggleActif"
                                                     },
                                     logged:         '/api/v1/logged',
                                     login:          '/api/v1/login',

@@ -1,8 +1,17 @@
 # coding=utf-8
 from annuaire_anciens import app, user, helper, SUCCESS, FAILURE
 from flask import request, abort
-from flask.ext.login import current_user, login_user, login_required, logout_user
+from flask.ext.login import current_user, login_user, login_required, logout_user, LoginManager
 import json
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+#login_manager.login_view = "inscription"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return user.find_user_by_id(user_id)
 
 @app.route('/api/v1/logged', methods=['GET'])
 def logged():
@@ -47,3 +56,8 @@ def logout():
     app.logger.info("LOGOUT - user [%s : %s]", current_user.id, current_user.mail)
     logout_user()
     return json.dumps(SUCCESS)
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    abort(401, "Vous n'etes pas authentifie et n'avez pas acces a cette page ...")

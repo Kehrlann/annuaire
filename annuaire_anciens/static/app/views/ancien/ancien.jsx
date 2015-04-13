@@ -4,7 +4,7 @@
 var AncienInfo  = require('./ancienInfo.jsx');
 var AncienAdmin = require('./ancienAdmin.jsx');
 var Experience  = require('./ancienExperience.jsx');
-var appGlobals  = require('../../AppGlobals.js');
+var appGlobals  = require('../../helpers/AppGlobals.js');
 var Q           = require('q');
 
 module.exports = React.createClass({
@@ -23,40 +23,6 @@ module.exports = React.createClass({
 
     /********************************************************
      *                                                      *
-     *  Passer une certaine expérience à "primaire", en     *
-     *  passant toutes les autres à "secondaire", puis      *
-     *  re-render.                                          *
-     *                                                      *
-     ********************************************************/
-    setPrimaire: function(id_experience){
-        var ctrl = this;
-        Q       (   $.ajax
-                    (
-                        {
-                            method:     "PUT",
-                            url:        appGlobals.url.user.experience.setPrimaire(id_experience)
-                        }
-                    )
-                )
-        .then   (   function(data)
-                    {
-                        ctrl.state.ancien.experiences.forEach   (   function(value)
-                                                                    {
-                                                                        value.actif = value.id_experience == id_experience;
-                                                                    }
-                                                                );
-                        ctrl.setState({ancien: ctrl.state.ancien});
-                    }
-                )
-        .catch  (   function(err)
-                    {
-                        // TODO : what do ???
-                    }
-                );
-    },
-
-    /********************************************************
-     *                                                      *
      *  Comme l'ancien est passé dans le state depuis les   *
      *  props, il faut écouter le changement de props pour  *
      *  mettre le state à jour.                             *
@@ -71,41 +37,6 @@ module.exports = React.createClass({
         {
             this.setState({ ancien : nextProps.ancien });
         }
-    },
-
-
-    /********************************************************
-     *                                                      *
-     *  Supprimer une expérience (duh)                      *
-     *                                                      *
-     ********************************************************/
-    deleteExperience:function(id_experience)
-    {
-        var ctrl = this;
-        Q       (   $.ajax
-                    (
-                        {
-                            method:     "DELETE",
-                            url:        appGlobals.url.user.experience.remove(id_experience)
-                        }
-                    )
-                )
-        .then   (   function(data)
-                    {
-                        ctrl.state.ancien.experiences = ctrl.state.ancien.experiences.filter(
-                                                            function(value)
-                                                            {
-                                                                return value.id_experience != id_experience;
-                                                            }
-                                                        );
-                        ctrl.setState({ancien: ctrl.state.ancien});
-                    }
-                )
-        .catch  (   function(err)
-                    {
-                        // TODO : what do ???
-                    }
-                );
     },
 
     /********************************************************
@@ -157,6 +88,114 @@ module.exports = React.createClass({
         this.state.ancien.experiences = this.state.ancien.experiences.sort(sortExperiences);
         this.setState({ancien : this.state.ancien});
     },
+
+    /********************************************************
+     *                                                      *
+     *  Supprimer une expérience (duh)                      *
+     *                                                      *
+     ********************************************************/
+    deleteExperience:function(id_experience)
+    {
+        var ctrl = this;
+        Q       (   $.ajax
+                    (
+                        {
+                            method:     "DELETE",
+                            url:        appGlobals.url.user.experience.remove(id_experience)
+                        }
+                    )
+                )
+        .then   (   function(data)
+                    {
+                        ctrl.state.ancien.experiences = ctrl.state.ancien.experiences.filter(
+                                                            function(value)
+                                                            {
+                                                                return value.id_experience != id_experience;
+                                                            }
+                                                        );
+                        ctrl.setState({ancien: ctrl.state.ancien});
+                    }
+                )
+        .catch  (   function(err)
+                    {
+                        // TODO : what do ???
+                    }
+                );
+    },
+
+    /********************************************************
+     *                                                      *
+     *  Passer une certaine expérience à "primaire", en     *
+     *  passant toutes les autres à "secondaire", puis      *
+     *  re-render.                                          *
+     *                                                      *
+     ********************************************************/
+    setPrimaire: function(id_experience){
+        var ctrl = this;
+        Q       (   $.ajax
+                    (
+                        {
+                            method:     "PUT",
+                            url:        appGlobals.url.user.experience.setPrimaire(id_experience)
+                        }
+                    )
+                )
+        .then   (   function(data)
+                    {
+                        ctrl.state.ancien.experiences.forEach   (   function(value)
+                                                                    {
+                                                                        value.actif = value.id_experience == id_experience;
+                                                                    }
+                                                                );
+                        ctrl.setState({ancien: ctrl.state.ancien});
+                    }
+                )
+        .catch  (   function(err)
+                    {
+                        // TODO : what do ???
+                    }
+                );
+    },
+
+    /********************************************************
+     *                                                      *
+     *  Passer ma fiche à visible ou invisble dans          *
+     *  l'annuaire.                                         *
+     *                                                      *
+     ********************************************************/
+    toggleVisible: function(){
+        var ctrl = this;
+        console.log("TOGGLE VISIBLE");
+        Q       (   $.ajax
+                    (
+                        {
+                            method:     "PUT",
+                            url:        appGlobals.url.user.toggleVisible
+                        }
+                    )
+                )
+        .then   (   function(data)
+                    {
+                        var resp = eval("("+data+")");
+                        console.log(resp);
+
+                        if(resp && resp.hasOwnProperty("actif"))
+                        {
+                            ctrl.state.ancien.actif = resp.actif;
+                            ctrl.setState({ancien: ctrl.state.ancien});
+                        }
+                    }
+                )
+        .catch  (   function(err)
+                    {
+                        // TODO : what do ???
+                    }
+                );
+    },
+
+
+
+
     render:function()
     {
         if(this.state.ancien == null)
@@ -179,8 +218,10 @@ module.exports = React.createClass({
             return  <div className="container" id="ancien-container">
                         <div className="row">
                             <div className="col-lg-10 col-lg-offset-1">
-                                <AncienAdmin    ancien={this.state.ancien}
-                                                addExperience={this.addExperience}
+                                <AncienAdmin    ancien          =   {this.state.ancien}
+                                                addExperience   =   {this.addExperience}
+                                                visible         =   {this.state.ancien.actif}
+                                                toggleVisible   =   {this.toggleVisible}
                                 />
                                 <AncienInfo     ancien={this.state.ancien} />
                                 {experiences}

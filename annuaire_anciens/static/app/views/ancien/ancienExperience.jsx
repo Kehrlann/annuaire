@@ -3,7 +3,7 @@
  */
 var ExperienceDescriptor = require('./ancienExperienceDescriptor.jsx');
 var ExperienceForm = require('./ancienExperienceForm.jsx');
-var appGlobals = require('../../AppGlobals.js');
+var appGlobals = require('../../helpers/AppGlobals.js');
 var Q = require('q');
 
 module.exports = React.createClass({

@@ -2,8 +2,9 @@
  * @jsx React.DOM
  */
 
-var LoginView = require('./login.jsx');
-var appGlobals = require('../AppGlobals.js');
+var LoginView   =   require('./login.jsx');
+var appGlobals  =   require('../helpers/AppGlobals.js');
+var cookie      =   require('../helpers/cookies.js');
 
 module.exports = React.createClass({
 
@@ -31,7 +32,7 @@ module.exports = React.createClass({
     handleLogin: function (isLoggedIn) {
         console.log("Navbar caught login", isLoggedIn);
         this.setState({isUserConnected: isLoggedIn});
-        Backbone.history.navigate("/search", {trigger: true});
+        Backbone.history.navigate("/login", {trigger: true});
     },
     handleLogout: function(e){
         e.preventDefault();
@@ -41,14 +42,14 @@ module.exports = React.createClass({
                 url: appGlobals.url.logout,
                 success: function (data) {
                     this.setState( {isUserConnected: false});
-                    Backbone.history.navigate("/", {trigger: true});
+                    Backbone.history.navigate("/logout", {trigger: true});
                 }.bind(this)
             }
         );
     },
     clickMonCompte: function(e){
         e.preventDefault();
-        Backbone.history.navigate("/me", {trigger:true});
+        Backbone.history.navigate("/ancien/"+cookie.getIdAncien(), {trigger:true});
     },
     clickHome: function(e){
         e.preventDefault();

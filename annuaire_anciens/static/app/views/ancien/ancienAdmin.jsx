@@ -3,8 +3,9 @@
  */
 var ExperienceForm  = require('./ancienExperienceForm.jsx');
 var AdminMenu       = require('./ancienAdminMenu.jsx');
-var appGlobals      = require('../../AppGlobals.js');
+var appGlobals      = require('../../helpers/AppGlobals.js');
 var Q               = require('q');
+var pays            = require('../../data/pays.js');
 
 var views = {   menu :  "menu",
                 exp  :  "exp",
@@ -44,9 +45,16 @@ module.exports = React.createClass({
                 )
         .then   (   function(data)
                     {
-                        ctrl.setState({currentView: views.menu});
-                        //experience.extend({ "debut" : experience.date_debut, "fin" : experience.date_fin});
-                        ctrl.props.addExperience(experience);
+                        var exp = eval("("+data+")");
+                        if(exp && exp.id_experience)
+                        {
+                            var selected_pays = experience.pays ? pays.filter(function(p){ return p.value == experience.pays; })[0].name : null;
+                            ctrl.setState({currentView: views.menu});
+                            var new_exp = $.extend({}, experience, { debut : experience.date_debut, fin : experience.date_fin, id_experience : exp.id_experience, pays : selected_pays });
+                            console.log(new_exp);
+                            ctrl.props.addExperience(new_exp);
+                        }
+
                     }
                 )
         .catch  (   function(err)
@@ -71,6 +79,8 @@ module.exports = React.createClass({
                 break;
             default:
                 inner   =   <AdminMenu          addExperience       =   {this.gotoExperience}
+                                                visible             =   {this.props.ancien.actif}
+                                                toggleVisible       =   {this.props.toggleVisible}
                             />;
         }
 

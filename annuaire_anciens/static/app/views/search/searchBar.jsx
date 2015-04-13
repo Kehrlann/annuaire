@@ -1,7 +1,7 @@
 /**
  * @jsx React.DOM
  */
-var appGlobals = require('../../AppGlobals.js');
+var appGlobals = require('../../helpers/AppGlobals.js');
 
 module.exports = React.createClass({
         handleSubmit: function (e) {
@@ -28,7 +28,7 @@ module.exports = React.createClass({
         render: function () {
             return  <div className="main-search-field">
                         <form onSubmit={this.handleSubmit}>
-                            <input type="text" className="form-control input-lg" ref="searchBar" id="mainSearchBar" />
+                            <input type="text" className="form-control input-lg" ref="searchBar" id="mainSearchBar" defaultValue={this.props.value} />
                             <span className="glyphicon glyphicon-search"></span>
                         </form>
                     </div>;

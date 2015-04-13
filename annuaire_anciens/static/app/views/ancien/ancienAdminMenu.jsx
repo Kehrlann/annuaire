@@ -5,6 +5,24 @@
 module.exports = React.createClass({
     render:function()
     {
+        var visibleIcon;
+        var visibleText;
+        var visibleColor;
+
+        if(this.props.visible)
+        {
+            visibleIcon     =   "glyphicon glyphicon-eye-close";
+            visibleText     =   "Cacher ma fiche ancien dans l'annuaire";
+            visibleColor    =   "btn btn-danger";
+        }
+        else
+        {
+            visibleIcon     = "glyphicon glyphicon-eye-open";
+            visibleText     = "Rendre ma fiche ancien visible dans l'annuaire";
+            visibleColor    =   "btn btn-success";
+
+        }
+
         return  <div className="experience container">
                     <div className="row">
                         <div className="col-sm-1 custom-text-center-big-screen">
@@ -58,24 +76,15 @@ module.exports = React.createClass({
                     </div>
                     <div className="row admin-small-row" >
                         <div className="col-sm-1 custom-text-center-big-screen">
-                            <a className="btn btn-danger" type="button" >
-                                <i className="glyphicon glyphicon-eye-close"></i>
+                            <a className={visibleColor} type="button" onClick={this.props.toggleVisible} >
+                                <i className={visibleIcon}></i>
                             </a>
                         </div>
                         <div className="col-sm-11 admin-label">
-                            Cacher ma fiche ancien dans l'annuaire
+                            {visibleText}
                         </div>
                     </div>
-                    <div className="row admin-small-row" >
-                        <div className="col-sm-1 custom-text-center-big-screen">
-                            <a className="btn btn-success" type="button" >
-                                <i className="glyphicon glyphicon-eye-open"></i>
-                            </a>
-                        </div>
-                        <div className="col-sm-11 admin-label">
-                            Rendre ma fiche ancien visible dans l'annuaire
-                        </div>
-                    </div>
+
                 </div>;
     }
 });

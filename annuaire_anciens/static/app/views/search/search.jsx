@@ -4,16 +4,17 @@
 var SearchResultList = require('./searchResultList.jsx');
 var SearchBar = require('./searchBar.jsx');
 var Pagination = require('./pagination.jsx');
-var appGlobals = require('../../AppGlobals.js');
+var appGlobals = require('../../helpers/AppGlobals.js');
 
 
 module.exports = React.createClass({
 
     getInitialState: function () {
-        return {    query:  null,
-                    page:   1,
-                    max_page: 1,
-                    anciens: []
+        console.log("INITIAL STATE", this.props.query, this.props.page);
+        return {    query:      this.props.query ? decodeURIComponent(this.props.query) : null,
+                    page:       this.props.page ? parseInt(this.props.page) : null,
+                    max_page:   1,
+                    anciens:    []
                 }
     },
     handleAdvancedSearch: function (e) {
@@ -23,6 +24,16 @@ module.exports = React.createClass({
         this.searchFullText(this.state.query, p);
     },
     componentDidMount: function(){
+        if(this.state.query)
+        {
+            this.searchFullText(this.state.query, this.state.page ? this.state.page : 1);
+        }
+    },
+    componentWillReceiveProps:function(newProps){
+        if(newProps.query)
+        {
+            this.searchFullText(newProps.query, newProps.page ? parseInt(newProps.page) : 1);
+        }
     },
     searchFullText: function(query, page){
         this.state.query = query;
@@ -37,6 +48,7 @@ module.exports = React.createClass({
                             {
                                 var results = eval("(" + data + ")");
                                 this.setState( {anciens: results.data, query: query, page: page, max_page : results.max_pages});
+                                Backbone.history.navigate("/search?q="+encodeURIComponent(query)+"&p="+page);
                             }.bind(this)
             }
         );
@@ -46,7 +58,7 @@ module.exports = React.createClass({
             <div className="container">
                 <div className="row">
                     <div className="col-lg-10 col-lg-offset-1">
-                        <SearchBar handleSearch={this.searchFullText}/>
+                        <SearchBar handleSearch={this.searchFullText} value={this.state.query} />
                         <a href="#" onClick={this.handleAdvancedSearch} className="pull-right btn btn-link">Recherche avancée</a>
                     </div>
                 </div>

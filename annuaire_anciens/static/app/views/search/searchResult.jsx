@@ -41,7 +41,7 @@ module.exports = React.createClass({
             return result;
         },
         render:function(){
-            return  <a href={this.buildUrl()} target="_blank">
+            return  <a href={this.buildUrl()}>
                         <div className="row annuaire-row">
                             <div className="col-sm-3">{this.nom()}</div>
                             <div className="col-sm-4">{this.entreprise()}</div>

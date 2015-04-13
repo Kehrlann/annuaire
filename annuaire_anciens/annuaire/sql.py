@@ -913,8 +913,8 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 fin = date_fin,
                 id_experience_linkedin = id_experience_linkedin
             )
-            engine.execute(ins)
-            print ins
+            res = engine.execute(ins)
+            return res.inserted_primary_key[0]
 
         success = update_ancien_date(id_ancien)
     return success

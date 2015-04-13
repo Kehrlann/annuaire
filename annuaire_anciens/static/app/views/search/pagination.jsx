@@ -78,8 +78,8 @@ module.exports = React.createClass({
             }
 
             if(current_page == max_page) {
-                pagination_blocks.push(<PaginationBlock disabled={true} text="&gt;&gt;" />);
                 pagination_blocks.push(<PaginationBlock disabled={true} text="&gt;" />);
+                pagination_blocks.push(<PaginationBlock disabled={true} text="&gt;&gt;" />);
             } else {
                 pagination_blocks.push(<PaginationBlock disabled={false} text="&gt;" page={current_page+1} handleClick={changePage} />);
                 pagination_blocks.push(<PaginationBlock disabled={false} text="&gt;&gt;" page={max_page} handleClick={changePage} />);

@@ -161,7 +161,7 @@ def ancien_by_id(id_ancien):
         abort(403, "Ton profil a été bloqué par un administrateur ...")
 
     else:
-        excluded_columns = ["id_linkedin", "actif", "bloque", "nouveau", "fulltext"]
+        excluded_columns = ["id_linkedin", "bloque", "nouveau", "fulltext"]
         ancien_dict = helper.row_to_json(ancien, excluded_columns)
 
         if request.args.get("complet", None) is not None:

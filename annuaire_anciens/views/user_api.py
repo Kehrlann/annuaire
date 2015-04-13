@@ -3,7 +3,7 @@
     API relatives à l'utilsateur et à la gestion de son compte.
 """
 from flask import request, session, abort
-from flask.ext.login import current_user, login_required, login_user
+from flask.ext.login import current_user, login_required
 import json
 
 from annuaire_anciens import app, annuaire, user, SUCCESS, FAILURE, PAYS, helper
@@ -310,6 +310,30 @@ def delete_experience_api(id_experience):
     annuaire.remove_experience(ancien['id_ancien'], id_experience)
 
     return json.dumps(SUCCESS)
+
+
+@app.route('/api/v1/me/toggleActif', methods=['PUT'])
+@login_required
+def update_actif():
+    """
+    Toggle l'état d'une fiche ancien : actif, inactif
+
+    :return:
+    """
+    ancien      =   _get_valid_ancien()
+
+    if ancien is not None:
+        annuaire.update_actif(ancien['id_ancien'], not ancien['actif'])
+        app.logger.info(
+            "ANCIEN - successfully updated ancien :%s, set actif : %s, user : %s",
+            ancien['id_ancien'],
+            not ancien['actif'],
+            current_user.id)
+
+        return json.dumps({ "actif" : not ancien["actif"] })
+
+
+    abort(500, "Oops ! Erreur interne, vous ne devriez pas arriver ici ...")
 
 def _get_valid_ancien():
     """
