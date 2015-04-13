@@ -1,9 +1,9 @@
 # coding=utf-8
 """
-Module de sécurité.
-Pour l'instant, permet de contrer les cross-site request forgery (CSRF) en créant un token unique à chaque requête.
-
-CSRF : https://en.wikipedia.org/wiki/Cross-site_request_forgery
+TODO : comment
+TODO : comment
+TODO : comment
+TODO : comment
 """
 from annuaire_anciens import app
 from uuid import uuid4
@@ -13,16 +13,7 @@ from flask import request
 from flask import session, abort
 from flask.ext.login import current_user
 
-
-_exempt_views       =   []
 _admin_views        =   []
-
-def csrf_exempt(view):
-    """
-    Décorateur à appliquer pour se débarasser des protections CSRF
-    """
-    _exempt_views.append(view)
-    return view
 
 def admin_required(view):
     """
@@ -47,23 +38,6 @@ def filter_admins():
             abort(401)
         elif not current_user.admin:
             abort(403)
-
-@app.before_request
-def csrf_protect():
-    """
-    Pre-process les requêtes POST. On récupère la valeur de _csrf_token et on la compare à la valeur stockée dans
-    la session.
-
-    @raise: abort(403) unauthorized si on détecte une csrf
-    :return: None if okay
-    """
-    destination_view = app.view_functions.get(request.endpoint)
-    exempt = destination_view in _exempt_views
-    if request.method == "POST" and not exempt:
-        token = session.pop('_csrf_token', None)
-        if not token or token != request.form.get('_csrf_token'):
-            abort(403)
-
 
 def generate_signed_string_from_mail(mail):
     """

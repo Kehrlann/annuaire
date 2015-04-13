@@ -1,3 +1,5 @@
+var _getUpdateDeleteExp = function(id)    { return "/api/v1/me/experience/" + id; };
+
 module.exports =    {   url:    {   autocomplete:   {   fulltext:  '/api/v1/autocomplete/fulltext'
                                                     },
                                     search:         {   fulltext:   '/api/v1/ancien'
@@ -12,7 +14,10 @@ module.exports =    {   url:    {   autocomplete:   {   fulltext:  '/api/v1/auto
                                                             return "/static/img/no_photo.jpg";
                                                     },
                                     user:           {   experience:     {       setPrimaire:    function(id)    { return "/api/v1/me/experience/" + id + "/set_default"; },
-                                                                                update:         function(id)    { return "/api/v1/me/experience/" + id; }
+                                                                                update:         _getUpdateDeleteExp,
+                                                                                add:            "/api/v1/me/experience",
+                                                                                remove:         _getUpdateDeleteExp,
+                                                                                fetch:          _getUpdateDeleteExp
                                                                         }
                                                     },
                                     logged:         '/api/v1/logged',

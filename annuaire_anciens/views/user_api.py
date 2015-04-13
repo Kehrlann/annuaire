@@ -123,70 +123,6 @@ def update_adresse_api():
     return json.dumps({"success":succes})
 
 
-
-@app.route("/api/v1/me/experience", methods=["POST"])
-@login_required
-def add_experience_api():
-    """
-    Ajouter une expérience à un ancien.
-
-    Input (JSON) :
-    {
-        "id_experience"     :   int             ,
-        "ville"             :   str             ,
-        "id_pays"           :   int             ,
-        "adresse"           :   str             ,
-        "code"              :   str             ,
-        "entreprise"        :   str             ,
-        "poste"             :   str             ,
-        "description"       :   str             ,
-        "mail"              :   str             ,
-        "site"              :   str             ,
-        "telephone"         :   str             ,
-        "mobile"            :   str             ,
-        "date_debut"        :   date (MM/yyyy)  ,
-        "date_fin"          :   date (MM/yyyy)
-    }
-
-    :return:
-    """
-    ancien  =   _get_valid_ancien()
-    data    =   _get_valid_data()
-
-    abort(501, "Not implemented (yet) !")
-
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # TODO
-    # succes  =   annuaire.update_experience(
-    #     id_ancien,
-    #     id_experience,
-    #     ville,
-    #     id_pays,
-    #     adresse,
-    #     code,
-    #     entreprise,
-    #     poste,
-    #     description,
-    #     mail,
-    #     site,
-    #     telephone,
-    #     mobile,
-    #     date_debut,
-    #     date_fin=None,
-    # )
-
-
 @app.route("/api/v1/me/experience/<int:id_experience>", methods=["GET"])
 @login_required
 def get_experience_api(id_experience):
@@ -275,6 +211,59 @@ def update_experience_api(id_experience):
     abort(500, "Oops ! Erreur interne, vous ne devriez pas arriver ici ...")
 
 
+
+@app.route("/api/v1/me/experience", methods=["POST"])
+@login_required
+def add_experience_api():
+    """
+    Ajouter une expérience
+
+    :return:
+    """
+    ancien      =   _get_valid_ancien()
+    experience  =   None
+
+    experience_form = user.update_experience_form.from_json(request.json)
+
+    experience_form.set_pays(PAYS)
+    form_confirmed = experience_form.validate()
+
+    if not form_confirmed:
+        print experience_form.errors
+        raise FormErrorCustom("Erreur de saisie", experience_form.errors)
+
+    else:
+        try:
+            date_debut = datetime.strptime(experience_form.date_debut.data, '%m/%Y')
+        except ValueError:
+            date_debut = None
+        try:
+            date_fin = datetime.strptime(experience_form.date_fin.data, '%m/%Y')
+        except ValueError:
+            date_fin = None
+
+        id_exp = annuaire.insert_experience(
+            current_user.id_ancien,
+            experience_form.ville.data,
+            experience_form.pays.data,
+            experience_form.adresse.data,
+            experience_form.code.data,
+            experience_form.entreprise.data,
+            experience_form.poste.data,
+            experience_form.description.data,
+            experience_form.mail.data,
+            experience_form.site.data,
+            experience_form.telephone.data,
+            experience_form.mobile.data,
+            date_debut,
+            date_fin
+        )
+        if id_exp:
+            return json.dumps({ "id_experience" : id_exp })
+
+    abort(500, "Oops ! Erreur interne, vous ne devriez pas arriver ici ...")
+
+
 @app.route("/api/v1/me/experience/<int:id_experience>/set_default", methods=["PUT"])
 @login_required
 def experience_set_default_api(id_experience):
@@ -307,8 +296,20 @@ def delete_experience_api(id_experience):
     :param id_experience:
     :return:
     """
-    abort(501, "Not implemented (yet) !")
+    ancien      =   _get_valid_ancien()
+    experience  =   None
+    # Verifier que l'ancien a bien le droit de modifier cette expérience
+    try:
+        experience = annuaire.find_experience_by_id_ancien_id_experience(ancien["id_ancien"], id_experience)
+    except:
+        abort(500)
 
+    if experience is None:
+        abort(403, "Vous ne pouvez modifier QUE les infos liees a votre propre compte")
+
+    annuaire.remove_experience(ancien['id_ancien'], id_experience)
+
+    return json.dumps(SUCCESS)
 
 def _get_valid_ancien():
     """

@@ -14,7 +14,6 @@ var formatInputAndErrors    =   function(input, errors)
                                     {
                                         inputAndErrors.push(<ul className="help-block">{errors.map(_formatError)}</ul>);
                                     }
-                                    console.log(inputAndErrors);
                                     return inputAndErrors;
                                 };
 

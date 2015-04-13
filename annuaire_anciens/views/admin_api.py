@@ -4,7 +4,7 @@
 """
 
 from flask import abort, request
-from annuaire_anciens.helper.security import admin_required, csrf_exempt
+from annuaire_anciens.helper.security import admin_required
 import json
 from annuaire_anciens import app, annuaire, helper, user
 

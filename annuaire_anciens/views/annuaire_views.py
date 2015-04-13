@@ -5,12 +5,10 @@
 
 from annuaire_anciens import app, annuaire, ECOLES, PAYS
 from flask import render_template
-from annuaire_anciens.helper.security import csrf_exempt
 from flask.ext.login import login_required
 
 
 @app.route('/annuaire', methods=['GET'])
-@csrf_exempt
 @login_required
 def annuaire_view():
     """

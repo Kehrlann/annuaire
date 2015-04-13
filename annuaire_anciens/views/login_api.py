@@ -14,7 +14,6 @@ def logged():
     return json.dumps({ "logged" : current_user.is_authenticated()})
 
 
-@helper.csrf_exempt
 @app.route('/api/v1/login', methods=['POST'])
 def login():
     """

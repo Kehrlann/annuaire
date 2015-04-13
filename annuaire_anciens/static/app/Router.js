@@ -2,21 +2,23 @@
 // Globals
 //
 
-window.React = require('react');
-window.Backbone = require('backbone');
-window._ = require('underscore');
-window.$ = require('jquery');
-Backbone.$ = window.$;
+window.React        = require('react');
+window.Backbone     = require('backbone');
+window._            = require('underscore');
+window.$            = require('jquery');
+Backbone.$          = window.$;
 //
 // Dependencies
 //
 
-var RegisterView = require('./views/register.jsx'),
-    NavbarView = require('./views/navbar.jsx'),
-    SearchView = require('./views/search/search.jsx'),
-    AncienView = require('./views/ancien/ancien.jsx');
+var RegisterView    = require('./views/register.jsx'),
+    NavbarView      = require('./views/navbar.jsx'),
+    SearchView      = require('./views/search/search.jsx'),
+    AncienView      = require('./views/ancien/ancien.jsx');
 
-var appGlobals = require('./AppGlobals.js');
+var appGlobals      = require('./AppGlobals.js');
+var cookie          = require('./cookies.js');
+var Q               = require('q');
 
 
 var Router = Backbone.Router.extend({

@@ -897,7 +897,7 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 fin = date_fin
             )
             engine.execute(up)
-            inserted_id = id_experience
+
         else:
             ins = __experience.insert().values(
                 id_ancien = id_ancien,
@@ -914,9 +914,40 @@ def update_experience(id_ancien, id_experience, ville, id_pays, adresse, code,
                 id_experience_linkedin = id_experience_linkedin
             )
             engine.execute(ins)
+            print ins
 
         success = update_ancien_date(id_ancien)
     return success
+
+
+def insert_experience(id_ancien, ville, id_pays, adresse, code,
+                      entreprise, poste, description, mail, site, telephone, mobile,
+                      date_debut, date_fin=None, id_experience_linkedin=None):
+    """
+    Insérer une expérience pro
+
+    :param id_ancien:
+    :param ville:
+    :param id_pays:
+    :param adresse:
+    :param code:
+    :param entreprise:
+    :param poste:
+    :param description:
+    :param mail:
+    :param site:
+    :param telephone:
+    :param mobile:
+    :param date_debut:
+    :param date_fin:
+    :param id_experience_linkedin:
+    :return:
+    """
+
+    return update_experience    (   id_ancien, None, ville, id_pays, adresse, code,
+                                    entreprise, poste, description, mail, site, telephone, mobile,
+                                    date_debut, date_fin, None
+                                )
 
 
 def ancien_has_experience(id_ancien, id_experience):

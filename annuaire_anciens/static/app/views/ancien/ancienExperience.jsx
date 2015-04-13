@@ -14,18 +14,33 @@ module.exports = React.createClass({
     toggleEdit: function(){
         this.setState({ isEditing : !this.state.isEditing });
     },
-    refreshExperience: function(id_experience){
+
+    /********************************************************
+     *                                                      *
+     *  Récupérer une expérience depuis le serveur, afin de *
+     *  mettre à jour l'affichage.                          *
+     *                                                      *
+     ********************************************************/
+    loadExperienceFromServer: function(id_experience){
         return  Q   (   $.ajax
                         (
                             {
                                 method:     "GET",
-                                url:        appGlobals.url.user.experience.update(id_experience),
+                                url:        appGlobals.url.user.experience.fetch(id_experience),
                                 accept:     "application/json; charset=utf-8",
                                 contentType:"application/json; charset=utf-8"
                             }
                         )
                     );
     },
+
+
+    /********************************************************
+     *                                                      *
+     *  Mettre à jour une expérience, puis la reloader      *
+     *  depuis le serveur.                                  *
+     *                                                      *
+     ********************************************************/
     updateExperience: function(id_experience, experience) {
         var ctrl = this;
         Q       (  $.ajax
@@ -42,7 +57,7 @@ module.exports = React.createClass({
                 )
         .then   (   function(data)
                     {
-                        return ctrl.refreshExperience(id_experience);
+                        return ctrl.loadExperienceFromServer(id_experience);
                     }
                 )
         .then   (   function(data)
@@ -59,6 +74,23 @@ module.exports = React.createClass({
                     }
         );
     },
+
+
+    /********************************************************
+     *                                                      *
+     *  Supprimer une expérience (duh)                      *
+     *                                                      *
+     ********************************************************/
+    deleteExperience:function(id_experience)
+    {
+        this.props.deleteExperience(this.state.experience.id_experience);
+    },
+
+   /*********************************************************
+    *                                                       *
+    *  RENDER.                                              *
+    *                                                       *
+    *********************************************************/
     render:function(){
         var showElement;
         if (this.state.isEditing)
@@ -75,7 +107,7 @@ module.exports = React.createClass({
                                                     handleEdit          =   {this.toggleEdit}
                                                     isPrimaire          =   {this.props.isPrimaire}
                                                     setPrimaire         =   {this.props.setPrimaire}
-                                                    handleRemove        =   {this.props.deleteExperience}
+                                                    handleRemove        =   {this.deleteExperience}
                                                     canEdit             =   {this.props.canEdit}
                             />;
         }
