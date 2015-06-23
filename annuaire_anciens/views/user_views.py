@@ -184,11 +184,11 @@ def ancien(id_ancien):
                 linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
                                     "response_type=code&"
                                     "client_id=%s&"
-                                    "scope=%s"
+                                    "scope=r_basicprofile"
                                     "&state=%s"
                                     "&redirect_uri=%s" %
                                     (app.config['LINKEDIN_KEY'],
-                                     app.config['LINKEDIN_SCOPE'],
+                                     #app.config['LINKEDIN_SCOPE'],
                                      generate_csrf_token(),
                                      url_for('linkedin_associer', _external=True)))
 
@@ -196,13 +196,15 @@ def ancien(id_ancien):
             import_linkedin_url = ("https://www.linkedin.com/uas/oauth2/authorization?"
                                 "response_type=code&"
                                 "client_id=%s&"
-                                "scope=%s"
+                                "scope=r_basicprofile"
                                 "&state=%s"
                                 "&redirect_uri=%s" %
                                 (app.config['LINKEDIN_KEY'],
-                                 app.config['LINKEDIN_SCOPE'],
+                                 #app.config['LINKEDIN_SCOPE'],
                                  generate_csrf_token(),
                                  url_for('linkedin_importer', _external=True)))
+
+            print import_linkedin_url
 
 
 
