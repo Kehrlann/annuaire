@@ -8,3 +8,10 @@ test.py
 .idea
 node_modules
 *.dmp
+
+# Java stuff
+target
+annuaire.xls
+.idea
+*.iml
+*-local.yml
