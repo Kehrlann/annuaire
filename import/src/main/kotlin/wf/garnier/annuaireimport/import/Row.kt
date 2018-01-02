@@ -14,39 +14,16 @@ data class Row(
         val contactA: String,
         val contactB: String,
         val contactC: String,
-        val codePostal: String,
-        val pays: String,
-        val ville: String,
+        val codePostal_perso: String,
+        val pays_perso: String,
+        val ville_perso: String,
         val complement: String,
-        val entreprise1: String,
-        val fonction1: String,
-        val secteur1: String,
-        val titre1: String,
-        val pays1: String,
-        val ville1: String,
+        val entreprise: String,
+        val fonction: String,
+        val secteur: String,
+        val poste: String,
+        val pays_pro: String,
+        val ville_pro: String,
         val autreDip: String,
         val maj: String
-        )
-
-
-//Diplôme 1
-//Promo 1
-//Année diplôme 1
-//Centre de recherche 1
-//Diplôme 2
-//Promo 2
-//Adresse contact A
-//Adresse contact B
-//Adresse contact C
-//Code postal contact
-//Pays contact
-//Ville contact
-//Complément contact
-//Entreprise 1
-//Fonction 1
-//Secteur d'activité 1
-//Titre 1
-//Pays pro 1
-//Ville pro 1
-//Autres diplômes
-//Date de mise à jour
+)

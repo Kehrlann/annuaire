@@ -16,7 +16,7 @@ class Importer(val path: String) {
         val wbook = HSSFWorkbook(poifsFileSystem)
 
         val mainSheet = wbook.getSheetAt(0)
-        val rowNum = mainSheet.lastRowNum
+        val rowNum = 13103
         logger.info("XLS has $rowNum rows")
 
         return (1..rowNum).map {
@@ -54,16 +54,16 @@ class Importer(val path: String) {
                     contactA = cellValues[10],
                     contactB = cellValues[11],
                     contactC = cellValues[12],
-                    codePostal = cellValues[13],
-                    pays = cellValues[14],
-                    ville = cellValues[15],
+                    codePostal_perso = cellValues[13],
+                    pays_perso = cellValues[14],
+                    ville_perso = cellValues[15],
                     complement = cellValues[16],
-                    entreprise1 = cellValues[17],
-                    fonction1 = cellValues[18],
-                    secteur1 = cellValues[19],
-                    titre1 = cellValues[20],
-                    pays1 = cellValues[21],
-                    ville1 = cellValues[22],
+                    entreprise = cellValues[17],
+                    fonction = cellValues[18],
+                    secteur = cellValues[19],
+                    poste = cellValues[20],
+                    pays_pro = cellValues[21],
+                    ville_pro = cellValues[22],
                     autreDip = cellValues[23],
                     maj = cellValues[24]
             )
