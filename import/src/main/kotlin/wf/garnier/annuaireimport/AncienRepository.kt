@@ -10,7 +10,7 @@ interface AncienRepository : CrudRepository<Ancien, Int> {
     @Modifying
     @Transactional
     @Query(
-        "delete from asso_ancien_adresse; delete from experience; delete from adresse; delete from ville; delete from pays; delete from ancien; ",
+        "delete from asso_ancien_adresse; delete from experience; delete from entreprise; delete from adresse; delete from ville; delete from pays; delete from ancien; ",
         nativeQuery = true
     )
     fun purge()

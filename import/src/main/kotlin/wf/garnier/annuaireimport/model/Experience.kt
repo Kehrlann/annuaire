@@ -11,11 +11,11 @@ data class Experience(
         val id_experience: Int = 0,
 
         @ManyToOne(cascade = [CascadeType.ALL], optional = true)
-        @JoinColumn(name = "id_adresse", referencedColumnName = "id_adresse", nullable = false)
+        @JoinColumn(name = "id_adresse", referencedColumnName = "id_adresse", nullable = true)
         val adresse: Adresse? = null,
 
         @ManyToOne(cascade = [CascadeType.ALL], optional = true)
-        @JoinColumn(name="id_entreprise")
+        @JoinColumn(name="id_entreprise", referencedColumnName = "id_entreprise", nullable = true)
         val entreprise: Entreprise? = null,
 
         @Temporal(TemporalType.DATE) val debut: Date? = null,

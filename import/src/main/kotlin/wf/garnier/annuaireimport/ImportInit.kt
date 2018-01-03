@@ -37,7 +37,9 @@ class ImportInit(val repo: AncienRepository) : CommandLineRunner {
     }
 
     private fun saveAllAnciens(rows: Collection<Row>, villes: Map<String, Ville>, entreprises: Map<String, Entreprise>) {
+        logger.info("Purging.")
         repo.purge()
+        logger.info("Purged.")
 
         val anciens = rows.map {
 
@@ -56,7 +58,7 @@ class ImportInit(val repo: AncienRepository) : CommandLineRunner {
                 if (it.entreprise.isNotBlank())
                     listOf(
                         Experience(
-                            entreprise = entreprises[it.entreprise.toLowerCase()],
+                            entreprise = entreprises[it.entreprise.toUpperCase()],
                             poste = it.poste,
                             adresse =
                             if (it.ville_pro.isNotBlank() && it.pays_pro.isNotBlank())
@@ -80,7 +82,10 @@ class ImportInit(val repo: AncienRepository) : CommandLineRunner {
                 adresses = adressePerso
             )
         }
+        logger.info("Saving ...")
         repo.save(anciens)
+        logger.info("Saved.")
+
     }
 
     private fun getAllPays(rows: Collection<Row>) =
@@ -107,7 +112,8 @@ class ImportInit(val repo: AncienRepository) : CommandLineRunner {
 
     private fun getAllEntreprise(rows: Collection<Row>) =
         rows
-            .map { it.entreprise.toUpperCase() }
+            .map { it.entreprise }
             .filter { it.isNotBlank() }
+            .distinct()
             .associate { it.toUpperCase() to Entreprise(nom = it) }
 }
