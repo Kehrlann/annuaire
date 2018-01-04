@@ -2,7 +2,7 @@ FROM debian:jessie
 
 # 1. Install dependencies
 RUN apt update
-RUN apt install -y libxml2 python git python-pip libxslt-dev python-dev zlib1g-dev libpq-dev nginx uwsgi uwsgi-plugin-python postgresql python-virtualenv
+RUN apt install -y libxml2 python git python-pip libxslt-dev python-dev zlib1g-dev libpq-dev nginx uwsgi uwsgi-plugin-python python-virtualenv
 
 # 2. Setup the runtime for the app
 # 2.1. Create user and directories
@@ -29,13 +29,6 @@ USER root:root
 WORKDIR /
 RUN chown annuaire:annuaire /home/annuaire
 RUN chmod +x /home/annuaire/start_app.sh
-
-# 3. set up the database
-# Create a DB for user "annuaire"
-ADD create_db.sql /create_db.sql
-RUN service postgresql start \
-    && su postgres -c "psql -U postgres -f /create_db.sql"
-
 
 # 4. Custom entrypoint
 COPY entrypoint.sh /usr/local/bin/
