@@ -31,7 +31,7 @@ data class Ancien(
         @Basic @Temporal(TemporalType.DATE) val date_update: Date = Date.from(LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC)), // date
         @Transient val fulltext: String = "", // tsvector
         val nouveau: Boolean = false,
-        val actif: Boolean = false,
+        val actif: Boolean = true,
         val bloque: Boolean = false,
 
         @OneToMany(cascade = [CascadeType.ALL])

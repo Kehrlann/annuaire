@@ -84,8 +84,15 @@ class ImportInit(val repo: AncienRepository) : CommandLineRunner {
         }
         logger.info("Saving ...")
         repo.save(anciens)
-        logger.info("Saved.")
 
+        logger.info("Updating slugs ...")
+        repo.updateSlugs()
+
+        logger.info("Index all search terms...")
+        repo.indexWords()
+
+        logger.info("Updating fulltext search capabilities...")
+        repo.indexAnciens()
     }
 
     private fun getAllPays(rows: Collection<Row>) =

@@ -22,7 +22,7 @@ $$ LANGUAGE plpgsql;
 -- va chercher son nom, prenom, ecole, promo, ville, pays et entreprises
 -- et update la table mot en le specifiant
 CREATE OR REPLACE FUNCTION
-    index_all_words() RETURNS VOID
+    index_all_words() RETURNS INT 
 AS $$
     DECLARE 
         ancien_record RECORD;
@@ -138,6 +138,6 @@ AS $$
 		END LOOP;
 		RAISE NOTICE 'Insertion des pays ... done';
 		
-		
+    RETURN 0;		
     END;
 $$ LANGUAGE plpgsql;

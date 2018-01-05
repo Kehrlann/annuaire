@@ -72,7 +72,7 @@ $$ LANGUAGE plpgsql;
 
 -- Methode pour créer les tsvectors pour tous les anciens
 CREATE OR REPLACE FUNCTION
-    index_all_anciens() RETURNS VOID
+    index_all_anciens() RETURNS INT
 AS $$
 	DECLARE
 		id INTEGER;
@@ -87,5 +87,6 @@ AS $$
 			-- Mise à jour fulltext
 			UPDATE ancien SET fulltext = create_tsvector_by_id_ancien(id) WHERE id_ancien = id;
         END LOOP;
+    RETURN 0;
     END;
 $$ LANGUAGE plpgsql;
