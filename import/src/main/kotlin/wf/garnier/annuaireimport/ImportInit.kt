@@ -76,7 +76,7 @@ class ImportInit(val repo: AncienRepository) : CommandLineRunner {
                 nom_slug = "",
                 prenom = it.prenom,
                 prenom_slug = "",
-                promo = it.annee1.toShort(),
+                promo = it.promo1.toShort(),
                 diplome = it.diplome1,
                 experiences = experience,
                 adresses = adressePerso

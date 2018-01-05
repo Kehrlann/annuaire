@@ -218,7 +218,7 @@ def ancien(id_ancien):
             adresse_form=adresse_form,
             experiences=experiences,
             utilisateur=current_user,
-            editable=is_this_me,
+            editable=False,
             experience_forms=experience_forms,
             new_experience_form = new_experience_form,
             linkedin_url = linkedin_url,

@@ -28,7 +28,8 @@ interface AncienRepository : CrudRepository<Ancien, Int> {
     @Query(
         "UPDATE ancien SET nom_slug=slugify(nom), prenom_slug=slugify(prenom); " +
             "UPDATE entreprise SET slug=slugify(nom); " +
-            "UPDATE ville SET slug=slugify(nom);",
+            "UPDATE ville SET slug=slugify(nom);" +
+            "UPDATE asso_ancien_adresse SET actif=true;",
         nativeQuery = true
     )
     fun updateSlugs()
