@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 
 # 1. Install dependencies
 RUN apt update
